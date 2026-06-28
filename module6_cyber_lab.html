@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberPath: Module 6 — Capstone</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+  :root{--bg:#0a0e1a;--panel:#111827;--panel2:#1a2235;--border:#1e2d45;--accent:#00d4ff;--accent2:#7c3aed;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--text:#e2e8f0;--muted:#64748b;--mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;display:flex;flex-direction:column;}
+  nav{background:var(--panel);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+  .nav-logo{font-family:var(--mono);font-weight:700;font-size:16px;color:var(--accent);}
+  .nav-logo span{color:var(--text);}
+  .nav-meta{display:flex;align-items:center;gap:20px;font-size:13px;color:var(--muted);}
+  .badge{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:11px;font-weight:700;padding:2px 10px;border-radius:99px;}
+  .progress-bar-wrap{width:120px;height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+  .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .5s ease;width:0%;}
+  .layout{display:grid;grid-template-columns:300px 1fr 260px;flex:1;overflow:hidden;height:calc(100vh - 56px);}
+  .sidebar{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+  .sidebar-section{padding:20px;border-bottom:1px solid var(--border);}
+  .sidebar-label{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
+  .scenario-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:8px;}
+  .scenario-text{font-size:13px;color:#94a3b8;line-height:1.6;}
+  .scenario-text strong{color:var(--text);}
+  .obj-list{list-style:none;}
+  .obj-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:13px;color:#94a3b8;border-bottom:1px solid var(--border);}
+  .obj-item:last-child{border-bottom:none;}
+  .obj-item.done{color:var(--green);}
+  .obj-check{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-size:11px;}
+  .obj-item.done .obj-check{background:var(--green);border-color:var(--green);color:#fff;}
+  /* skills tracker */
+  .skill-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px;}
+  .skill-icon{font-size:14px;width:20px;text-align:center;}
+  .skill-name{color:var(--muted);flex:1;}
+  .skill-name.unlocked{color:var(--text);}
+  .skill-check{font-size:11px;color:var(--green);}
+  .hint-btn{width:100%;background:transparent;border:1px solid var(--border);color:var(--yellow);font-family:var(--mono);font-size:12px;padding:8px 12px;border-radius:6px;cursor:pointer;text-align:left;}
+  .hint-btn:hover{background:rgba(245,158,11,.08);border-color:var(--yellow);}
+  .hint-text{margin-top:10px;font-size:12px;color:#fbbf24;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:6px;padding:10px;line-height:1.6;display:none;}
+  .hint-text.visible{display:block;}
+  .terminal-wrap{display:flex;flex-direction:column;overflow:hidden;}
+  .terminal-header{background:var(--panel2);border-bottom:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .terminal-dots{display:flex;gap:6px;}
+  .dot{width:12px;height:12px;border-radius:50%;}
+  .dot.red{background:#ff5f56}.dot.yellow{background:#ffbd2e}.dot.green{background:#27c93f}
+  .terminal-title{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:4px;}
+  .terminal-output{flex:1;overflow-y:auto;padding:18px 20px;font-family:var(--mono);font-size:13px;line-height:1.7;}
+  .terminal-output::-webkit-scrollbar{width:6px;}
+  .terminal-output::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+  .t-line{margin-bottom:2px;}
+  .t-prompt{color:var(--accent)}.t-cmd{color:var(--text)}
+  .t-out{color:#94a3b8;white-space:pre}
+  .t-out.highlight{color:var(--green)}.t-out.warn{color:var(--yellow)}.t-out.error{color:var(--red)}.t-out.accent{color:var(--accent)}
+  .t-system{color:var(--accent2);font-size:12px;padding:6px 0;border-left:2px solid var(--accent2);padding-left:10px;margin:6px 0;}
+  .t-info{color:var(--accent);background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:6px;padding:10px 14px;margin:8px 0;line-height:1.6;font-family:var(--sans);font-size:13px;}
+  .t-info strong{font-family:var(--mono);color:var(--text);}
+  .t-phase{color:#fff;background:linear-gradient(135deg,rgba(0,212,255,.15),rgba(124,58,237,.15));border:1px solid rgba(0,212,255,.3);border-radius:6px;padding:10px 14px;margin:10px 0;font-family:var(--sans);font-size:14px;font-weight:700;}
+  .terminal-input-row{display:flex;align-items:center;padding:12px 20px;border-top:1px solid var(--border);background:var(--panel2);gap:8px;flex-shrink:0;}
+  .terminal-prompt-label{font-family:var(--mono);font-size:13px;color:var(--accent);white-space:nowrap;}
+  .terminal-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:13px;caret-color:var(--accent);}
+  .run-btn{background:var(--accent);color:var(--bg);border:none;font-family:var(--mono);font-size:12px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer;}
+  .assistant-panel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+  .assistant-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .assistant-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+  .assistant-name{font-size:14px;font-weight:600;color:var(--text);}
+  .assistant-role{font-size:11px;color:var(--muted);}
+  .online-dot{width:7px;height:7px;background:var(--green);border-radius:50%;margin-left:auto;box-shadow:0 0 6px var(--green);}
+  .assistant-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+  .msg{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;color:#94a3b8;line-height:1.6;animation:fadeUp .3s ease;}
+  .msg strong{color:var(--text);}
+  .msg code{background:rgba(0,212,255,.1);color:var(--accent);font-family:var(--mono);font-size:11px;padding:1px 5px;border-radius:3px;}
+  .msg.celebrate{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.06);color:var(--green);}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .tools-ref{padding:14px;border-top:1px solid var(--border);flex-shrink:0;}
+  .tools-label{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
+  .tool-chip{display:inline-block;background:var(--panel2);border:1px solid var(--border);color:var(--accent);font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:4px;margin:3px 3px 3px 0;cursor:pointer;}
+  .tool-chip:hover{background:rgba(0,212,255,.08);border-color:var(--accent);}
+  /* final celebration */
+  .celebration{display:none;position:fixed;inset:0;background:rgba(10,14,26,.95);z-index:100;align-items:center;justify-content:center;flex-direction:column;text-align:center;gap:16px;padding:24px;overflow-y:auto;}
+  .celebration.show{display:flex;}
+  .cele-icon{font-size:80px;}
+  .cele-title{font-size:32px;font-weight:800;color:var(--accent);font-family:var(--mono);}
+  .cele-sub{font-size:15px;color:#94a3b8;max-width:480px;line-height:1.7;}
+  .skills-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:440px;margin:8px 0;}
+  .skill-badge{background:var(--panel);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);text-align:left;}
+  .skill-badge span{font-size:18px;margin-right:8px;}
+  .cele-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-family:var(--mono);font-size:15px;font-weight:700;padding:14px 40px;border-radius:10px;cursor:pointer;margin-top:8px;}
+  .cele-btn2{background:transparent;color:var(--text);border:1px solid var(--border);font-family:var(--mono);font-size:13px;font-weight:700;padding:13px 28px;border-radius:10px;cursor:pointer;margin-top:8px;}
+  .join-modal{position:fixed;inset:0;background:rgba(10,14,26,.95);z-index:200;display:flex;align-items:center;justify-content:center;}
+  .join-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;max-width:400px;width:100%;}
+  .join-title{font-size:22px;font-weight:700;color:var(--accent);font-family:var(--mono);margin-bottom:8px;}
+  .join-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+  .join-input{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:16px;padding:12px;border-radius:8px;text-align:center;outline:none;margin-bottom:10px;}
+  .join-input:focus{border-color:var(--accent);}
+  .join-name{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:14px;padding:12px;border-radius:8px;text-align:center;outline:none;margin-bottom:16px;}
+  .join-name:focus{border-color:var(--accent);}
+  .join-btn{width:100%;background:var(--accent);color:var(--bg);border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:12px;border-radius:8px;cursor:pointer;}
+  .join-skip{font-size:12px;color:var(--muted);margin-top:12px;cursor:pointer;text-decoration:underline;}
+
+  /* ===== Enhanced learning components ===== */
+  .wos-box{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.25);border-radius:8px;padding:12px 14px;margin:10px 0;font-family:var(--sans);font-size:12px;line-height:1.7;color:#c4b5fd;}
+  .wos-box strong{color:#a78bfa;}
+  .wos-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7c3aed;margin-bottom:6px;}
+  .obj-explainer{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:12px 14px;margin:10px 0;font-family:var(--sans);font-size:13px;line-height:1.7;color:#6ee7b7;}
+  .obj-explainer strong{color:var(--green);}
+  .obj-explainer-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:6px;}
+  .overview-modal{position:fixed;inset:0;background:var(--bg);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .overview-box{max-width:640px;width:100%;text-align:center;}
+  .ov-badge{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:16px;}
+  .ov-icon{font-size:64px;margin-bottom:16px;}
+  .ov-title{font-size:32px;font-weight:800;margin-bottom:12px;}
+  .ov-title span{color:var(--accent);}
+  .ov-hook{font-size:16px;color:#94a3b8;line-height:1.7;margin-bottom:28px;max-width:520px;margin-left:auto;margin-right:auto;}
+  .ov-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;text-align:left;}
+  .ov-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px;}
+  .ov-card-icon{font-size:20px;margin-bottom:6px;}
+  .ov-card-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .ov-card-text{font-size:12px;color:var(--muted);line-height:1.5;}
+  .ov-skill{display:inline-block;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--accent);font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:99px;margin:3px;}
+  .ov-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:14px 40px;border-radius:10px;cursor:pointer;margin-top:8px;}
+  .career-section{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:540px;width:100%;text-align:left;margin-top:8px;}
+  .career-title{font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;text-align:center;}
+  .career-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+  .career-card{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:12px;}
+  .career-card-icon{font-size:18px;margin-bottom:4px;}
+  .career-card-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;}
+  .career-card-text{font-size:11px;color:var(--muted);line-height:1.4;}
+  .cert-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+  .cert-badge{background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);color:#a78bfa;font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:99px;}
+  .salary-row{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);text-align:center;margin-top:8px;}
+  .cert-box{background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(124,58,237,.08));border:2px solid var(--accent);border-radius:16px;padding:28px;max-width:540px;width:100%;text-align:center;margin-top:8px;}
+  .cert-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+  .cert-name{font-size:26px;font-weight:800;color:#fff;margin-bottom:6px;}
+  .cert-line{font-size:13px;color:#94a3b8;line-height:1.6;}
+  .cert-line strong{color:var(--text);}
+  .cert-date{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;}
+</style>
+</head>
+<body>
+
+<div class="overview-modal" id="overviewModal">
+  <div class="overview-box">
+    <div class="ov-badge">Module 6 of 6 · Capstone</div>
+    <div class="ov-icon">🎓</div>
+    <h1 class="ov-title">Prove What You <span>Know</span></h1>
+    <p class="ov-hook">Westbridge College has just been breached. No hints, no playbook handed to you — just like a real security consultant walking into a new client for the first time. Use everything from all 5 modules to investigate, contain, and secure it.</p>
+    <div class="ov-cards">
+      <div class="ov-card"><div class="ov-card-icon">🌍</div><div class="ov-card-title">Real World</div><div class="ov-card-text">This is exactly how incident response consultants work — arriving with zero prior knowledge of a client's network and reconstructing the whole story from scratch.</div></div>
+      <div class="ov-card"><div class="ov-card-icon">🛠️</div><div class="ov-card-title">Your Toolkit</div><div class="ov-card-text">Every command from <strong style="color:var(--accent)">Modules 1–5</strong> is available — nmap, whois, Nessus, SIEM, isolation, and risk reporting.</div></div>
+      <div class="ov-card"><div class="ov-card-icon">🎯</div><div class="ov-card-title">Today's Mission</div><div class="ov-card-text">Run all four phases — Recon, Assess, Respond, Secure — in the right order, with no step-by-step hints.</div></div>
+    </div>
+    <div>
+      <span class="ov-skill">Full-Lifecycle Investigation</span>
+      <span class="ov-skill">Independent Judgement</span>
+      <span class="ov-skill">Executive Communication</span>
+    </div>
+    <br>
+    <button class="ov-btn" onclick="showJoin()">Begin Capstone →</button>
+  </div>
+</div>
+
+<div class="join-modal" id="joinModal" style="display:none;">
+  <div class="join-box">
+    <div class="join-title">Module 6 — Capstone</div>
+    <div style="font-size:32px;margin:12px 0">🎓</div>
+    <div class="join-sub">Final challenge! Enter your class code and name to join your instructor's session.</div>
+    <input class="join-input" id="joinCode" placeholder="CLASS CODE" maxlength="6"/>
+    <input class="join-name" id="joinName" placeholder="Your first name" maxlength="30"/>
+    <button class="join-btn" onclick="joinSession()">Begin Capstone →</button>
+    <div class="join-skip" onclick="skipJoin()">Skip — work solo</div>
+  </div>
+</div>
+
+<nav>
+  <div class="nav-logo">CYBER<span>PATH</span></div>
+  <div class="nav-meta">
+    <span class="badge">🎓 Module 6 — Capstone</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:11px;">Progress</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Final Mission</div>
+      <div class="scenario-title">🎓 Operation: Clean Slate</div>
+      <div class="scenario-text">
+        A new school, <strong>Westbridge College</strong>, has just been hit by a breach. They've called you in as a consultant. You have no prior knowledge of their systems.<br><br>
+        Use <strong>everything you've learned</strong> across all 5 modules to investigate, contain, and secure their network — from scratch.
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Capstone Phases</div>
+      <ul class="obj-list" id="objList">
+        <li class="obj-item" id="obj1"><div class="obj-check">1</div><span>Phase 1: Recon — map the network</span></li>
+        <li class="obj-item" id="obj2"><div class="obj-check">2</div><span>Phase 2: Assess — find vulnerabilities</span></li>
+        <li class="obj-item" id="obj3"><div class="obj-check">3</div><span>Phase 3: Respond — contain the breach</span></li>
+        <li class="obj-item" id="obj4"><div class="obj-check">4</div><span>Phase 4: Secure — build the program</span></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Skills You're Using</div>
+      <div class="skill-row"><span class="skill-icon">🔍</span><span class="skill-name unlocked" id="sk1">Asset Identification</span><span class="skill-check" id="sk1c"></span></div>
+      <div class="skill-row"><span class="skill-icon">🌐</span><span class="skill-name" id="sk2">OSINT & Recon</span><span class="skill-check" id="sk2c"></span></div>
+      <div class="skill-row"><span class="skill-icon">🔬</span><span class="skill-name" id="sk3">Vulnerability Mgmt</span><span class="skill-check" id="sk3c"></span></div>
+      <div class="skill-row"><span class="skill-icon">🚨</span><span class="skill-name" id="sk4">Incident Response</span><span class="skill-check" id="sk4c"></span></div>
+      <div class="skill-row"><span class="skill-icon">🛡️</span><span class="skill-name" id="sk5">Risk Management</span><span class="skill-check" id="sk5c"></span></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Need a nudge?</div>
+      <button class="hint-btn" onclick="toggleHint()">💡 Show hint</button>
+      <div class="hint-text" id="hintBox">Work through each phase in order: <code>nmap -sn 10.0.0.0/24</code> to start, then <code>whois</code> the suspicious IP, then <code>nessus scan</code> the server, then <code>siem alerts</code> for the breach, then <code>risk assess</code> and <code>board-report</code> to finish.</div>
+    </div>
+  </aside>
+
+  <div class="terminal-wrap">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+      <span class="terminal-title">analyst@westbridge:~$ — Capstone Investigation Console</span>
+    </div>
+    <div class="terminal-output" id="termOut">
+      <div class="t-line t-system">CyberPath Capstone — Operation: Clean Slate</div>
+      <div class="t-line t-system">Target: Westbridge College network | Status: BREACH IN PROGRESS</div>
+      <div class="t-info">🎓 <strong>This is your final exam.</strong> Westbridge College has been breached. You know nothing about their network yet. Apply everything you've learned — in the right order — to investigate and secure it. Start with <strong>nmap -sn 10.0.0.0/24</strong></div>
+    </div>
+    <div class="terminal-input-row">
+      <span class="terminal-prompt-label">analyst@westbridge:~$</span>
+      <input class="terminal-input" id="cmdInput" type="text" placeholder="type a command..." autocomplete="off" spellcheck="false"/>
+      <button class="run-btn" onclick="runCommand()">RUN ↵</button>
+    </div>
+  </div>
+
+  <div class="assistant-panel">
+    <div class="assistant-header">
+      <div class="assistant-avatar">🤖</div>
+      <div><div class="assistant-name">ARIA</div><div class="assistant-role">AI Security Guide</div></div>
+      <div class="online-dot"></div>
+    </div>
+    <div class="assistant-messages" id="assistantMsgs">
+      <div class="msg">🎓 <strong>Capstone time!</strong> This is an open-ended investigation — I won't tell you what to do next. You need to decide the right approach based on what you've learned. I'm here if you get truly stuck.</div>
+      <div class="msg">Remember the analyst workflow: <strong>Identify → Recon → Assess → Respond → Secure</strong>. Start at the beginning. What's the first thing a real analyst does when they arrive at a new network?</div>
+    </div>
+    <div class="tools-ref">
+      <div class="tools-label">All tools available</div>
+      <span class="tool-chip" onclick="insertCmd('nmap -sn 10.0.0.0/24')">nmap -sn</span>
+      <span class="tool-chip" onclick="insertCmd('nmap -sV 10.0.0.99')">nmap -sV</span>
+      <span class="tool-chip" onclick="insertCmd('whois 91.108.4.1')">whois</span>
+      <span class="tool-chip" onclick="insertCmd('shodan 91.108.4.1')">shodan</span>
+      <span class="tool-chip" onclick="insertCmd('nessus scan 10.0.0.50')">nessus</span>
+      <span class="tool-chip" onclick="insertCmd('siem alerts')">siem</span>
+      <span class="tool-chip" onclick="insertCmd('isolate SRV-01')">isolate</span>
+      <span class="tool-chip" onclick="insertCmd('risk assess')">risk</span>
+      <span class="tool-chip" onclick="insertCmd('board-report')">board</span>
+    </div>
+  </div>
+</div>
+
+<div class="celebration" id="celebration">
+  <div class="cele-icon">🏅</div>
+  <div class="cele-title">CyberPath Complete!</div>
+  <div class="cele-sub">You just ran a full security investigation from first principles — mapping a network, doing recon, finding vulnerabilities, responding to a breach, and building a security program. That is real cybersecurity work.</div>
+  <div class="skills-grid">
+    <div class="skill-badge"><span>🔍</span>Asset Identification</div>
+    <div class="skill-badge"><span>🌐</span>OSINT & Recon</div>
+    <div class="skill-badge"><span>🔬</span>Vulnerability Mgmt</div>
+    <div class="skill-badge"><span>🚨</span>Incident Response</div>
+    <div class="skill-badge"><span>🛡️</span>Risk Management</div>
+    <div class="skill-badge"><span>📊</span>SIEM Analysis</div>
+  </div>
+
+  <div class="cert-box">
+    <div class="cert-eyebrow">🎓 Certificate of Completion</div>
+    <div class="cert-name" id="certName">CyberPath Graduate</div>
+    <div class="cert-line">has successfully completed the <strong>CyberPath Cybersecurity Program</strong> — 6 modules covering network defence, OSINT, vulnerability management, incident response, risk management, and full-lifecycle investigation.</div>
+    <div class="cert-date" id="certDate"></div>
+  </div>
+
+  <div class="career-section">
+    <div class="career-title">🎯 Where CyberPath graduates go</div>
+    <div class="career-grid">
+      <div class="career-card"><div class="career-card-icon">🛰️</div><div class="career-card-title">SOC Analyst</div><div class="career-card-text">Entry point into the industry — monitors alerts and triages threats around the clock.</div></div>
+      <div class="career-card"><div class="career-card-icon">🕵️</div><div class="career-card-title">Penetration Tester</div><div class="career-card-text">Legally hacks organisations to find weaknesses before real attackers do.</div></div>
+      <div class="career-card"><div class="career-card-icon">🛠️</div><div class="career-card-title">Security Engineer</div><div class="career-card-text">Designs and builds the systems and tools that keep networks secure.</div></div>
+      <div class="career-card"><div class="career-card-icon">👔</div><div class="career-card-title">CISO (long-term)</div><div class="career-card-text">The senior leadership role — owns an organisation's entire security strategy.</div></div>
+    </div>
+    <div class="sidebar-label" style="margin-bottom:8px;">Certifications to continue your journey</div>
+    <div class="cert-row">
+      <span class="cert-badge">CompTIA Security+</span>
+      <span class="cert-badge">CompTIA PenTest+</span>
+      <span class="cert-badge">CompTIA CySA+</span>
+      <span class="cert-badge">(ISC)² CISSP</span>
+    </div>
+    <div class="salary-row">💰 Entry-level cybersecurity salary: <strong>£28,000–£45,000</strong> UK · <strong>$55,000–$85,000</strong> US — rising to <strong>£90,000+</strong> / <strong>$160,000+</strong> at senior/CISO level.</div>
+  </div>
+
+  <div style="display:flex;gap:12px;margin-top:8px;">
+    <button class="cele-btn" onclick="window.location.href='index.html'">🏠 Back to CyberPath Home</button>
+    <button class="cele-btn2" onclick="resetLab()">Replay Capstone</button>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://mlgxqrpxftviqyfhosl.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1sZ3hxcnhweGZ0dmlxeWZob3NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1ODgyNzEsImV4cCI6MjA5ODE2NDI3MX0.wkmgVfohm8Qzfi_XNdz1vdXavsUOvMPcoZ6MVPMewD4';
+const HEADERS={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`};
+const state={objectives:{1:false,2:false,3:false,4:false},sessionId:null,studentName:null,history:[],historyIdx:-1,phase:1};
+
+function showJoin(){document.getElementById('overviewModal').style.display='none';document.getElementById('joinModal').style.display='flex';}
+function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code)syncProgress();}
+function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';}
+async function syncProgress(){if(!state.sessionId||!state.studentName)return;const objs=Object.values(state.objectives);const lastCmd=state.history[0]||'';try{const checkRes=await fetch(`${SUPABASE_URL}/rest/v1/student_progress?session_id=eq.${state.sessionId}&student_name=eq.${encodeURIComponent(state.studentName)}&module=eq.6`,{headers:HEADERS});const existing=await checkRes.json();if(existing.length>0){await fetch(`${SUPABASE_URL}/rest/v1/student_progress?id=eq.${existing[0].id}`,{method:'PATCH',headers:HEADERS,body:JSON.stringify({objectives:objs,last_cmd:lastCmd,updated_at:new Date().toISOString()})});}else{await fetch(`${SUPABASE_URL}/rest/v1/student_progress`,{method:'POST',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({session_id:state.sessionId,student_name:state.studentName,module:6,objectives:objs,last_cmd:lastCmd})});}}catch(e){console.warn(e);}}
+
+const out=document.getElementById('termOut');
+function print(html,cls='t-out'){const d=document.createElement('div');d.className=`t-line ${cls}`;d.innerHTML=html;out.appendChild(d);out.scrollTop=out.scrollHeight;}
+function printCmd(cmd){print(`<span class="t-prompt">analyst@westbridge:~$</span> <span class="t-cmd">${esc(cmd)}</span>`);}
+function printBlank(){const d=document.createElement('div');d.style.height='6px';out.appendChild(d);}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function aria(html){const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;}
+function ariaSuccess(html){const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg celebrate';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;}
+function printWOS(title,html){const d=document.createElement('div');d.innerHTML=`<div class="wos-box"><div class="wos-title">📺 What's on the screen — ${title}</div>${html}</div>`;out.appendChild(d.firstChild);out.scrollTop=out.scrollHeight;}
+function printExplainer(html){const d=document.createElement('div');d.innerHTML=`<div class="obj-explainer"><div class="obj-explainer-title">🌍 Real World Connection</div>${html}</div>`;out.appendChild(d.firstChild);out.scrollTop=out.scrollHeight;}
+function completeObj(n){if(state.objectives[n])return;state.objectives[n]=true;const el=document.getElementById('obj'+n);el.classList.add('done');el.querySelector('.obj-check').textContent='✓';const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('progressBar').style.width=(done/4*100)+'%';syncProgress();if(done===4){const cn=document.getElementById('certName');if(cn)cn.textContent=state.studentName||'CyberPath Graduate';const cd=document.getElementById('certDate');if(cd)cd.textContent='Awarded '+new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});setTimeout(()=>document.getElementById('celebration').classList.add('show'),1500);}}
+function unlockSkill(n){document.getElementById('sk'+n).classList.add('unlocked');document.getElementById('sk'+n+'c').textContent='✓';}
+
+const RESPONSES={
+  // PHASE 1 — RECON (Modules 1 & 2)
+  'nmap -sn 10.0.0.0/24':()=>{
+    if(state.objectives[1]){print('Network already scanned. Move to Phase 2.','t-out warn');return;}
+    print('Nmap ping sweep — Westbridge College 10.0.0.0/24');
+    print('');
+    print('Host is up: 10.0.0.1   (0.002s)  — Gateway','t-out highlight');
+    print('Host is up: 10.0.0.10  (0.003s)  — Admin workstation','t-out highlight');
+    print('Host is up: 10.0.0.20  (0.002s)  — Staff laptop','t-out highlight');
+    print('Host is up: 10.0.0.50  (0.001s)  — Web/app server','t-out highlight');
+    print('Host is up: 10.0.0.99  (0.001s)  — UNKNOWN','t-out warn');
+    print('');
+    print('5 hosts up. Suspicious host: 10.0.0.99','t-out warn');
+    print('Outbound connection detected to: 91.108.4.1','t-out error');
+    printBlank();
+    printWOS('Network Discovery Scan','A ping sweep (<code>-sn</code>) finds every live host on a subnet without scanning ports — the very first step on any unfamiliar network, because you can\'t secure what you don\'t know exists.');
+    const ph=document.createElement('div');ph.className='t-phase';ph.textContent='⚡ Phase 1 complete: Network mapped. Investigate 10.0.0.99 and the outbound IP 91.108.4.1';out.appendChild(ph);out.scrollTop=out.scrollHeight;
+    completeObj(1);unlockSkill(1);
+    printExplainer('Verizon\'s Data Breach Investigations Report repeatedly finds that organisations are often breached through devices or systems IT didn\'t even know existed — "shadow IT." Asset inventory sounds boring, but it\'s the single most foundational security practice there is.');
+    aria('<strong>Good start!</strong> You\'ve found 5 hosts and an unknown device at <code>10.0.0.99</code>. There\'s also suspicious outbound traffic to <code>91.108.4.1</code> — that needs investigating. Use <code>whois 91.108.4.1</code> and <code>nmap -sV 10.0.0.99</code> to dig deeper. Then move to Phase 2 with <code>nessus scan 10.0.0.50</code>.');
+  },
+  'nmap -sv 10.0.0.99':()=>RESPONSES['nmap -sV 10.0.0.99'](),
+  'nmap -sV 10.0.0.99':()=>{
+    print('Nmap service scan: 10.0.0.99');
+    print('PORT     STATE  SERVICE   VERSION');
+    print('22/tcp   open   ssh       OpenSSH 8.2','t-out highlight');
+    print('4444/tcp open   backdoor? unknown service','t-out error');
+    print('8443/tcp open   https     — self-signed cert','t-out warn');
+    print('');
+    print('OS: Linux 5.x (Raspberry Pi OS)','t-out warn');
+    print('MAC: b8:27:eb:aa:bb:cc (Raspberry Pi Foundation)','t-out warn');
+    printBlank();
+    aria('Another rogue Raspberry Pi! Port <code>4444</code> is a classic backdoor port — attackers often use it. Combined with the outbound traffic to <code>91.108.4.1</code>, this device may be the attacker\'s foothold. Use <code>whois 91.108.4.1</code> to identify the external IP, then scan the main server with <code>nessus scan 10.0.0.50</code>.');
+  },
+  'whois 91.108.4.1':()=>{
+    print('WhoIs: 91.108.4.1');
+    print('');
+    print('inetnum:   91.108.4.0/22');
+    print('netname:   TELEGRAM-NETWORK','t-out warn');
+    print('descr:     Telegram Messenger network infrastructure');
+    print('country:   GB');
+    print('');
+    print('Note: This IP range is known for C2 infrastructure abuse.','t-out error');
+    printBlank();
+    unlockSkill(2);
+    aria('The external IP is Telegram infrastructure — attackers sometimes use Telegram bots as <strong>command and control (C2)</strong> channels because Telegram traffic looks legitimate. The rogue Pi is likely sending stolen data or receiving commands via a Telegram bot. Time to assess the server — use <code>nessus scan 10.0.0.50</code>.');
+  },
+  'shodan 91.108.4.1':()=>{
+    print('Shodan: 91.108.4.1');
+    print('Known for: Telegram C2 infrastructure','t-out warn');
+    print('Open ports: 443, 80');
+    print('No direct vulnerabilities — legitimate Telegram servers');
+    printBlank();
+    aria('Shodan confirms this is Telegram infrastructure. The rogue Pi is using Telegram as its command channel — smart, because most firewalls allow Telegram traffic. This technique is called <strong>C2 over legitimate services</strong>.');
+  },
+  // PHASE 2 — ASSESS (Module 3)
+  'nessus scan 10.0.0.50':()=>{
+    print('Nessus scan: 10.0.0.50 (Web/App server)');
+    print('');
+    print('CRITICAL:  CVE-2021-44228  Log4Shell (CVSS 10.0)','t-out error');
+    print('HIGH:      CVE-2023-44487  HTTP/2 Rapid Reset (CVSS 9.8)','t-out warn');
+    print('HIGH:      Default creds active — admin/changeme','t-out warn');
+    print('MEDIUM:    Outdated OpenSSL 1.1.0','t-out accent');
+    print('');
+    print('4 vulnerabilities: 1 Critical, 2 High, 1 Medium','t-out highlight');
+    printBlank();
+    printWOS('Vulnerability Scan Results','Each row shows a CVE ID, a severity rating, and a CVSS score out of 10 — the standard scale every vulnerability scanner in the industry (Nessus, Qualys, OpenVAS) uses to rank how dangerous a flaw is.');
+    const ph=document.createElement('div');ph.className='t-phase';ph.textContent='⚡ Phase 2 complete: Vulnerabilities assessed. Respond to the active breach.';out.appendChild(ph);out.scrollTop=out.scrollHeight;
+    completeObj(2);unlockSkill(3);
+    printExplainer('The 2017 Equifax breach (147 million records) happened because a known Apache Struts vulnerability went unpatched for months after a fix was available. Log4Shell shows up again here — a reminder that one unpatched flaw can resurface across an organisation\'s entire estate.');
+    aria('<strong>Log4Shell again!</strong> This server is vulnerable to the same critical CVE from Module 3. The attacker likely used it to install the backdoor on the Pi. Now you need to respond — check <code>siem alerts</code> to see the breach in progress, then isolate the affected systems.');
+  },
+  // PHASE 3 — RESPOND (Module 4)
+  'siem alerts':()=>{
+    print('SIEM ALERTS — Westbridge College');
+    print('');
+    print('[08:14:22] CRIT  Data exfiltration: 2.3GB to 91.108.4.1','t-out error');
+    print('[08:14:01] HIGH  Rogue device 10.0.0.99 lateral movement','t-out warn');
+    print('[08:13:45] HIGH  Log4Shell exploit attempt on 10.0.0.50','t-out warn');
+    print('[08:13:30] CRIT  Admin credentials exfiltrated','t-out error');
+    print('[08:12:01] MED   Unusual login: admin@westbridge.sch 3:14 AM','t-out accent');
+    printBlank();
+    printWOS('SIEM Alert Timeline','Reading alerts in chronological order — oldest first — lets you reconstruct the attack as a story: initial access, then credential theft, then lateral movement, then exfiltration. This is how every real incident timeline gets built.');
+    unlockSkill(4);
+    aria('The timeline is clear: attacker exploited Log4Shell at 08:13, stole admin credentials, deployed a backdoor on the Pi, and has been exfiltrating 2.3GB of data. <strong>Isolate the rogue Pi immediately</strong> with <code>isolate 10.0.0.99</code>, then <code>isolate SRV-01</code> to stop the exfiltration.');
+  },
+  'isolate 10.0.0.99':()=>{
+    print('Isolating 10.0.0.99 (rogue Pi)...');
+    setTimeout(()=>{print('  → Network access BLOCKED ✓','t-out highlight');print('  → Exfiltration channel to Telegram SEVERED ✓','t-out highlight');printBlank();aria('Rogue Pi contained! Now isolate the compromised server — <code>isolate SRV-01</code> or <code>isolate 10.0.0.50</code>.');},600);
+  },
+  'isolate srv-01':()=>RESPONSES['isolate 10.0.0.50'](),
+  'isolate 10.0.0.50':()=>{
+    print('Isolating 10.0.0.50 (web server)...');
+    setTimeout(()=>{
+      print('  → Network access BLOCKED ✓','t-out highlight');
+      print('  → Active sessions terminated ✓','t-out highlight');
+      printBlank();
+      printWOS('Containment Confirmation','Isolation removes the host from the network so the attacker loses control of it and exfiltration stops — but the system is kept intact (not wiped) so investigators can still examine it for evidence.');
+      const ph=document.createElement('div');ph.className='t-phase';ph.textContent='⚡ Phase 3 complete: Breach contained. Now build the security program.';out.appendChild(ph);out.scrollTop=out.scrollHeight;
+      completeObj(3);
+      printExplainer('IBM\'s annual Cost of a Data Breach report consistently finds that organisations with a tested incident response plan and team contain breaches faster and at far lower cost than those without one. Speed of containment, more than any other factor, determines how bad a breach ends up being.');
+      aria('<strong>Breach contained!</strong> Both systems isolated. 2.3GB of data was exfiltrated — that\'s a serious data breach that will need to be reported to relevant authorities. Now the final phase: build a security program so this never happens again. Use <code>risk assess</code> and <code>board-report</code>.');
+    },600);
+  },
+  // PHASE 4 — SECURE (Module 5)
+  'risk assess':()=>{
+    print('WESTBRIDGE COLLEGE — RISK ASSESSMENT');
+    printBlank();
+    print('RISK               LEVEL    TREATMENT');
+    print('─────────────────────────────────────────────');
+    print('Unpatched Log4j    CRIT     Patch immediately','t-out error');
+    print('Rogue devices      HIGH     Network monitoring','t-out warn');
+    print('Default creds      HIGH     Password policy + MFA','t-out warn');
+    print('No SIEM tuning     HIGH     Alert rules review','t-out warn');
+    print('No email filter    MED      Deploy gateway','t-out accent');
+    print('No backup policy   HIGH     Hourly snapshots','t-out warn');
+    printBlank();
+    unlockSkill(5);
+    aria('Strong assessment. Notice how all these risks link back to the incident — the patch gap allowed Log4Shell, the default creds made it worse, the missing SIEM tuning meant it wasn\'t caught early. Good security programs connect risk to real incidents. Finish with <code>board-report</code>!');
+  },
+  'board-report':()=>{
+    print('');
+    print('EXECUTIVE BRIEFING — WESTBRIDGE COLLEGE BREACH','t-out accent');
+    print('Presenting to: Board of Governors');
+    printBlank();
+    print('WHAT HAPPENED:');
+    print('  Attacker exploited Log4Shell (unpatched since 2021)');
+    print('  Installed backdoor on rogue Raspberry Pi device');
+    print('  Exfiltrated 2.3GB of student/staff data via Telegram');
+    print('  Duration: ~2 hours before detection and containment');
+    printBlank();
+    print('ROOT CAUSES (4):','t-out error');
+    print('  1. Critical patch not applied for 3+ years');
+    print('  2. No network monitoring — rogue device undetected');
+    print('  3. Default admin credentials unchanged');
+    print('  4. No incident response plan existed');
+    printBlank();
+    print('IMMEDIATE ACTIONS TAKEN:','t-out highlight');
+    print('  ✓ Rogue Pi removed from network');
+    print('  ✓ Compromised server isolated');
+    print('  ✓ Admin credentials reset with MFA enforced');
+    printBlank();
+    print('30-DAY SECURITY PROGRAM:','t-out accent');
+    print('  Week 1: Patch all systems, deploy email filtering');
+    print('  Week 2: Implement MFA, network monitoring');
+    print('  Week 3: SIEM deployment and tuning');
+    print('  Week 4: Staff training, IR plan documentation');
+    printBlank();
+    print('COST:  £8,000/year  |  Cost of breach: £180,000+','t-out highlight');
+    print('RECOMMENDATION: Approve security program immediately.','t-out highlight');
+    printBlank();
+    print('Investigation complete: '+new Date().toLocaleString(),'t-out highlight');
+    printWOS('Executive Briefing Structure','A final briefing always follows the same arc: What Happened → Root Causes → Immediate Actions → Forward Plan → Cost. This structure works for a school board or a Fortune 500 boardroom — only the numbers change.');
+    const ph=document.createElement('div');ph.className='t-phase';ph.textContent='⚡ Phase 4 complete: Security program built. CyberPath Capstone — COMPLETE!';out.appendChild(ph);out.scrollTop=out.scrollHeight;
+    completeObj(4);
+    printExplainer('You\'ve now done, in miniature, what a real cybersecurity consultancy or in-house security team does for a living: recon, vulnerability assessment, incident response, and risk reporting — in one continuous engagement. Professionals who can move fluently across all of these are some of the most highly valued (and highly paid) in the industry.');
+    ariaSuccess('🏅 <strong>YOU DID IT!</strong> You just completed a full, real-world security investigation from scratch — mapping a network, doing OSINT, finding vulnerabilities, containing a breach, and building a security program to present to the board. That is the full lifecycle of cybersecurity. You\'ve earned every skill badge in CyberPath!');
+  }
+};
+
+function matchCmd(raw){
+  const cmd=raw.trim().toLowerCase().replace(/\s+/g,' ');
+  if(RESPONSES[cmd])return RESPONSES[cmd];
+  if(RESPONSES[raw.trim()])return RESPONSES[raw.trim()];
+  if(cmd.includes('nmap')&&cmd.includes('sn'))return RESPONSES['nmap -sn 10.0.0.0/24'];
+  if(cmd.includes('nmap')&&cmd.includes('sv')&&(cmd.includes('99')||cmd.includes('0.99')))return RESPONSES['nmap -sV 10.0.0.99'];
+  if(cmd.includes('nmap')&&cmd.includes('sv')&&(cmd.includes('50')||cmd.includes('0.50')))return RESPONSES['nessus scan 10.0.0.50'];
+  if(cmd.includes('whois')&&cmd.includes('91'))return RESPONSES['whois 91.108.4.1'];
+  if(cmd.includes('shodan')&&cmd.includes('91'))return RESPONSES['shodan 91.108.4.1'];
+  if(cmd.includes('nessus')&&cmd.includes('50'))return RESPONSES['nessus scan 10.0.0.50'];
+  if(cmd.includes('siem')||cmd.includes('alerts'))return RESPONSES['siem alerts'];
+  if(cmd.includes('isolate')&&(cmd.includes('99')||cmd.includes('pi')||cmd.includes('rogue')))return RESPONSES['isolate 10.0.0.99'];
+  if(cmd.includes('isolate')&&(cmd.includes('50')||cmd.includes('srv')||cmd.includes('server')))return RESPONSES['isolate 10.0.0.50'];
+  if(cmd.includes('risk')&&cmd.includes('assess'))return RESPONSES['risk assess'];
+  if(cmd.includes('board'))return RESPONSES['board-report'];
+  if(cmd==='help')return()=>{print('Use any tool from the 5 modules. No hints — figure out the right order!','t-out accent');};
+  if(cmd==='clear')return()=>{out.innerHTML='';};
+  return null;
+}
+
+function runCommand(){const input=document.getElementById('cmdInput');const raw=input.value.trim();if(!raw)return;state.history.unshift(raw);state.historyIdx=-1;printCmd(raw);printBlank();const fn=matchCmd(raw);if(fn){fn();}else{print(`bash: ${esc(raw)}: command not found`,'t-out error');aria(`Unknown command. Remember — no handholding in the capstone! Think about what phase you\'re in and what a real analyst would do.`);}printBlank();input.value='';out.scrollTop=out.scrollHeight;}
+document.getElementById('cmdInput').addEventListener('keydown',e=>{if(e.key==='Enter'){runCommand();return;}if(e.key==='ArrowUp'){e.preventDefault();if(state.historyIdx<state.history.length-1){state.historyIdx++;document.getElementById('cmdInput').value=state.history[state.historyIdx];}}if(e.key==='ArrowDown'){e.preventDefault();if(state.historyIdx>0){state.historyIdx--;document.getElementById('cmdInput').value=state.history[state.historyIdx];}else{state.historyIdx=-1;document.getElementById('cmdInput').value='';}}});
+function insertCmd(cmd){document.getElementById('cmdInput').value=cmd;document.getElementById('cmdInput').focus();}
+function toggleHint(){document.getElementById('hintBox').classList.toggle('visible');}
+function resetLab(){location.reload();}
+document.getElementById('cmdInput').focus();
+</script>
+</body>
+</html>
