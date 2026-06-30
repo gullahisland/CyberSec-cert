@@ -8,7 +8,7 @@
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
   :root { --bg:#0a0e1a; --panel:#111827; --panel2:#1a2235; --border:#1e2d45; --accent:#00d4ff; --accent2:#7c3aed; --green:#10b981; --yellow:#f59e0b; --red:#ef4444; --text:#e2e8f0; --muted:#7d8da3; --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif; }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; display:flex; flex-direction:column; }
+  body { background:var(--bg); color:var(--text); font-family:var(--sans); height:100vh; overflow:hidden; display:flex; flex-direction:column; }
   nav { background:var(--panel); border-bottom:1px solid var(--border); padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
   .nav-logo { font-family:var(--mono); font-weight:700; font-size:16px; color:var(--accent); letter-spacing:.05em; }
   .nav-logo span { color:var(--text); }
@@ -16,8 +16,20 @@
   .badge { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; font-size:12px; font-weight:600; padding:2px 8px; border-radius:99px; }
   .progress-bar-wrap { width:120px; height:6px; background:var(--border); border-radius:99px; overflow:hidden; }
   .progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:99px; transition:width .5s ease; width:0%; }
-  .layout { display:grid; grid-template-columns:300px 1fr 260px; flex:1; overflow:hidden; height:calc(100vh - 56px); }
-  .sidebar { background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; position:sticky; top:0; align-self:start; height:calc(100vh - 56px); }
+  .sound-toggle{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;padding:4px 9px;border-radius:6px;cursor:pointer;line-height:1;}
+  .sound-toggle:hover{border-color:var(--accent);color:var(--accent);}
+  @keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(var(--rot));opacity:0;}}
+  .program-banner{background:linear-gradient(135deg,rgba(0,212,255,.12),rgba(124,58,237,.12));border:1px solid rgba(0,212,255,.3);border-radius:99px;padding:8px 20px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);animation:bannerPulse 2.4s ease-in-out infinite;}
+  @keyframes bannerPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,.25);}50%{box-shadow:0 0 0 8px rgba(0,212,255,0);}}
+  .journey-section{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:640px;width:100%;text-align:left;margin-top:8px;}
+  .journey-title{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;text-align:center;}
+  .journey-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+  .journey-card{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:12px 13px;display:flex;gap:10px;align-items:flex-start;}
+  .journey-num{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent2);background:rgba(124,58,237,.12);border-radius:6px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+  .journey-card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;}
+  .journey-card-text{font-size:12px;color:var(--muted);line-height:1.45;}
+  .layout { display:grid; grid-template-columns:300px 1fr 260px; grid-template-rows:1fr; flex:1; overflow:hidden; height:calc(100vh - 56px); min-height:0; }
+  .sidebar { background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; position:sticky; top:0; align-self:start; height:calc(100vh - 56px); min-height:0; }
   .sidebar-section { padding:20px; border-bottom:1px solid var(--border); }
   .sidebar-label { font-size:11px; font-weight:700; letter-spacing:.12em; color:var(--muted); text-transform:uppercase; margin-bottom:11px; }
   .scenario-title { font-size:15px; font-weight:700; color:var(--accent); margin-bottom:8px; }
@@ -36,13 +48,13 @@
   .hint-btn:hover { background:rgba(245,158,11,.08); border-color:var(--yellow); }
   .hint-text { margin-top:11px; font-size:13px; color:#fbbf24; background:rgba(245,158,11,.06); border:1px solid rgba(245,158,11,.2); border-radius:6px; padding:11px; line-height:1.6; display:none; }
   .hint-text.visible { display:block; }
-  .terminal-wrap { display:flex; flex-direction:column; overflow:hidden; }
+  .terminal-wrap { display:flex; flex-direction:column; overflow:hidden; min-height:0; }
   .terminal-header { background:var(--panel2); border-bottom:1px solid var(--border); padding:11px 18px; display:flex; align-items:center; gap:11px; flex-shrink:0; }
   .terminal-dots { display:flex; gap:6px; }
   .dot { width:13px; height:13px; border-radius:50%; }
   .dot.red{background:#ff5f56} .dot.yellow{background:#ffbd2e} .dot.green{background:#27c93f}
   .terminal-title { font-family:var(--mono); font-size:13px; color:var(--muted); margin-left:4px; }
-  .terminal-output { flex:1; overflow-y:auto; padding:18px 20px; font-family:var(--mono); font-size:14px; line-height:1.7; }
+  .terminal-output { flex:1; min-height:0; overflow-y:auto; padding:18px 20px; font-family:var(--mono); font-size:14px; line-height:1.7; }
   .terminal-output::-webkit-scrollbar { width:6px; }
   .terminal-output::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
   .t-line { margin-bottom:2px; }
@@ -56,13 +68,13 @@
   .terminal-prompt-label{font-family:var(--mono);font-size:14px;color:var(--accent);white-space:nowrap}
   .terminal-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:14px;caret-color:var(--accent)}
   .run-btn{background:var(--accent);color:var(--bg);border:none;font-family:var(--mono);font-size:13px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer}
-  .assistant-panel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;position:sticky;top:0;align-self:start;height:calc(100vh - 56px);}
+  .assistant-panel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;position:sticky;top:0;align-self:start;height:calc(100vh - 56px);min-height:0;}
   .assistant-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;flex-shrink:0}
   .assistant-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
   .assistant-name{font-size:14px;font-weight:600;color:var(--text)}
   .assistant-role{font-size:12px;color:var(--muted)}
   .online-dot{width:7px;height:7px;background:var(--green);border-radius:50%;margin-left:auto;box-shadow:0 0 6px var(--green)}
-  .assistant-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px}
+  .assistant-messages{flex:1;min-height:0;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px}
   .msg{background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:11px 13px;font-size:14px;color:#aebccf;line-height:1.6;animation:fadeUp .3s ease}
   .msg strong{color:var(--text)}
   .msg code{background:rgba(0,212,255,.1);color:var(--accent);font-family:var(--mono);font-size:12px;padding:1px 5px;border-radius:3px}
@@ -180,6 +192,7 @@
       <span style="font-size:12px;">Progress</span>
       <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
     </div>
+    <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="Toggle sound effects">🔊</button>
   </div>
 </nav>
 
@@ -264,6 +277,7 @@
 </div>
 
 <div class="celebration" id="celebration">
+  <div class="program-banner">🎓 All 6 Modules Complete</div>
   <div class="cele-icon">🏅</div>
   <div class="cele-title">CyberPath Complete!</div>
   <div class="cele-sub">You found a rogue device, traced it to a command-and-control server, discovered Log4Shell and default credentials, contained the breach, and built a full security program — all without a roadmap.</div>
@@ -287,6 +301,18 @@
       <div class="skill-badge"><div class="skill-badge-icon">📡</div>SIEM Analysis</div>
     </div>
     <div class="cert-id" id="certId"></div>
+  </div>
+
+  <div class="journey-section">
+    <div class="journey-title">🗺️ Your CyberPath Journey</div>
+    <div class="journey-grid">
+      <div class="journey-card"><div class="journey-num">1</div><div><div class="journey-card-title">Network Security</div><div class="journey-card-text">Found a rogue device on a live network and judged whether it was a real threat.</div></div></div>
+      <div class="journey-card"><div class="journey-num">2</div><div><div class="journey-card-title">Recon &amp; OSINT</div><div class="journey-card-text">Used public information — WHOIS, DNS, banners — to investigate a suspicious actor.</div></div></div>
+      <div class="journey-card"><div class="journey-num">3</div><div><div class="journey-card-title">Vulnerability Mgmt</div><div class="journey-card-text">Ran scans, found Log4Shell and default credentials, and prioritised what to fix first.</div></div></div>
+      <div class="journey-card"><div class="journey-num">4</div><div><div class="journey-card-title">Incident Response</div><div class="journey-card-text">Detected an active breach, contained it, and verified the containment actually held.</div></div></div>
+      <div class="journey-card"><div class="journey-num">5</div><div><div class="journey-card-title">Risk Management</div><div class="journey-card-text">Scored risks by likelihood and impact and built a board-ready case for investment.</div></div></div>
+      <div class="journey-card"><div class="journey-num">6</div><div><div class="journey-card-title">Capstone</div><div class="journey-card-text">Combined every skill above, unguided, to solve a full incident end-to-end.</div></div></div>
+    </div>
   </div>
 
   <div class="career-section">
@@ -334,7 +360,50 @@ function aria(html){queueAria(()=>{const b=document.getElementById('assistantMsg
 function ariaSuccess(html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg celebrate';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
 function printWOS(title,html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=`<strong>📺 What's on the screen — ${title}</strong><br>${html}`;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
 function printExplainer(html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=`<strong>🌍 Real World Connection</strong><br>${html}`;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
-function completeObj(n){if(state.objectives[n])return;state.objectives[n]=true;const el=document.getElementById('obj'+n);el.classList.add('done');el.querySelector('.obj-check').textContent='✓';const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('progressBar').style.width=(done/4*100)+'%';syncProgress();if(done===4){setCertDate();const btn=document.createElement('button');btn.className='continue-btn';btn.textContent='✓ Capstone complete — View My Certificate →';btn.onclick=()=>document.getElementById('celebration').classList.add('show');out.appendChild(btn);out.scrollTop=out.scrollHeight;}}
+let audioCtx=null;let soundOn=true;
+function getCtx(){if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)();}return audioCtx;}
+function beep(freq,dur,type='sine',vol=0.08,delay=0){if(!soundOn)return;try{const ctx=getCtx();const t0=ctx.currentTime+delay;const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,t0);gain.gain.setValueAtTime(vol,t0);gain.gain.exponentialRampToValueAtTime(0.001,t0+dur);osc.connect(gain);gain.connect(ctx.destination);osc.start(t0);osc.stop(t0+dur);}catch(e){}}
+function sfxGrandFinale(){
+  // Triumphant ascending fanfare, bigger than per-module completion
+  beep(523.25,0.18,'sine',0.09,0);
+  beep(659.25,0.18,'sine',0.09,0.16);
+  beep(783.99,0.18,'sine',0.09,0.32);
+  beep(1046.50,0.4,'sine',0.11,0.48);
+  beep(659.25,0.4,'sine',0.06,0.48);
+  beep(783.99,0.4,'sine',0.06,0.48);
+  beep(1318.51,0.55,'sine',0.1,0.9);
+  beep(987.77,0.55,'sine',0.07,0.9);
+  beep(1567.98,0.7,'sine',0.08,1.3);
+}
+function toggleSound(){soundOn=!soundOn;document.getElementById('soundToggle').textContent=soundOn?'🔊':'🔇';}
+function spawnConfetti(big=false){
+  const emojis=['🎉','✨','🏆','🎊','⭐','🎓'];
+  const container=document.createElement('div');
+  container.style.position='fixed';container.style.inset='0';container.style.pointerEvents='none';container.style.zIndex='400';container.style.overflow='hidden';
+  document.body.appendChild(container);
+  const count=big?60:28;
+  for(let i=0;i<count;i++){
+    const span=document.createElement('span');
+    span.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    span.style.position='absolute';
+    span.style.left=Math.random()*100+'%';
+    span.style.top='-40px';
+    span.style.fontSize=(16+Math.random()*22)+'px';
+    span.style.setProperty('--rot',(Math.random()*360|0)+'deg');
+    const duration=(2.4+Math.random()*1.6).toFixed(2);
+    const delay=(Math.random()*(big?1.1:0.5)).toFixed(2);
+    span.style.animation=`confettiFall ${duration}s ${delay}s ease-in forwards`;
+    container.appendChild(span);
+  }
+  setTimeout(()=>container.remove(),big?6200:4600);
+}
+function showGrandFinale(){
+  document.getElementById('celebration').classList.add('show');
+  sfxGrandFinale();
+  spawnConfetti(true);
+  setTimeout(()=>spawnConfetti(true),1400);
+}
+function completeObj(n){if(state.objectives[n])return;state.objectives[n]=true;const el=document.getElementById('obj'+n);el.classList.add('done');el.querySelector('.obj-check').textContent='✓';const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('progressBar').style.width=(done/4*100)+'%';syncProgress();if(done===4){setCertDate();const btn=document.createElement('button');btn.className='continue-btn';btn.textContent='🎓 Program complete — View My Certificate →';btn.onclick=()=>showGrandFinale();out.appendChild(btn);out.scrollTop=out.scrollHeight;}}
 function unlockSkill(n){document.getElementById('sk'+n).classList.add('unlocked');}
 function setCertDate(){const d=new Date();document.getElementById('certDate').textContent='Completed '+d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});document.getElementById('certId').textContent='Certificate ID: CYBP-'+Math.random().toString(36).substring(2,8).toUpperCase()+'-'+d.getFullYear();if(state.studentName&&state.studentName!=='Solo Student'){document.getElementById('certName').textContent=state.studentName;document.getElementById('certNameInput').value=state.studentName;}}
 function updateCertName(){const v=document.getElementById('certNameInput').value.trim();if(v)document.getElementById('certName').textContent=v;}
