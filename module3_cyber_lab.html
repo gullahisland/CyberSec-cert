@@ -6,133 +6,132 @@
 <title>CyberPath: Module 3 — What's Broken?</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
-  :root { --bg:#0a0e1a; --panel:#111827; --panel2:#1a2235; --border:#1e2d45; --accent:#00d4ff; --accent2:#7c3aed; --green:#10b981; --yellow:#f59e0b; --red:#ef4444; --text:#e2e8f0; --muted:#64748b; --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif; }
+  :root { --bg:#0a0e1a; --panel:#111827; --panel2:#1a2235; --border:#1e2d45; --accent:#00d4ff; --accent2:#7c3aed; --green:#10b981; --yellow:#f59e0b; --red:#ef4444; --text:#e2e8f0; --muted:#7d8da3; --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif; }
   * { box-sizing:border-box; margin:0; padding:0; }
   body { background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; display:flex; flex-direction:column; }
   nav { background:var(--panel); border-bottom:1px solid var(--border); padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
   .nav-logo { font-family:var(--mono); font-weight:700; font-size:16px; color:var(--accent); letter-spacing:.05em; }
   .nav-logo span { color:var(--text); }
-  .nav-meta { display:flex; align-items:center; gap:20px; font-size:13px; color:var(--muted); }
-  .badge { background:var(--accent2); color:#fff; font-size:11px; font-weight:600; padding:2px 8px; border-radius:99px; }
+  .nav-meta { display:flex; align-items:center; gap:20px; font-size:14px; color:var(--muted); }
+  .badge { background:var(--accent2); color:#fff; font-size:12px; font-weight:600; padding:2px 8px; border-radius:99px; }
   .progress-bar-wrap { width:120px; height:6px; background:var(--border); border-radius:99px; overflow:hidden; }
   .progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:99px; transition:width .5s ease; width:0%; }
   .layout { display:grid; grid-template-columns:300px 1fr 260px; flex:1; overflow:hidden; height:calc(100vh - 56px); }
-  .sidebar { background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; }
+  .sidebar { background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; position:sticky; top:0; align-self:start; height:calc(100vh - 56px); }
   .sidebar-section { padding:20px; border-bottom:1px solid var(--border); }
-  .sidebar-label { font-size:10px; font-weight:700; letter-spacing:.12em; color:var(--muted); text-transform:uppercase; margin-bottom:10px; }
+  .sidebar-label { font-size:11px; font-weight:700; letter-spacing:.12em; color:var(--muted); text-transform:uppercase; margin-bottom:11px; }
   .scenario-title { font-size:15px; font-weight:700; color:var(--accent); margin-bottom:8px; }
-  .scenario-text { font-size:13px; color:#94a3b8; line-height:1.6; }
+  .scenario-text { font-size:14px; color:#aebccf; line-height:1.6; }
   .scenario-text strong { color:var(--text); }
   .obj-list { list-style:none; }
-  .obj-item { display:flex; align-items:flex-start; gap:10px; padding:8px 0; font-size:13px; color:#94a3b8; border-bottom:1px solid var(--border); transition:color .3s; }
+  .obj-item { display:flex; align-items:flex-start; gap:11px; padding:8px 0; font-size:14px; color:#aebccf; border-bottom:1px solid var(--border); transition:color .3s; }
   .obj-item:last-child { border-bottom:none; }
   .obj-item.done { color:var(--green); }
-  .obj-check { width:18px; height:18px; border:2px solid var(--border); border-radius:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; transition:all .3s; font-size:11px; }
+  .obj-check { width:18px; height:18px; border:2px solid var(--border); border-radius:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; transition:all .3s; font-size:12px; }
   .obj-item.done .obj-check { background:var(--green); border-color:var(--green); color:#fff; }
   .vuln-list { display:flex; flex-direction:column; gap:6px; }
-  .vuln-chip { background:var(--bg); border-radius:6px; padding:8px 10px; font-size:11px; border-left:3px solid var(--border); opacity:.4; transition:opacity .3s; }
+  .vuln-chip { background:var(--bg); border-radius:6px; padding:8px 11px; font-size:12px; border-left:3px solid var(--border); opacity:.4; transition:opacity .3s; }
   .vuln-chip.found { opacity:1; }
   .vuln-chip.critical { border-color:var(--red); }
   .vuln-chip.high { border-color:var(--yellow); }
   .vuln-chip.medium { border-color:var(--accent); }
   .vuln-chip-title { font-family:var(--mono); color:var(--text); margin-bottom:2px; }
-  .vuln-chip-sev { font-size:10px; }
+  .vuln-chip-sev { font-size:11px; }
   .vuln-chip.critical .vuln-chip-sev { color:var(--red); }
   .vuln-chip.high .vuln-chip-sev { color:var(--yellow); }
   .vuln-chip.medium .vuln-chip-sev { color:var(--accent); }
-  .hint-btn { width:100%; background:transparent; border:1px solid var(--border); color:var(--yellow); font-family:var(--mono); font-size:12px; padding:8px 12px; border-radius:6px; cursor:pointer; text-align:left; transition:all .2s; }
+  .hint-btn { width:100%; background:transparent; border:1px solid var(--border); color:var(--yellow); font-family:var(--mono); font-size:13px; padding:8px 13px; border-radius:6px; cursor:pointer; text-align:left; transition:all .2s; }
   .hint-btn:hover { background:rgba(245,158,11,.08); border-color:var(--yellow); }
-  .hint-text { margin-top:10px; font-size:12px; color:#fbbf24; background:rgba(245,158,11,.06); border:1px solid rgba(245,158,11,.2); border-radius:6px; padding:10px; line-height:1.6; display:none; }
+  .hint-text { margin-top:11px; font-size:13px; color:#fbbf24; background:rgba(245,158,11,.06); border:1px solid rgba(245,158,11,.2); border-radius:6px; padding:11px; line-height:1.6; display:none; }
   .hint-text.visible { display:block; }
   .terminal-wrap { display:flex; flex-direction:column; overflow:hidden; }
-  .terminal-header { background:var(--panel2); border-bottom:1px solid var(--border); padding:10px 18px; display:flex; align-items:center; gap:10px; flex-shrink:0; }
+  .terminal-header { background:var(--panel2); border-bottom:1px solid var(--border); padding:11px 18px; display:flex; align-items:center; gap:11px; flex-shrink:0; }
   .terminal-dots { display:flex; gap:6px; }
-  .dot { width:12px; height:12px; border-radius:50%; }
+  .dot { width:13px; height:13px; border-radius:50%; }
   .dot.red{background:#ff5f56} .dot.yellow{background:#ffbd2e} .dot.green{background:#27c93f}
-  .terminal-title { font-family:var(--mono); font-size:12px; color:var(--muted); margin-left:4px; }
-  .terminal-output { flex:1; overflow-y:auto; padding:18px 20px; font-family:var(--mono); font-size:13px; line-height:1.7; }
+  .terminal-title { font-family:var(--mono); font-size:13px; color:var(--muted); margin-left:4px; }
+  .terminal-output { flex:1; overflow-y:auto; padding:18px 20px; font-family:var(--mono); font-size:14px; line-height:1.7; }
   .terminal-output::-webkit-scrollbar { width:6px; }
   .terminal-output::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
   .t-line { margin-bottom:2px; }
   .t-prompt{color:var(--accent)} .t-cmd{color:var(--text)}
-  .t-out{color:#94a3b8;white-space:pre}
+  .t-out{color:#aebccf;white-space:pre}
   .t-out.highlight{color:var(--green)} .t-out.warn{color:var(--yellow)} .t-out.error{color:var(--red)} .t-out.accent{color:var(--accent)}
-  .t-system{color:var(--accent2);font-size:12px;padding:6px 0;border-left:2px solid var(--accent2);padding-left:10px;margin:6px 0}
-  .t-info{color:var(--accent);background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:6px;padding:10px 14px;margin:8px 0;line-height:1.6;font-family:var(--sans);font-size:13px}
+  .t-system{color:var(--accent2);font-size:13px;padding:6px 0;border-left:2px solid var(--accent2);padding-left:11px;margin:6px 0}
+  .t-info{color:var(--accent);background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:6px;padding:11px 14px;margin:8px 0;line-height:1.6;font-family:var(--sans);font-size:14px}
   .t-info strong{font-family:var(--mono);color:var(--text)}
-  .terminal-input-row{display:flex;align-items:center;padding:12px 20px;border-top:1px solid var(--border);background:var(--panel2);gap:8px;flex-shrink:0}
-  .terminal-prompt-label{font-family:var(--mono);font-size:13px;color:var(--accent);white-space:nowrap}
-  .terminal-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:13px;caret-color:var(--accent)}
-  .run-btn{background:var(--accent);color:var(--bg);border:none;font-family:var(--mono);font-size:12px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer}
-  .assistant-panel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
-  .assistant-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .terminal-input-row{display:flex;align-items:center;padding:13px 20px;border-top:1px solid var(--border);background:var(--panel2);gap:8px;flex-shrink:0}
+  .terminal-prompt-label{font-family:var(--mono);font-size:14px;color:var(--accent);white-space:nowrap}
+  .terminal-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:14px;caret-color:var(--accent)}
+  .run-btn{background:var(--accent);color:var(--bg);border:none;font-family:var(--mono);font-size:13px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer}
+  .assistant-panel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;position:sticky;top:0;align-self:start;height:calc(100vh - 56px);}
+  .assistant-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;flex-shrink:0}
   .assistant-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
   .assistant-name{font-size:14px;font-weight:600;color:var(--text)}
-  .assistant-role{font-size:11px;color:var(--muted)}
+  .assistant-role{font-size:12px;color:var(--muted)}
   .online-dot{width:7px;height:7px;background:var(--green);border-radius:50%;margin-left:auto;box-shadow:0 0 6px var(--green)}
-  .assistant-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
-  .msg{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;color:#94a3b8;line-height:1.6;animation:fadeUp .3s ease}
+  .assistant-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px}
+  .msg{background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:11px 13px;font-size:14px;color:#aebccf;line-height:1.6;animation:fadeUp .3s ease}
   .msg strong{color:var(--text)}
-  .msg code{background:rgba(0,212,255,.1);color:var(--accent);font-family:var(--mono);font-size:11px;padding:1px 5px;border-radius:3px}
+  .msg code{background:rgba(0,212,255,.1);color:var(--accent);font-family:var(--mono);font-size:12px;padding:1px 5px;border-radius:3px}
   .msg.celebrate{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.06);color:var(--green)}
   @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
   .tools-ref{padding:14px;border-top:1px solid var(--border);flex-shrink:0}
-  .tools-label{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
-  .tool-chip{display:inline-block;background:var(--panel2);border:1px solid var(--border);color:var(--accent);font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:4px;margin:3px 3px 3px 0;cursor:pointer;transition:all .2s}
+  .tools-label{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+  .tool-chip{display:inline-block;background:var(--panel2);border:1px solid var(--border);color:var(--accent);font-family:var(--mono);font-size:12px;padding:3px 8px;border-radius:4px;margin:3px 3px 3px 0;cursor:pointer;transition:all .2s}
   .tool-chip:hover{background:rgba(0,212,255,.08);border-color:var(--accent)}
   .celebration{display:none;position:fixed;inset:0;background:rgba(10,14,26,.88);z-index:100;align-items:center;justify-content:center;flex-direction:column;text-align:center;gap:16px;overflow-y:auto;padding:24px}
   .celebration.show{display:flex}
   .cele-icon{font-size:64px}
   .cele-title{font-size:28px;font-weight:700;color:var(--accent);font-family:var(--mono)}
-  .cele-sub{font-size:15px;color:#94a3b8;max-width:420px;line-height:1.6}
-  .cele-btn{background:var(--green);color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:12px 32px;border-radius:8px;cursor:pointer;margin-top:8px}
-  .cele-btn2{background:var(--accent2);color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:12px 32px;border-radius:8px;cursor:pointer;margin-top:8px}
+  .cele-sub{font-size:15px;color:#aebccf;max-width:460px;line-height:1.6}
+  .cele-btn{background:var(--green);color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:13px 32px;border-radius:8px;cursor:pointer;margin-top:8px}
+  .cele-btn2{background:var(--accent2);color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:13px 32px;border-radius:8px;cursor:pointer;margin-top:8px}
   .join-modal{position:fixed;inset:0;background:rgba(10,14,26,.95);z-index:200;display:flex;align-items:center;justify-content:center}
   .join-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;max-width:400px;width:100%}
   .join-title{font-size:22px;font-weight:700;color:var(--accent);font-family:var(--mono);margin-bottom:8px}
-  .join-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6}
-  .join-input{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:16px;padding:12px;border-radius:8px;text-align:center;outline:none;margin-bottom:10px;letter-spacing:.1em}
+  .join-sub{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6}
+  .join-input{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:16px;padding:13px;border-radius:8px;text-align:center;outline:none;margin-bottom:11px;letter-spacing:.1em}
   .join-input:focus{border-color:var(--accent)}
-  .join-name{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:14px;padding:12px;border-radius:8px;text-align:center;outline:none;margin-bottom:16px}
+  .join-name{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:14px;padding:13px;border-radius:8px;text-align:center;outline:none;margin-bottom:16px}
   .join-name:focus{border-color:var(--accent)}
-  .join-btn{width:100%;background:var(--accent);color:var(--bg);border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:12px;border-radius:8px;cursor:pointer}
-  .join-skip{font-size:12px;color:var(--muted);margin-top:12px;cursor:pointer;text-decoration:underline}
-  /* scan progress bar */
-  .scan-progress{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:12px;margin:8px 0;font-family:var(--mono);font-size:12px}
+  .join-btn{width:100%;background:var(--accent);color:var(--bg);border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:13px;border-radius:8px;cursor:pointer}
+  .join-skip{font-size:13px;color:var(--muted);margin-top:13px;cursor:pointer;text-decoration:underline}
+  .scan-progress{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:13px;margin:8px 0;font-family:var(--mono);font-size:13px}
   .scan-bar-wrap{height:8px;background:var(--border);border-radius:99px;overflow:hidden;margin:8px 0}
   .scan-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));border-radius:99px;width:0%;transition:width .1s}
-
-  /* ===== Enhanced learning components ===== */
-  .wos-box{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.25);border-radius:8px;padding:12px 14px;margin:10px 0;font-family:var(--sans);font-size:12px;line-height:1.7;color:#c4b5fd;}
+  /* === Enhanced: WOS / explainer / overview / career === */
+  .wos-box{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.25);border-radius:8px;padding:13px 14px;margin:11px 0;font-family:var(--sans);font-size:13px;line-height:1.7;color:#c4b5fd;}
   .wos-box strong{color:#a78bfa;}
-  .wos-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7c3aed;margin-bottom:6px;}
-  .obj-explainer{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:12px 14px;margin:10px 0;font-family:var(--sans);font-size:13px;line-height:1.7;color:#6ee7b7;}
+  .wos-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7c3aed;margin-bottom:6px;}
+  .obj-explainer{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:13px 14px;margin:11px 0;font-family:var(--sans);font-size:14px;line-height:1.7;color:#6ee7b7;}
   .obj-explainer strong{color:var(--green);}
-  .obj-explainer-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:6px;}
+  .obj-explainer-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:6px;}
   .overview-modal{position:fixed;inset:0;background:var(--bg);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;}
   .overview-box{max-width:640px;width:100%;text-align:center;}
-  .ov-badge{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:16px;}
+  .ov-badge{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:16px;}
   .ov-icon{font-size:64px;margin-bottom:16px;}
-  .ov-title{font-size:32px;font-weight:800;margin-bottom:12px;}
+  .ov-title{font-size:32px;font-weight:800;margin-bottom:13px;}
   .ov-title span{color:var(--accent);}
-  .ov-hook{font-size:16px;color:#94a3b8;line-height:1.7;margin-bottom:28px;max-width:520px;margin-left:auto;margin-right:auto;}
-  .ov-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;text-align:left;}
-  .ov-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px;}
+  .ov-hook{font-size:16px;color:#aebccf;line-height:1.7;margin-bottom:28px;max-width:520px;margin-left:auto;margin-right:auto;}
+  .ov-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:28px;text-align:left;}
+  .ov-card{background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:14px;}
   .ov-card-icon{font-size:20px;margin-bottom:6px;}
-  .ov-card-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;}
-  .ov-card-text{font-size:12px;color:var(--muted);line-height:1.5;}
-  .ov-skill{display:inline-block;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--accent);font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:99px;margin:3px;}
-  .ov-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:14px 40px;border-radius:10px;cursor:pointer;margin-top:8px;}
+  .ov-card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .ov-card-text{font-size:13px;color:var(--muted);line-height:1.5;}
+  .ov-skill{display:inline-block;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--accent);font-family:var(--mono);font-size:12px;padding:3px 11px;border-radius:99px;margin:3px;}
+  .ov-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:14px 40px;border-radius:11px;cursor:pointer;margin-top:8px;}
   .career-section{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:540px;width:100%;text-align:left;margin-top:8px;}
-  .career-title{font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;text-align:center;}
-  .career-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
-  .career-card{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:12px;}
+  .career-title{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;text-align:center;}
+  .career-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:16px;}
+  .career-card{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:13px;}
   .career-card-icon{font-size:18px;margin-bottom:4px;}
-  .career-card-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;}
-  .career-card-text{font-size:11px;color:var(--muted);line-height:1.4;}
+  .career-card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;}
+  .career-card-text{font-size:12px;color:var(--muted);line-height:1.4;}
   .cert-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
-  .cert-badge{background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);color:#a78bfa;font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:99px;}
-  .salary-row{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);text-align:center;margin-top:8px;}
+  .cert-badge{background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);color:#a78bfa;font-size:12px;font-family:var(--mono);padding:3px 11px;border-radius:99px;}
+  .salary-row{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:11px 14px;font-size:14px;color:var(--green);text-align:center;margin-top:8px;}
+  .continue-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:11px 28px;border-radius:8px;cursor:pointer;margin-top:11px;}
 </style>
 </head>
 <body>
@@ -141,28 +140,28 @@
   <div class="overview-box">
     <div class="ov-badge">Module 3 of 6 · Vulnerability Management</div>
     <div class="ov-icon">🔬</div>
-    <h1 class="ov-title">What's <span>Broken?</span></h1>
-    <p class="ov-hook">Every piece of software has flaws. The job of a vulnerability analyst is to find those flaws systematically — before an attacker does — and turn the findings into a plan that actually gets things fixed.</p>
+    <div class="ov-title">What's <span>Broken?</span></div>
+    <div class="ov-hook">In December 2021, one flaw — Log4Shell — put an estimated 3 billion devices at risk worldwide. Today you become the analyst who finds vulnerabilities like it before attackers do.</div>
     <div class="ov-cards">
-      <div class="ov-card"><div class="ov-card-icon">🌍</div><div class="ov-card-title">Real World</div><div class="ov-card-text">The 2017 Equifax breach exposed 147 million people's data because a known, patchable vulnerability was left unfixed for months. Scanning finds the gap before that happens.</div></div>
-      <div class="ov-card"><div class="ov-card-icon">🛠️</div><div class="ov-card-title">Your Tool Today</div><div class="ov-card-text"><strong style="color:var(--accent)">Nessus</strong> — the industry-standard vulnerability scanner used by security teams worldwide to check systems against thousands of known CVEs.</div></div>
-      <div class="ov-card"><div class="ov-card-icon">⏱️</div><div class="ov-card-title">Today's Mission</div><div class="ov-card-text">Scan the school's student portal server, identify the critical flaws, test for weak logins, and write a remediation plan.</div></div>
+      <div class="ov-card"><div class="ov-card-icon">🌍</div><div class="ov-card-title">Real World</div><div class="ov-card-text">Equifax lost 147 million records to one unpatched flaw. Most breaches start with a vulnerability nobody fixed in time.</div></div>
+      <div class="ov-card"><div class="ov-card-icon">🛠️</div><div class="ov-card-title">Your Tool Today</div><div class="ov-card-text">Nessus — the industry-standard vulnerability scanner used by real security teams every day.</div></div>
+      <div class="ov-card"><div class="ov-card-icon">🎯</div><div class="ov-card-title">Today's Mission</div><div class="ov-card-text">Scan a server, find Log4Shell, confirm default credentials, and write a remediation plan IT can actually use.</div></div>
     </div>
     <div>
       <span class="ov-skill">Vulnerability Scanning</span>
-      <span class="ov-skill">CVE Analysis</span>
-      <span class="ov-skill">Risk Prioritisation</span>
+      <span class="ov-skill">CVSS Scoring</span>
+      <span class="ov-skill">Credential Testing</span>
       <span class="ov-skill">Remediation Planning</span>
     </div>
     <br>
-    <button class="ov-btn" onclick="showJoin()">Start Scan →</button>
+    <button class="ov-btn" onclick="showJoin()">Begin Scan →</button>
   </div>
 </div>
 
 <div class="join-modal" id="joinModal" style="display:none;">
   <div class="join-box">
     <div class="join-title">Module 3</div>
-    <div style="font-size:32px;margin:12px 0">🔬</div>
+    <div style="font-size:32px;margin:13px 0">🔬</div>
     <div class="join-sub">Enter your class code and name to join your instructor's session.</div>
     <input class="join-input" id="joinCode" placeholder="CLASS CODE" maxlength="6"/>
     <input class="join-name" id="joinName" placeholder="Your first name" maxlength="30"/>
@@ -177,7 +176,7 @@
     <span class="badge">Module 3 of 6</span>
     <span>What's Broken?</span>
     <div style="display:flex;align-items:center;gap:8px;">
-      <span style="font-size:11px;">Progress</span>
+      <span style="font-size:12px;">Progress</span>
       <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
     </div>
   </div>
@@ -214,7 +213,7 @@
     <div class="sidebar-section">
       <div class="sidebar-label">Need a nudge?</div>
       <button class="hint-btn" onclick="toggleHint()">💡 Show hint</button>
-      <div class="hint-text" id="hintBox">Start with <code>nessus scan 192.168.10.50</code> to run a full vulnerability scan, then use <code>nessus detail CVE-2021-44228</code> to dig into specific findings.</div>
+      <div class="hint-text" id="hintBox">Think about what a vulnerability scanner needs before it can report anything — it has to be pointed at a target. Once you have scan results, look for the finding with the highest severity score and investigate that one further.</div>
     </div>
   </aside>
 
@@ -260,29 +259,25 @@
   <div class="cele-icon">🛡️</div>
   <div class="cele-title">Vulnerabilities Patched!</div>
   <div class="cele-sub">You found Log4Shell, Spring4Shell, default credentials and weak encryption — then built a remediation plan to fix them all.<br><br><strong style="color:#10b981;">Skill unlocked: Vulnerability Management</strong></div>
-
   <div class="career-section">
     <div class="career-title">🎯 Where this skill takes you</div>
     <div class="career-grid">
-      <div class="career-card"><div class="career-card-icon">🔬</div><div class="career-card-title">Vulnerability Analyst</div><div class="career-card-text">Runs scheduled scans, triages findings by severity, and tracks remediation across an organisation's IT estate.</div></div>
-      <div class="career-card"><div class="career-card-icon">🕵️</div><div class="career-card-title">Penetration Tester</div><div class="career-card-text">Goes further than scanning — actively exploits vulnerabilities to prove real-world risk to a client.</div></div>
-      <div class="career-card"><div class="career-card-icon">🛠️</div><div class="career-card-title">Security Engineer</div><div class="career-card-text">Builds and maintains the scanning, patching and hardening systems that stop vulnerabilities piling up.</div></div>
-      <div class="career-card"><div class="career-card-icon">💻</div><div class="career-card-title">AppSec Engineer</div><div class="career-card-text">Specialises in finding and fixing vulnerabilities in custom-built software, not just off-the-shelf systems.</div></div>
+      <div class="career-card"><div class="career-card-icon">🔬</div><div class="career-card-title">Vulnerability Analyst</div><div class="career-card-text">Finds and prioritises weaknesses before attackers do.</div></div>
+      <div class="career-card"><div class="career-card-icon">🕵️</div><div class="career-card-title">Penetration Tester</div><div class="career-card-text">Hired to break in legally and report what's exploitable.</div></div>
+      <div class="career-card"><div class="career-card-icon">🛠️</div><div class="career-card-title">Security Engineer</div><div class="career-card-text">Builds and patches the systems that keep data safe.</div></div>
+      <div class="career-card"><div class="career-card-icon">💻</div><div class="career-card-title">AppSec Engineer</div><div class="career-card-text">Secures software before it ever ships to users.</div></div>
     </div>
-    <div class="sidebar-label" style="margin-bottom:8px;">Certifications that teach this</div>
+    <div class="career-title" style="margin-bottom:8px;">Certifications that open doors</div>
     <div class="cert-row">
       <span class="cert-badge">CompTIA PenTest+</span>
       <span class="cert-badge">CompTIA Security+</span>
       <span class="cert-badge">OSCP</span>
       <span class="cert-badge">CEH</span>
     </div>
-    <div class="salary-row">💰 Vulnerability Analyst starting salary: <strong>£30,000–£45,000</strong> UK · <strong>$60,000–$85,000</strong> US</div>
+    <div class="salary-row">💰 Vulnerability Analyst starting salary: $48,000–$75,000 CAD · $60,000–$90,000 US</div>
   </div>
-
-  <div style="display:flex;gap:12px;margin-top:8px;">
-    <button class="cele-btn" onclick="window.location.href='module4_cyber_lab.html'">Next: Module 4 →</button>
-    <button class="cele-btn2" onclick="resetLab()">Replay</button>
-  </div>
+  <button class="cele-btn" onclick="window.location.href='module4_cyber_lab.html'">Next: Module 4 →</button>
+  <button class="cele-btn2" onclick="resetLab()">Replay Module 3</button>
 </div>
 
 <script>
@@ -300,16 +295,19 @@ function print(html,cls='t-out'){const d=document.createElement('div');d.classNa
 function printCmd(cmd){print(`<span class="t-prompt">analyst@cyberpath:~$</span> <span class="t-cmd">${esc(cmd)}</span>`);}
 function printBlank(){const d=document.createElement('div');d.style.height='6px';out.appendChild(d);}
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function aria(html){const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;}
-function ariaSuccess(html){const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg celebrate';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;}
-function printWOS(title,html){const d=document.createElement('div');d.innerHTML=`<div class="wos-box"><div class="wos-title">📺 What's on the screen — ${title}</div>${html}</div>`;out.appendChild(d.firstChild);out.scrollTop=out.scrollHeight;}
-function printExplainer(html){const d=document.createElement('div');d.innerHTML=`<div class="obj-explainer"><div class="obj-explainer-title">🌍 Real World Connection</div>${html}</div>`;out.appendChild(d.firstChild);out.scrollTop=out.scrollHeight;}
-function completeObj(n){if(state.objectives[n])return;state.objectives[n]=true;const el=document.getElementById('obj'+n);el.classList.add('done');el.querySelector('.obj-check').textContent='✓';const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('progressBar').style.width=(done/4*100)+'%';syncProgress();if(done===4)setTimeout(()=>document.getElementById('celebration').classList.add('show'),1200);}
+let ariaQueue=[];let ariaBusy=false;
+function ariaEnqueue(html,cls){ariaQueue.push({html,cls});processAriaQueue();}
+function processAriaQueue(){if(ariaBusy||ariaQueue.length===0)return;ariaBusy=true;const item=ariaQueue.shift();const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className=item.cls;d.innerHTML=item.html;b.appendChild(d);b.scrollTop=b.scrollHeight;setTimeout(()=>{ariaBusy=false;processAriaQueue();},700);}
+function aria(html){ariaEnqueue(html,'msg');}
+function ariaSuccess(html){ariaEnqueue(html,'msg celebrate');}
+function printWOS(title,html){ariaEnqueue(`<div class="wos-title">📺 What's on the screen — ${title}</div>${html}`,'msg wos-box');}
+function printExplainer(html){ariaEnqueue(`<div class="obj-explainer-title">🌍 Real World Connection</div>${html}`,'msg obj-explainer');}
+function completeObj(n){if(state.objectives[n])return;state.objectives[n]=true;const el=document.getElementById('obj'+n);el.classList.add('done');el.querySelector('.obj-check').textContent='✓';const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('progressBar').style.width=(done/4*100)+'%';syncProgress();if(done===4){setTimeout(()=>{const d=document.createElement('div');d.className='t-line';d.style.marginTop='11px';d.innerHTML="<button class=\"continue-btn\" onclick=\"document.getElementById('celebration').classList.add('show')\">✓ Mission complete — View My Results →</button>";out.appendChild(d);out.scrollTop=out.scrollHeight;},900);}}
 function revealVuln(id){document.getElementById(id).classList.add('found');}
 
 function animateScan(cb){
   const div=document.createElement('div');div.className='scan-progress';
-  div.innerHTML=`<div style="color:var(--accent);margin-bottom:4px">Nessus scan in progress...</div><div class="scan-bar-wrap"><div class="scan-bar-fill" id="scanFill"></div></div><div id="scanStatus" style="color:var(--muted);font-size:11px">Initialising...</div>`;
+  div.innerHTML=`<div style="color:var(--accent);margin-bottom:4px">Nessus scan in progress...</div><div class="scan-bar-wrap"><div class="scan-bar-fill" id="scanFill"></div></div><div id="scanStatus" style="color:var(--muted);font-size:12px">Initialising...</div>`;
   out.appendChild(div);out.scrollTop=out.scrollHeight;
   const steps=['Checking 45,000 plugins...','Testing web application...','Checking for CVEs...','Testing credentials...','Analysing SSL/TLS...','Compiling results...'];
   let i=0;let pct=0;
@@ -353,11 +351,11 @@ const RESPONSES={
       print('');
       print('Total: 4 vulnerabilities | 1 Critical | 2 High | 1 Medium','t-out highlight');
       printBlank();
-      printWOS('Nessus Scan Results','Each row shows a finding\'s <strong>severity</strong> (Critical/High/Medium/Low, based on a <strong>CVSS score</strong> from 0–10), the <strong>CVE ID</strong> — a unique reference number for a publicly known vulnerability — and a short description. Real analysts triage hundreds of these by severity, fixing Critical issues first.');
+      printWOS('Nessus Scan Results','Each row is one vulnerability found on the target. <strong>CVSS</strong> (Common Vulnerability Scoring System) rates severity from 0–10 — anything above 9.0 is considered critical and needs same-day attention.');
       revealVuln('v1');revealVuln('v2');revealVuln('v4');
       completeObj(1);
       print('[ Objective 1 complete: Vulnerability scan finished ]','t-out highlight');
-      printExplainer('Companies pay vulnerability scanning vendors like Tenable (Nessus), Qualys and Rapid7 to run scans like this across thousands of servers. The 2017 Equifax breach — which exposed 147 million people\'s data — happened because a known, patchable vulnerability in Apache Struts was left unpatched for months. Scanning finds the gap; patching closes it.');
+      printExplainer('In December 2021, <strong>Log4Shell</strong> (this exact vulnerability) was rated 10.0/10 in severity and affected an estimated 3 billion devices — from Minecraft servers to iCloud. Security teams worked around the clock for weeks patching it.');
       aria('<strong>4 vulnerabilities found!</strong> The most critical is <strong>Log4Shell (CVE-2021-44228)</strong> — one of the worst vulnerabilities ever discovered. It affects millions of systems and allows attackers to execute code remotely just by sending a specially crafted log message. Use <code>nessus detail CVE-2021-44228</code> to learn more, then <code>credcheck 192.168.10.50</code> to investigate the default credentials finding.');
     });
   },
@@ -378,10 +376,10 @@ const RESPONSES={
     print('Fix: Upgrade Log4j to version 2.17.1 or later.','t-out highlight');
     print('Patch available: YES  |  Exploit public: YES (extremely active)','t-out error');
     printBlank();
-    printWOS('CVE Detail Report','A CVE detail report breaks a vulnerability into: <strong>Severity & CVSS score</strong>, <strong>Affected software/versions</strong>, a plain-English <strong>Description</strong> of how the exploit works, and a recommended <strong>Fix</strong>. Real platforms like the National Vulnerability Database (NVD) and tools like Nessus, Qualys or Tenable.io generate exactly this kind of report.');
+    printWOS('CVE Detail Report','This is what a CVE (Common Vulnerabilities and Exposures) detail page looks like in real tools. It tells you exactly how the exploit works, which versions are affected, and whether a fix already exists.');
     completeObj(2);
     print('[ Objective 2 complete: Critical vulnerability understood ]','t-out highlight');
-    printExplainer('Log4Shell was discovered in December 2021 and is considered one of the most severe vulnerabilities in internet history. It affected an enormous range of software — from Minecraft servers to enterprise cloud platforms — because the vulnerable Log4j library was embedded almost everywhere. Within days, attackers were scanning the entire internet for vulnerable servers.');
+    printExplainer('Security teams use CVSS scores to triage hundreds of vulnerabilities every week. A score of 10.0 jumps to the very top of the queue — above almost everything else they\'re tracking.');
     aria('Log4Shell was discovered in December 2021 and sent the entire security industry into a panic. Hundreds of millions of devices were vulnerable. The fact that this server has it means <strong>it could be fully compromised right now</strong>. This needs patching immediately. Next, check for default credentials with <code>credcheck 192.168.10.50</code>.');
   },
   'credcheck 192.168.10.50':()=>{
@@ -397,11 +395,11 @@ const RESPONSES={
     print('RESULT: Default credentials active on admin panel!','t-out error');
     print('Admin panel URL: http://192.168.10.50:8080/admin','t-out warn');
     printBlank();
-    printWOS('Credential Test Output','<code>credcheck</code> simulates testing for weak or default logins. A <strong>LOGIN SUCCESSFUL</strong> result means an attacker could walk straight into the admin panel — no exploit needed. This is one of the most common real-world breach causes, because devices often ship with default usernames/passwords that nobody changes.');
+    printWOS('Credential Check Results','Default credentials are usernames/passwords that ship with a product out of the box. Analysts test them first because they\'re free wins for attackers — no hacking skill required, just knowing the manual.');
     revealVuln('v3');
     completeObj(3);
     print('[ Objective 3 complete: Default credentials confirmed ]','t-out highlight');
-    printExplainer('Default credentials are a leading cause of real breaches. The 2016 Mirai botnet hijacked hundreds of thousands of IoT devices — cameras, routers, DVRs — simply by trying factory-default logins like "admin/admin". It\'s one of the simplest fixes in cybersecurity, and one of the most frequently skipped.');
+    printExplainer('Verizon\'s Data Breach Investigations Report consistently finds that stolen or default credentials are involved in the majority of breaches — they\'re often the easiest way in, far easier than writing an exploit.');
     aria('🚨 <strong>admin/admin still works!</strong> This is one of the most common mistakes in IT — default credentials are never changed after setup. Anyone who knows the admin panel URL can log straight in. Combined with Log4Shell, this server is completely exposed. Now build your remediation plan with <code>remediate 192.168.10.50</code>.');
   },
   'remediate 192.168.10.50':()=>{
@@ -428,9 +426,9 @@ const RESPONSES={
     print('Estimated fix time: 2-4 hours for Priority 1','t-out highlight');
     print('Risk if unpatched: CRITICAL — remote code execution possible','t-out error');
     printBlank();
-    printWOS('Remediation Plan','A remediation plan turns scan results into action. It\'s organised by <strong>Priority Tier</strong> — Priority 1 (fix within 24 hours), Priority 2 (this week), Priority 3 (this month) — because no team can fix everything at once. This is the deliverable a vulnerability analyst hands to IT to actually get things patched.');
+    printWOS('Remediation Plan Structure','Real remediation plans are organised by priority and timeline, not just a list of fixes. IT teams need to know: what\'s most dangerous, and how fast can we fix it — that\'s what the Priority 1/2/3 bands tell them.');
     completeObj(4);
-    printExplainer('Remediation prioritisation is what separates a good vulnerability management program from a checklist. Frameworks like SANS and NIST recommend patching Critical (CVSS 9+) vulnerabilities within 24–48 hours of detection — exactly the timeline you just built.');
+    printExplainer('A remediation plan with no priority or deadline rarely gets actioned. Real security teams negotiate fix deadlines (SLAs) with IT based on severity — Critical = 24 hours, High = 1 week, Medium = 1 month.');
     ariaSuccess('🎉 <strong>Outstanding work!</strong> You ran a professional vulnerability assessment, understood one of the most critical CVEs in history, confirmed default credentials, and produced a prioritised remediation plan. That\'s exactly what a real vulnerability analyst does!');
   }
 };

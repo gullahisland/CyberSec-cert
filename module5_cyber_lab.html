@@ -6,127 +6,124 @@
 <title>CyberPath: Module 5 — How Do We Stay Safe?</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
-  :root{--bg:#0a0e1a;--panel:#111827;--panel2:#1a2235;--border:#1e2d45;--accent:#00d4ff;--accent2:#7c3aed;--green:#10b981;--yellow:#f59e0b;--red:#ef4444;--text:#e2e8f0;--muted:#64748b;--mono:'JetBrains Mono',monospace;--sans:'Inter',sans-serif;}
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;display:flex;flex-direction:column;}
-  nav{background:var(--panel);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
-  .nav-logo{font-family:var(--mono);font-weight:700;font-size:16px;color:var(--accent);}
-  .nav-logo span{color:var(--text);}
-  .nav-meta{display:flex;align-items:center;gap:20px;font-size:13px;color:var(--muted);}
-  .badge{background:var(--accent2);color:#fff;font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;}
-  .progress-bar-wrap{width:120px;height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
-  .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .5s ease;width:0%;}
-  .layout{display:grid;grid-template-columns:300px 1fr 260px;flex:1;overflow:hidden;height:calc(100vh - 56px);}
-  .sidebar{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
-  .sidebar-section{padding:20px;border-bottom:1px solid var(--border);}
-  .sidebar-label{font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;}
-  .scenario-title{font-size:15px;font-weight:700;color:var(--accent);margin-bottom:8px;}
-  .scenario-text{font-size:13px;color:#94a3b8;line-height:1.6;}
-  .scenario-text strong{color:var(--text);}
-  .obj-list{list-style:none;}
-  .obj-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;font-size:13px;color:#94a3b8;border-bottom:1px solid var(--border);}
-  .obj-item:last-child{border-bottom:none;}
-  .obj-item.done{color:var(--green);}
-  .obj-check{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-size:11px;}
-  .obj-item.done .obj-check{background:var(--green);border-color:var(--green);color:#fff;}
-  /* risk matrix */
-  .risk-matrix{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:8px;}
-  .risk-cell{border-radius:5px;padding:6px 4px;font-size:10px;text-align:center;font-family:var(--mono);opacity:.3;transition:opacity .4s;border:1px solid transparent;}
+  :root { --bg:#0a0e1a; --panel:#111827; --panel2:#1a2235; --border:#1e2d45; --accent:#00d4ff; --accent2:#7c3aed; --green:#10b981; --yellow:#f59e0b; --red:#ef4444; --text:#e2e8f0; --muted:#7d8da3; --mono:'JetBrains Mono',monospace; --sans:'Inter',sans-serif; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; display:flex; flex-direction:column; }
+  nav { background:var(--panel); border-bottom:1px solid var(--border); padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .nav-logo { font-family:var(--mono); font-weight:700; font-size:16px; color:var(--accent); letter-spacing:.05em; }
+  .nav-logo span { color:var(--text); }
+  .nav-meta { display:flex; align-items:center; gap:20px; font-size:14px; color:var(--muted); }
+  .badge { background:var(--accent2); color:#fff; font-size:12px; font-weight:600; padding:2px 8px; border-radius:99px; }
+  .progress-bar-wrap { width:120px; height:6px; background:var(--border); border-radius:99px; overflow:hidden; }
+  .progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:99px; transition:width .5s ease; width:0%; }
+  .layout { display:grid; grid-template-columns:300px 1fr 260px; flex:1; overflow:hidden; height:calc(100vh - 56px); }
+  .sidebar { background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow-y:auto; position:sticky; top:0; align-self:start; height:calc(100vh - 56px); }
+  .sidebar-section { padding:20px; border-bottom:1px solid var(--border); }
+  .sidebar-label { font-size:11px; font-weight:700; letter-spacing:.12em; color:var(--muted); text-transform:uppercase; margin-bottom:11px; }
+  .scenario-title { font-size:15px; font-weight:700; color:var(--accent); margin-bottom:8px; }
+  .scenario-text { font-size:14px; color:#aebccf; line-height:1.6; }
+  .scenario-text strong { color:var(--text); }
+  .obj-list { list-style:none; }
+  .obj-item { display:flex; align-items:flex-start; gap:11px; padding:8px 0; font-size:14px; color:#aebccf; border-bottom:1px solid var(--border); transition:color .3s; }
+  .obj-item:last-child { border-bottom:none; }
+  .obj-item.done { color:var(--green); }
+  .obj-check { width:18px; height:18px; border:2px solid var(--border); border-radius:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px; transition:all .3s; font-size:12px; }
+  .obj-item.done .obj-check { background:var(--green); border-color:var(--green); color:#fff; }
+  .risk-matrix{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+  .risk-cell{background:var(--bg);border-radius:6px;padding:8px;font-size:12px;border-left:3px solid var(--border);opacity:.4;transition:opacity .3s;}
   .risk-cell.active{opacity:1;}
-  .risk-cell.low{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.3);color:var(--green);}
-  .risk-cell.med{background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.3);color:var(--yellow);}
-  .risk-cell.high{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.3);color:var(--red);}
-  .risk-cell.crit{background:rgba(239,68,68,.25);border-color:var(--red);color:var(--red);font-weight:700;}
-  .risk-label{font-size:9px;color:var(--muted);text-align:center;margin-top:2px;}
-  .hint-btn{width:100%;background:transparent;border:1px solid var(--border);color:var(--yellow);font-family:var(--mono);font-size:12px;padding:8px 12px;border-radius:6px;cursor:pointer;text-align:left;}
-  .hint-btn:hover{background:rgba(245,158,11,.08);border-color:var(--yellow);}
-  .hint-text{margin-top:10px;font-size:12px;color:#fbbf24;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:6px;padding:10px;line-height:1.6;display:none;}
-  .hint-text.visible{display:block;}
-  .terminal-wrap{display:flex;flex-direction:column;overflow:hidden;}
-  .terminal-header{background:var(--panel2);border-bottom:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
-  .terminal-dots{display:flex;gap:6px;}
-  .dot{width:12px;height:12px;border-radius:50%;}
-  .dot.red{background:#ff5f56}.dot.yellow{background:#ffbd2e}.dot.green{background:#27c93f}
-  .terminal-title{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:4px;}
-  .terminal-output{flex:1;overflow-y:auto;padding:18px 20px;font-family:var(--mono);font-size:13px;line-height:1.7;}
-  .terminal-output::-webkit-scrollbar{width:6px;}
-  .terminal-output::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-  .t-line{margin-bottom:2px;}
-  .t-prompt{color:var(--accent)}.t-cmd{color:var(--text)}
-  .t-out{color:#94a3b8;white-space:pre}
-  .t-out.highlight{color:var(--green)}.t-out.warn{color:var(--yellow)}.t-out.error{color:var(--red)}.t-out.accent{color:var(--accent)}
-  .t-system{color:var(--accent2);font-size:12px;padding:6px 0;border-left:2px solid var(--accent2);padding-left:10px;margin:6px 0;}
-  .t-info{color:var(--accent);background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:6px;padding:10px 14px;margin:8px 0;line-height:1.6;font-family:var(--sans);font-size:13px;}
-  .t-info strong{font-family:var(--mono);color:var(--text);}
-  .terminal-input-row{display:flex;align-items:center;padding:12px 20px;border-top:1px solid var(--border);background:var(--panel2);gap:8px;flex-shrink:0;}
-  .terminal-prompt-label{font-family:var(--mono);font-size:13px;color:var(--accent);white-space:nowrap;}
-  .terminal-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:13px;caret-color:var(--accent);}
-  .run-btn{background:var(--accent);color:var(--bg);border:none;font-family:var(--mono);font-size:12px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer;}
-  .assistant-panel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
-  .assistant-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;}
-  .assistant-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-  .assistant-name{font-size:14px;font-weight:600;color:var(--text);}
-  .assistant-role{font-size:11px;color:var(--muted);}
-  .online-dot{width:7px;height:7px;background:var(--green);border-radius:50%;margin-left:auto;box-shadow:0 0 6px var(--green);}
-  .assistant-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
-  .msg{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;color:#94a3b8;line-height:1.6;animation:fadeUp .3s ease;}
-  .msg strong{color:var(--text);}
-  .msg code{background:rgba(0,212,255,.1);color:var(--accent);font-family:var(--mono);font-size:11px;padding:1px 5px;border-radius:3px;}
-  .msg.celebrate{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.06);color:var(--green);}
+  .risk-cell.crit{border-color:var(--red);} .risk-cell.high{border-color:var(--yellow);} .risk-cell.med{border-color:var(--accent);} .risk-cell.low{border-color:var(--green);}
+  .risk-cell-title{font-family:var(--mono);color:var(--text);font-size:11px;margin-bottom:2px;}
+  .risk-cell-lvl{font-size:9px;font-weight:700;text-transform:uppercase;}
+  .risk-cell.crit .risk-cell-lvl{color:var(--red);} .risk-cell.high .risk-cell-lvl{color:var(--yellow);} .risk-cell.med .risk-cell-lvl{color:var(--accent);} .risk-cell.low .risk-cell-lvl{color:var(--green);}
+  .hint-btn { width:100%; background:transparent; border:1px solid var(--border); color:var(--yellow); font-family:var(--mono); font-size:13px; padding:8px 13px; border-radius:6px; cursor:pointer; text-align:left; transition:all .2s; }
+  .hint-btn:hover { background:rgba(245,158,11,.08); border-color:var(--yellow); }
+  .hint-text { margin-top:11px; font-size:13px; color:#fbbf24; background:rgba(245,158,11,.06); border:1px solid rgba(245,158,11,.2); border-radius:6px; padding:11px; line-height:1.6; display:none; }
+  .hint-text.visible { display:block; }
+  .terminal-wrap { display:flex; flex-direction:column; overflow:hidden; }
+  .terminal-header { background:var(--panel2); border-bottom:1px solid var(--border); padding:11px 18px; display:flex; align-items:center; gap:11px; flex-shrink:0; }
+  .terminal-dots { display:flex; gap:6px; }
+  .dot { width:13px; height:13px; border-radius:50%; }
+  .dot.red{background:#ff5f56} .dot.yellow{background:#ffbd2e} .dot.green{background:#27c93f}
+  .terminal-title { font-family:var(--mono); font-size:13px; color:var(--muted); margin-left:4px; }
+  .terminal-output { flex:1; overflow-y:auto; padding:18px 20px; font-family:var(--mono); font-size:14px; line-height:1.7; }
+  .terminal-output::-webkit-scrollbar { width:6px; }
+  .terminal-output::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+  .t-line { margin-bottom:2px; }
+  .t-prompt{color:var(--accent)} .t-cmd{color:var(--text)}
+  .t-out{color:#aebccf;white-space:pre}
+  .t-out.highlight{color:var(--green)} .t-out.warn{color:var(--yellow)} .t-out.error{color:var(--red)} .t-out.accent{color:var(--accent)}
+  .t-system{color:var(--accent2);font-size:13px;padding:6px 0;border-left:2px solid var(--accent2);padding-left:11px;margin:6px 0}
+  .t-info{color:var(--accent);background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:6px;padding:11px 14px;margin:8px 0;line-height:1.6;font-family:var(--sans);font-size:14px}
+  .t-info strong{font-family:var(--mono);color:var(--text)}
+  .terminal-input-row{display:flex;align-items:center;padding:13px 20px;border-top:1px solid var(--border);background:var(--panel2);gap:8px;flex-shrink:0}
+  .terminal-prompt-label{font-family:var(--mono);font-size:14px;color:var(--accent);white-space:nowrap}
+  .terminal-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:14px;caret-color:var(--accent)}
+  .run-btn{background:var(--accent);color:var(--bg);border:none;font-family:var(--mono);font-size:13px;font-weight:700;padding:6px 14px;border-radius:5px;cursor:pointer}
+  .assistant-panel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;position:sticky;top:0;align-self:start;height:calc(100vh - 56px);}
+  .assistant-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;flex-shrink:0}
+  .assistant-avatar{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+  .assistant-name{font-size:14px;font-weight:600;color:var(--text)}
+  .assistant-role{font-size:12px;color:var(--muted)}
+  .online-dot{width:7px;height:7px;background:var(--green);border-radius:50%;margin-left:auto;box-shadow:0 0 6px var(--green)}
+  .assistant-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:11px}
+  .msg{background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:11px 13px;font-size:14px;color:#aebccf;line-height:1.6;animation:fadeUp .3s ease}
+  .msg strong{color:var(--text)}
+  .msg code{background:rgba(0,212,255,.1);color:var(--accent);font-family:var(--mono);font-size:12px;padding:1px 5px;border-radius:3px}
+  .msg.celebrate{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.06);color:var(--green)}
   @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-  .tools-ref{padding:14px;border-top:1px solid var(--border);flex-shrink:0;}
-  .tools-label{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
-  .tool-chip{display:inline-block;background:var(--panel2);border:1px solid var(--border);color:var(--accent);font-family:var(--mono);font-size:11px;padding:3px 8px;border-radius:4px;margin:3px 3px 3px 0;cursor:pointer;}
-  .tool-chip:hover{background:rgba(0,212,255,.08);border-color:var(--accent);}
-  .celebration{display:none;position:fixed;inset:0;background:rgba(10,14,26,.88);z-index:100;align-items:center;justify-content:center;flex-direction:column;text-align:center;gap:16px;overflow-y:auto;padding:24px;}
-  .celebration.show{display:flex;}
-  .cele-icon{font-size:64px;}
-  .cele-title{font-size:28px;font-weight:700;color:var(--accent);font-family:var(--mono);}
-  .cele-sub{font-size:15px;color:#94a3b8;max-width:420px;line-height:1.6;}
-  .cele-btn{background:var(--green);color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:12px 32px;border-radius:8px;cursor:pointer;margin-top:8px;}
-  .cele-btn2{background:var(--accent2);color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:12px 32px;border-radius:8px;cursor:pointer;margin-top:8px;}
-  .join-modal{position:fixed;inset:0;background:rgba(10,14,26,.95);z-index:200;display:flex;align-items:center;justify-content:center;}
-  .join-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;max-width:400px;width:100%;}
-  .join-title{font-size:22px;font-weight:700;color:var(--accent);font-family:var(--mono);margin-bottom:8px;}
-  .join-sub{font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
-  .join-input{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:16px;padding:12px;border-radius:8px;text-align:center;outline:none;margin-bottom:10px;}
-  .join-input:focus{border-color:var(--accent);}
-  .join-name{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:14px;padding:12px;border-radius:8px;text-align:center;outline:none;margin-bottom:16px;}
-  .join-name:focus{border-color:var(--accent);}
-  .join-btn{width:100%;background:var(--accent);color:var(--bg);border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:12px;border-radius:8px;cursor:pointer;}
-  .join-skip{font-size:12px;color:var(--muted);margin-top:12px;cursor:pointer;text-decoration:underline;}
-
-  /* ===== Enhanced learning components ===== */
-  .wos-box{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.25);border-radius:8px;padding:12px 14px;margin:10px 0;font-family:var(--sans);font-size:12px;line-height:1.7;color:#c4b5fd;}
+  .tools-ref{padding:14px;border-top:1px solid var(--border);flex-shrink:0}
+  .tools-label{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+  .tool-chip{display:inline-block;background:var(--panel2);border:1px solid var(--border);color:var(--accent);font-family:var(--mono);font-size:12px;padding:3px 8px;border-radius:4px;margin:3px 3px 3px 0;cursor:pointer;transition:all .2s}
+  .tool-chip:hover{background:rgba(0,212,255,.08);border-color:var(--accent)}
+  .celebration{display:none;position:fixed;inset:0;background:rgba(10,14,26,.88);z-index:100;align-items:center;justify-content:center;flex-direction:column;text-align:center;gap:16px;overflow-y:auto;padding:24px}
+  .celebration.show{display:flex}
+  .cele-icon{font-size:64px}
+  .cele-title{font-size:28px;font-weight:700;color:var(--accent);font-family:var(--mono)}
+  .cele-sub{font-size:15px;color:#aebccf;max-width:460px;line-height:1.6}
+  .cele-btn{background:var(--green);color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:13px 32px;border-radius:8px;cursor:pointer;margin-top:8px}
+  .cele-btn2{background:var(--accent2);color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:13px 32px;border-radius:8px;cursor:pointer;margin-top:8px}
+  .join-modal{position:fixed;inset:0;background:rgba(10,14,26,.95);z-index:200;display:flex;align-items:center;justify-content:center}
+  .join-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;max-width:400px;width:100%}
+  .join-title{font-size:22px;font-weight:700;color:var(--accent);font-family:var(--mono);margin-bottom:8px}
+  .join-sub{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6}
+  .join-input{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:16px;padding:13px;border-radius:8px;text-align:center;outline:none;margin-bottom:11px;letter-spacing:.1em}
+  .join-input:focus{border-color:var(--accent)}
+  .join-name{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:14px;padding:13px;border-radius:8px;text-align:center;outline:none;margin-bottom:16px}
+  .join-name:focus{border-color:var(--accent)}
+  .join-btn{width:100%;background:var(--accent);color:var(--bg);border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:13px;border-radius:8px;cursor:pointer}
+  .join-skip{font-size:13px;color:var(--muted);margin-top:13px;cursor:pointer;text-decoration:underline}
+  .wos-box{background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.25);border-radius:8px;padding:13px 14px;margin:11px 0;font-family:var(--sans);font-size:13px;line-height:1.7;color:#c4b5fd;}
   .wos-box strong{color:#a78bfa;}
-  .wos-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7c3aed;margin-bottom:6px;}
-  .obj-explainer{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:12px 14px;margin:10px 0;font-family:var(--sans);font-size:13px;line-height:1.7;color:#6ee7b7;}
+  .wos-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#7c3aed;margin-bottom:6px;}
+  .obj-explainer{background:rgba(16,185,129,.05);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:13px 14px;margin:11px 0;font-family:var(--sans);font-size:14px;line-height:1.7;color:#6ee7b7;}
   .obj-explainer strong{color:var(--green);}
-  .obj-explainer-title{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:6px;}
+  .obj-explainer-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:6px;}
   .overview-modal{position:fixed;inset:0;background:var(--bg);z-index:300;display:flex;align-items:center;justify-content:center;padding:24px;}
   .overview-box{max-width:640px;width:100%;text-align:center;}
-  .ov-badge{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:16px;}
+  .ov-badge{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.15em;text-transform:uppercase;margin-bottom:16px;}
   .ov-icon{font-size:64px;margin-bottom:16px;}
-  .ov-title{font-size:32px;font-weight:800;margin-bottom:12px;}
+  .ov-title{font-size:32px;font-weight:800;margin-bottom:13px;}
   .ov-title span{color:var(--accent);}
-  .ov-hook{font-size:16px;color:#94a3b8;line-height:1.7;margin-bottom:28px;max-width:520px;margin-left:auto;margin-right:auto;}
-  .ov-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;text-align:left;}
-  .ov-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px;}
+  .ov-hook{font-size:16px;color:#aebccf;line-height:1.7;margin-bottom:28px;max-width:520px;margin-left:auto;margin-right:auto;}
+  .ov-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:28px;text-align:left;}
+  .ov-card{background:var(--panel);border:1px solid var(--border);border-radius:11px;padding:14px;}
   .ov-card-icon{font-size:20px;margin-bottom:6px;}
-  .ov-card-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;}
-  .ov-card-text{font-size:12px;color:var(--muted);line-height:1.5;}
-  .ov-skill{display:inline-block;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--accent);font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:99px;margin:3px;}
-  .ov-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:14px 40px;border-radius:10px;cursor:pointer;margin-top:8px;}
+  .ov-card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .ov-card-text{font-size:13px;color:var(--muted);line-height:1.5;}
+  .ov-skill{display:inline-block;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--accent);font-family:var(--mono);font-size:12px;padding:3px 11px;border-radius:99px;margin:3px;}
+  .ov-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:14px 40px;border-radius:11px;cursor:pointer;margin-top:8px;}
   .career-section{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:540px;width:100%;text-align:left;margin-top:8px;}
-  .career-title{font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;text-align:center;}
-  .career-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
-  .career-card{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:12px;}
+  .career-title{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;text-align:center;}
+  .career-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:16px;}
+  .career-card{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:13px;}
   .career-card-icon{font-size:18px;margin-bottom:4px;}
-  .career-card-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;}
-  .career-card-text{font-size:11px;color:var(--muted);line-height:1.4;}
+  .career-card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;}
+  .career-card-text{font-size:12px;color:var(--muted);line-height:1.4;}
   .cert-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
-  .cert-badge{background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);color:#a78bfa;font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:99px;}
-  .salary-row{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--green);text-align:center;margin-top:8px;}
+  .cert-badge{background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);color:#a78bfa;font-size:12px;font-family:var(--mono);padding:3px 11px;border-radius:99px;}
+  .salary-row{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:11px 14px;font-size:14px;color:var(--green);text-align:center;margin-top:8px;}
+  .continue-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:11px 28px;border-radius:8px;cursor:pointer;margin-top:11px;}
 </style>
 </head>
 <body>
@@ -135,16 +132,16 @@
   <div class="overview-box">
     <div class="ov-badge">Module 5 of 6 · Risk Management</div>
     <div class="ov-icon">🛡️</div>
-    <h1 class="ov-title">How Do We <span>Stay Safe?</span></h1>
-    <p class="ov-hook">The school board has called an emergency meeting after the ransomware attack. They want a plan. This is where cybersecurity becomes strategy — assessing risk, setting controls, and convincing leadership to invest in security.</p>
+    <div class="ov-title">How Do We Stay <span>Safe?</span></div>
+    <div class="ov-hook">Vulnerabilities patched, incident contained — now Northfield Academy needs a real plan so this doesn't happen again. Today you build the security program and pitch it to the board.</div>
     <div class="ov-cards">
-      <div class="ov-card"><div class="ov-card-icon">🌍</div><div class="ov-card-title">Real World</div><div class="ov-card-text">After the 2017 Equifax breach, board members faced direct criticism and several executives resigned — security risk is now a board-level responsibility everywhere.</div></div>
-      <div class="ov-card"><div class="ov-card-icon">🛠️</div><div class="ov-card-title">Your Tool Today</div><div class="ov-card-text">A simulated <strong style="color:var(--accent)">risk management console</strong> — the framework real CISOs use to assess, document, and act on risk.</div></div>
-      <div class="ov-card"><div class="ov-card-icon">🎯</div><div class="ov-card-title">Today's Mission</div><div class="ov-card-text">Assess Northfield's risks, build a risk register, define controls, and present a business case to the board.</div></div>
+      <div class="ov-card"><div class="ov-card-icon">🌍</div><div class="ov-card-title">Real World</div><div class="ov-card-text">Most security budgets are won or lost in a single meeting — leadership needs numbers, not jargon, to say yes.</div></div>
+      <div class="ov-card"><div class="ov-card-icon">🛠️</div><div class="ov-card-title">Your Tool Today</div><div class="ov-card-text">A risk matrix and risk register — the exact framework security managers use to decide what to fix first.</div></div>
+      <div class="ov-card"><div class="ov-card-icon">🎯</div><div class="ov-card-title">Today's Mission</div><div class="ov-card-text">Assess every major risk, register it with an owner and deadline, define controls, and present the ROI to the board.</div></div>
     </div>
     <div>
       <span class="ov-skill">Risk Assessment</span>
-      <span class="ov-skill">Risk Register</span>
+      <span class="ov-skill">Risk Registers</span>
       <span class="ov-skill">Security Controls</span>
       <span class="ov-skill">Executive Reporting</span>
     </div>
@@ -156,7 +153,7 @@
 <div class="join-modal" id="joinModal" style="display:none;">
   <div class="join-box">
     <div class="join-title">Module 5</div>
-    <div style="font-size:32px;margin:12px 0">🛡️</div>
+    <div style="font-size:32px;margin:13px 0">🛡️</div>
     <div class="join-sub">Enter your class code and name to join your instructor's session.</div>
     <input class="join-input" id="joinCode" placeholder="CLASS CODE" maxlength="6"/>
     <input class="join-name" id="joinName" placeholder="Your first name" maxlength="30"/>
@@ -169,9 +166,9 @@
   <div class="nav-logo">CYBER<span>PATH</span></div>
   <div class="nav-meta">
     <span class="badge">Module 5 of 6</span>
-    <span>How Do We Stay Safe?</span>
+    <span>Risk Management</span>
     <div style="display:flex;align-items:center;gap:8px;">
-      <span style="font-size:11px;">Progress</span>
+      <span style="font-size:12px;">Progress</span>
       <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
     </div>
   </div>
@@ -183,8 +180,8 @@
       <div class="sidebar-label">Mission Brief</div>
       <div class="scenario-title">🛡️ Build the Security Program</div>
       <div class="scenario-text">
-        The school board has called an emergency meeting after the ransomware attack. They want to know: <strong>how do we make sure this never happens again?</strong><br><br>
-        Your job is to build Northfield Academy's cybersecurity program — assess their risks, set policies, and present recommendations.
+        After the ransomware incident, the headteacher asked: <strong>"How do we make sure this never happens again?"</strong><br><br>
+        Your job: assess the school's risks, build a register, define controls, and present it to the board.
       </div>
     </div>
     <div class="sidebar-section">
@@ -199,29 +196,30 @@
     <div class="sidebar-section">
       <div class="sidebar-label">Risk Matrix</div>
       <div class="risk-matrix" id="riskMatrix">
-        <div class="risk-cell high" id="rm1">Phishing<br><span style="font-size:9px">HIGH</span></div>
-        <div class="risk-cell crit" id="rm2">Ransomware<br><span style="font-size:9px">CRIT</span></div>
-        <div class="risk-cell med" id="rm3">Data leak<br><span style="font-size:9px">MED</span></div>
-        <div class="risk-cell med" id="rm4">Weak passwords<br><span style="font-size:9px">MED</span></div>
-        <div class="risk-cell high" id="rm5">Unpatched systems<br><span style="font-size:9px">HIGH</span></div>
-        <div class="risk-cell low" id="rm6">Physical theft<br><span style="font-size:9px">LOW</span></div>
+        <div class="risk-cell crit" id="rm1"><div class="risk-cell-title">Ransomware</div><div class="risk-cell-lvl">Critical</div></div>
+        <div class="risk-cell high" id="rm2"><div class="risk-cell-title">Phishing</div><div class="risk-cell-lvl">High</div></div>
+        <div class="risk-cell high" id="rm3"><div class="risk-cell-title">Unpatched systems</div><div class="risk-cell-lvl">High</div></div>
+        <div class="risk-cell med" id="rm4"><div class="risk-cell-title">Data leak</div><div class="risk-cell-lvl">Medium</div></div>
+        <div class="risk-cell med" id="rm5"><div class="risk-cell-title">Weak passwords</div><div class="risk-cell-lvl">Medium</div></div>
+        <div class="risk-cell low" id="rm6"><div class="risk-cell-title">Physical theft</div><div class="risk-cell-lvl">Low</div></div>
       </div>
     </div>
     <div class="sidebar-section">
       <div class="sidebar-label">Need a nudge?</div>
       <button class="hint-btn" onclick="toggleHint()">💡 Show hint</button>
-      <div class="hint-text" id="hintBox">Start with <code>risk assess</code> to identify threats, then <code>risk register</code> to document them, <code>controls</code> to set mitigations, and finally <code>board-report</code> to present your findings.</div>
+      <div class="hint-text" id="hintBox">Before you can manage risk, you need to know how likely each threat is and how bad it would be if it happened. Once that's clear, the next step is turning that thinking into a formal, trackable document with owners attached.</div>
     </div>
   </aside>
 
   <div class="terminal-wrap">
     <div class="terminal-header">
       <div class="terminal-dots"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
-      <span class="terminal-title">analyst@cyberpath:~$ — Security Program Console</span>
+      <span class="terminal-title">analyst@cyberpath:~$ — Risk Management Console</span>
     </div>
     <div class="terminal-output" id="termOut">
-      <div class="t-line t-system">CyberPath Secure Lab — Module 5: Technology Risk Management</div>
-      <div class="t-info">🛡️ Welcome to the strategic layer of cybersecurity. Your job now is to <strong>think like a CISO</strong> — Chief Information Security Officer. Use <strong>risk assess</strong> to start building Northfield Academy's security program.</div>
+      <div class="t-line t-system">CyberPath Secure Lab — Module 5: Risk Management</div>
+      <div class="t-line t-system">Northfield Academy — Security Program Planning</div>
+      <div class="t-info">🛡️ Run <strong>risk assess</strong> to begin evaluating the school's cybersecurity risks.</div>
     </div>
     <div class="terminal-input-row">
       <span class="terminal-prompt-label">analyst@cyberpath:~$</span>
@@ -237,15 +235,15 @@
       <div class="online-dot"></div>
     </div>
     <div class="assistant-messages" id="assistantMsgs">
-      <div class="msg">Welcome to <strong>Module 5</strong>! This is where cybersecurity meets strategy. The best security professionals don't just fix problems — they <strong>build systems to prevent them</strong>. 🛡️</div>
-      <div class="msg">Today you'll think like a <strong>CISO</strong> — the person responsible for an organisation's entire security posture. Start with <code>risk assess</code> to understand what threats Northfield Academy faces.</div>
+      <div class="msg">Today's focus is <strong>risk management</strong> — moving from reacting to attacks to <em>preventing</em> them through planning. This is what security managers and CISOs spend most of their time doing.</div>
+      <div class="msg">Start with <code>risk assess</code> to evaluate likelihood and impact for the school's biggest risks.</div>
     </div>
     <div class="tools-ref">
       <div class="tools-label">Quick commands</div>
       <span class="tool-chip" onclick="insertCmd('risk assess')">risk assess</span>
       <span class="tool-chip" onclick="insertCmd('risk register')">risk register</span>
       <span class="tool-chip" onclick="insertCmd('controls')">controls</span>
-      <span class="tool-chip" onclick="insertCmd('policy email')">policy</span>
+      <span class="tool-chip" onclick="insertCmd('policy email')">policy email</span>
       <span class="tool-chip" onclick="insertCmd('board-report')">board-report</span>
       <span class="tool-chip" onclick="insertCmd('help')">help</span>
     </div>
@@ -255,30 +253,26 @@
 <div class="celebration" id="celebration">
   <div class="cele-icon">🎖️</div>
   <div class="cele-title">Security Program Built!</div>
-  <div class="cele-sub">You assessed risks, built a register, defined controls, set policies, and presented to the board. You've now covered the full spectrum of cybersecurity — from scanning a network to running a security program.<br><br><strong style="color:#10b981;">Skill unlocked: Technology Risk Management</strong></div>
-
+  <div class="cele-sub">You assessed the risks, built a register with owners and deadlines, defined real controls, and pitched it to the board with hard numbers.<br><br><strong style="color:#10b981;">Skill unlocked: Risk Management</strong></div>
   <div class="career-section">
     <div class="career-title">🎯 Where this skill takes you</div>
     <div class="career-grid">
-      <div class="career-card"><div class="career-card-icon">🛡️</div><div class="career-card-title">Risk Analyst</div><div class="career-card-text">Identifies, rates, and tracks the threats an organisation faces — the foundation every security program is built on.</div></div>
-      <div class="career-card"><div class="career-card-icon">👔</div><div class="career-card-title">CISO</div><div class="career-card-text">Chief Information Security Officer — owns the entire security strategy and reports risk directly to the board.</div></div>
-      <div class="career-card"><div class="career-card-icon">📋</div><div class="career-card-title">GRC Analyst</div><div class="career-card-text">Governance, Risk & Compliance — keeps the organisation aligned with regulations like GDPR and ISO 27001.</div></div>
-      <div class="career-card"><div class="career-card-icon">🧭</div><div class="career-card-title">Security Consultant</div><div class="career-card-text">Advises multiple organisations on how to assess and reduce their cyber risk — often self-employed or agency-based.</div></div>
+      <div class="career-card"><div class="career-card-icon">📊</div><div class="career-card-title">Risk Analyst</div><div class="career-card-text">Quantifies cyber risk so leadership can make informed decisions.</div></div>
+      <div class="career-card"><div class="career-card-icon">🧭</div><div class="career-card-title">GRC Specialist</div><div class="career-card-text">Governance, Risk & Compliance — keeps the org aligned to standards like ISO 27001.</div></div>
+      <div class="career-card"><div class="career-card-icon">🏛️</div><div class="career-card-title">Security Manager</div><div class="career-card-text">Owns the security program end-to-end and reports to leadership.</div></div>
+      <div class="career-card"><div class="career-card-icon">👔</div><div class="career-card-title">CISO</div><div class="career-card-text">Chief Information Security Officer — the top security seat in an organisation.</div></div>
     </div>
-    <div class="sidebar-label" style="margin-bottom:8px;">Certifications that teach this</div>
+    <div class="career-title" style="margin-bottom:8px;">Certifications that open doors</div>
     <div class="cert-row">
-      <span class="cert-badge">ISC2 CISSP</span>
-      <span class="cert-badge">ISACA CRISC</span>
-      <span class="cert-badge">ISACA CISM</span>
+      <span class="cert-badge">CompTIA Security+</span>
+      <span class="cert-badge">CRISC</span>
+      <span class="cert-badge">CISM</span>
       <span class="cert-badge">ISO 27001 Lead Implementer</span>
     </div>
-    <div class="salary-row">💰 Risk Analyst starting salary: <strong>£35,000–£55,000</strong> UK · <strong>$70,000–$100,000</strong> US</div>
+    <div class="salary-row">💰 Risk Analyst starting salary: $53,000–$83,000 CAD · $65,000–$100,000 US</div>
   </div>
-
-  <div style="display:flex;gap:12px;margin-top:8px;">
-    <button class="cele-btn" onclick="window.location.href='module6_cyber_lab.html'">Final Module: Capstone →</button>
-    <button class="cele-btn2" onclick="resetLab()">Replay</button>
-  </div>
+  <button class="cele-btn" onclick="window.location.href='module6_cyber_lab.html'">Next: Module 6 — Capstone →</button>
+  <button class="cele-btn2" onclick="resetLab()">Replay Module 5</button>
 </div>
 
 <script>
@@ -290,183 +284,176 @@ const state={objectives:{1:false,2:false,3:false,4:false},sessionId:null,student
 function showJoin(){document.getElementById('overviewModal').style.display='none';document.getElementById('joinModal').style.display='flex';}
 function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code)syncProgress();}
 function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';}
-async function syncProgress(){if(!state.sessionId||!state.studentName)return;const objs=Object.values(state.objectives);const lastCmd=state.history[0]||'';try{const checkRes=await fetch(`${SUPABASE_URL}/rest/v1/student_progress?session_id=eq.${state.sessionId}&student_name=eq.${encodeURIComponent(state.studentName)}&module=eq.5`,{headers:HEADERS});const existing=await checkRes.json();if(existing.length>0){await fetch(`${SUPABASE_URL}/rest/v1/student_progress?id=eq.${existing[0].id}`,{method:'PATCH',headers:HEADERS,body:JSON.stringify({objectives:objs,last_cmd:lastCmd,updated_at:new Date().toISOString()})});}else{await fetch(`${SUPABASE_URL}/rest/v1/student_progress`,{method:'POST',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({session_id:state.sessionId,student_name:state.studentName,module:5,objectives:objs,last_cmd:lastCmd})});}}catch(e){console.warn(e);}}
-
+async function syncProgress(){if(!state.sessionId||!state.studentName)return;const objs=Object.values(state.objectives);const lastCmd=state.history[0]||'';try{const checkRes=await fetch(`${SUPABASE_URL}/rest/v1/student_progress?session_id=eq.${state.sessionId}&student_name=eq.${encodeURIComponent(state.studentName)}&module=eq.5`,{headers:HEADERS});const existing=await checkRes.json();if(existing.length>0){await fetch(`${SUPABASE_URL}/rest/v1/student_progress?id=eq.${existing[0].id}`,{method:'PATCH',headers:HEADERS,body:JSON.stringify({objectives:objs,last_cmd:lastCmd,updated_at:new Date().toISOString()})});}else{await fetch(`${SUPABASE_URL}/rest/v1/student_progress`,{method:'POST',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({session_id:state.sessionId,student_name:state.studentName,module:5,objectives:objs,last_cmd:lastCmd})});}}catch(e){console.warn('Sync error',e);}}
 const out=document.getElementById('termOut');
 function print(html,cls='t-out'){const d=document.createElement('div');d.className=`t-line ${cls}`;d.innerHTML=html;out.appendChild(d);out.scrollTop=out.scrollHeight;}
 function printCmd(cmd){print(`<span class="t-prompt">analyst@cyberpath:~$</span> <span class="t-cmd">${esc(cmd)}</span>`);}
 function printBlank(){const d=document.createElement('div');d.style.height='6px';out.appendChild(d);}
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function aria(html){const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;}
-function ariaSuccess(html){const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg celebrate';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;}
-function printWOS(title,html){const d=document.createElement('div');d.innerHTML=`<div class="wos-box"><div class="wos-title">📺 What's on the screen — ${title}</div>${html}</div>`;out.appendChild(d.firstChild);out.scrollTop=out.scrollHeight;}
-function printExplainer(html){const d=document.createElement('div');d.innerHTML=`<div class="obj-explainer"><div class="obj-explainer-title">🌍 Real World Connection</div>${html}</div>`;out.appendChild(d.firstChild);out.scrollTop=out.scrollHeight;}
-function completeObj(n){if(state.objectives[n])return;state.objectives[n]=true;const el=document.getElementById('obj'+n);el.classList.add('done');el.querySelector('.obj-check').textContent='✓';const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('progressBar').style.width=(done/4*100)+'%';syncProgress();if(done===4)setTimeout(()=>document.getElementById('celebration').classList.add('show'),1200);}
+const ariaQueue=[];let ariaBusy=false;
+function processAriaQueue(){if(ariaBusy||ariaQueue.length===0)return;ariaBusy=true;const job=ariaQueue.shift();job();setTimeout(()=>{ariaBusy=false;processAriaQueue();},700);}
+function queueAria(fn){ariaQueue.push(fn);processAriaQueue();}
+function aria(html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
+function ariaSuccess(html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg celebrate';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
+function printWOS(title,html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=`<strong>📺 What's on the screen — ${title}</strong><br>${html}`;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
+function printExplainer(html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=`<strong>🌍 Real World Connection</strong><br>${html}`;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
+function completeObj(n){if(state.objectives[n])return;state.objectives[n]=true;const el=document.getElementById('obj'+n);el.classList.add('done');el.querySelector('.obj-check').textContent='✓';const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('progressBar').style.width=(done/4*100)+'%';syncProgress();if(done===4){const btn=document.createElement('button');btn.className='continue-btn';btn.textContent='✓ Mission complete — View My Results →';btn.onclick=()=>document.getElementById('celebration').classList.add('show');out.appendChild(btn);out.scrollTop=out.scrollHeight;}}
 function activateRisk(id){document.getElementById(id).classList.add('active');}
 
 const RESPONSES={
   'help':()=>{
-    print('Security Program commands:','t-out accent');
-    print('  risk assess     — conduct threat and risk assessment');
-    print('  risk register   — build the risk register');
-    print('  controls        — define security controls');
-    print('  policy &lt;area&gt;  — create a security policy (email, password, patch)');
-    print('  board-report    — present findings to the school board');
+    print('Available commands:','t-out accent');
+    print('  risk assess     — evaluate likelihood &amp; impact of key risks');
+    print('  risk register   — build the formal risk register');
+    print('  controls        — define preventive/detective/corrective controls');
+    print('  policy email    — draft a staff security policy notice');
+    print('  board-report    — generate the executive board presentation');
     printBlank();
+    aria('Start with <code>risk assess</code> to evaluate the school\'s top cybersecurity risks.');
   },
   'risk assess':()=>{
-    print('NORTHFIELD ACADEMY — RISK ASSESSMENT');
-    print('Assessing threat landscape...');
     printBlank();
-    const risks=[
-      ['Phishing attacks','HIGH','HIGH','CRITICAL','Staff click malicious email links'],
-      ['Ransomware','HIGH','HIGH','CRITICAL','Encrypts files, demands payment'],
-      ['Unpatched software','HIGH','MED','HIGH','Exploitable known vulnerabilities'],
-      ['Weak/default passwords','MED','HIGH','HIGH','Easy brute force or credential stuffing'],
-      ['Data exfiltration','MED','MED','MEDIUM','Student/staff data leaked externally'],
-      ['Physical device theft','LOW','MED','LOW','Laptop theft from campus'],
-    ];
-    print('THREAT              LIKELIHOOD  IMPACT  RISK LEVEL  DESCRIPTION');
-    print('─────────────────────────────────────────────────────────────────────');
-    risks.forEach(([t,l,i,r,d])=>{
-      const cls=r==='CRITICAL'?'error':r==='HIGH'?'warn':r==='MEDIUM'?'accent':'highlight';
-      print(`${t.padEnd(20)}${l.padEnd(12)}${i.padEnd(8)}${r.padEnd(12)}${d}`,`t-out ${cls}`);
-    });
+    print('RISK ASSESSMENT — Northfield Academy');
+    print('═══════════════════════════════════════════════════════');
+    print('Risk                Likelihood   Impact    Risk Level');
+    print('────────────────────────────────────────────────────────');
+    print('Ransomware          Medium       Severe    CRITICAL','t-out error');
+    print('Phishing            High         High      HIGH','t-out warn');
+    print('Unpatched systems   High         High      HIGH','t-out warn');
+    print('Data leak           Medium       Medium    MEDIUM','t-out accent');
+    print('Weak passwords      High         Low       MEDIUM','t-out accent');
+    print('Physical theft      Low          Medium    LOW','t-out highlight');
     printBlank();
-    [1,2,3,4,5,6].forEach(n=>setTimeout(()=>activateRisk('rm'+n),n*100));
-    printWOS('Risk Assessment Matrix','Risk = Likelihood × Impact. This table rates each threat on both factors and combines them into an overall <strong>Risk Level</strong> (LOW/MEDIUM/HIGH/CRITICAL) — the foundation every other security decision is built on.');
-    if(!state.objectives[1]){
-      completeObj(1);
-      print('[ Objective 1 complete: Risk assessment conducted ]','t-out highlight');
-      printExplainer('Formal risk assessment frameworks like NIST CSF and ISO 27001 are used by virtually every major company. The 2013 Target breach (40 million card numbers stolen) traced back to a vendor risk that was never formally assessed — proving why this step matters.');
-      aria('<strong>Good risk assessment!</strong> Notice that <strong>phishing and ransomware</strong> are both critical — and we just lived through both. Risk assessment is about being honest about what threats are realistic for YOUR organisation. A school has different risks than a bank. Next, use <code>risk register</code> to formally document these.');
-    }
+    ['rm1','rm2','rm3','rm4','rm5','rm6'].forEach(activateRisk);
+    printWOS('Risk Assessment Table','Risk = Likelihood × Impact. A rare-but-catastrophic risk (ransomware) can rank as high as a common-but-mild one (weak passwords) — that\'s why both axes matter, not just "how often."');
+    completeObj(1);
+    print('[ Objective 1 complete: Risk assessment conducted ]','t-out highlight');
+    printExplainer('Frameworks like NIST and ISO 27001 use this exact likelihood × impact model worldwide. Learning to think in this structure is one of the most transferable skills in all of cybersecurity.');
+    aria('Ransomware is rated <strong>CRITICAL</strong> — you just lived through one! Phishing and unpatched systems are HIGH because they\'re common entry points. Now formalise this into a <code>risk register</code> with owners and deadlines.');
   },
   'risk register':()=>{
-    print('RISK REGISTER — NORTHFIELD ACADEMY v1.0');
-    print('Generated: '+new Date().toLocaleDateString());
     printBlank();
-    print('ID    RISK           OWNER          RATING  TREATMENT      DEADLINE');
-    print('─────────────────────────────────────────────────────────────────────');
-    print('R-01  Phishing       IT Manager     CRIT    Email filter   1 week  ','t-out error');
-    print('R-02  Ransomware     IT Manager     CRIT    Backups+patch  1 week  ','t-out error');
-    print('R-03  Unpatched SW   IT Admin       HIGH    Patch mgmt     2 weeks ','t-out warn');
-    print('R-04  Weak passwords CISO (you)     HIGH    MFA+policy     1 month ','t-out warn');
-    print('R-05  Data leakage   Data lead      MED     DLP tools      3 months','t-out accent');
-    print('R-06  Device theft   Facilities     LOW     Asset tagging  6 months');
+    print('RISK REGISTER — Northfield Academy','t-out accent');
+    print('══════════════════════════════════════════════════════════');
+    print('ID   Risk              Owner        Rating    Deadline');
+    print('────────────────────────────────────────────────────────');
+    print('R-01 Ransomware        IT Manager   Critical  Immediate');
+    print('R-02 Phishing          IT Manager   High      30 days');
+    print('R-03 Unpatched systems Sysadmin     High      30 days');
+    print('R-04 Data leak         DPO          Medium     90 days');
+    print('R-05 Weak passwords    IT Manager   Medium     60 days');
+    print('R-06 Physical theft    Facilities   Low       180 days');
     printBlank();
-    print('Risk register created. 6 risks documented, 2 critical, 2 high.','t-out highlight');
-    printWOS('Risk Register','A risk register is the master tracking document: each risk gets an ID, an <strong>Owner</strong> (who\'s accountable), a <strong>Rating</strong>, the planned <strong>Treatment</strong>, and a <strong>Deadline</strong>. This is the single source of truth auditors and regulators ask to see.');
-    if(!state.objectives[2]){
-      completeObj(2);
-      print('[ Objective 2 complete: Risk register built ]','t-out highlight');
-      printExplainer('Regulators like the UK ICO (for GDPR) and PCI-DSS auditors require organisations to maintain a risk register as evidence of due diligence. Without one, a company can\'t prove it identified its risks — a major liability after a breach.');
-      aria('A <strong>risk register</strong> is a living document — it gets updated every time a new risk is discovered or an existing one changes. Notice each risk has an <em>owner</em> (the person responsible) and a <em>deadline</em>. Risk management is only effective when someone is accountable. Now define your controls with <code>controls</code>.');
-    }
+    print('Treatment: Mitigate (R-01 to R-05) | Accept (R-06)','t-out highlight');
+    printBlank();
+    printWOS('Risk Register','A risk register turns the assessment into action: every risk gets a named owner and a deadline. Without an owner, a risk just sits on a slide and never actually gets fixed.');
+    completeObj(2);
+    print('[ Objective 2 complete: Risk register built ]','t-out highlight');
+    printExplainer('Auditors and insurers often ask to see the risk register directly — it\'s proof an organisation is managing risk deliberately, not just hoping nothing goes wrong.');
+    aria('Notice every risk now has an <strong>owner</strong> and a <strong>deadline</strong> — that\'s what turns "we should fix this" into something that actually happens. Next, define the <code>controls</code> that address these risks.');
   },
   'controls':()=>{
-    print('SECURITY CONTROLS — NORTHFIELD ACADEMY');
     printBlank();
-    print('PREVENTIVE CONTROLS (stop attacks happening):','t-out accent');
-    print('  ✓ Email filtering — block .exe, .bat, macro-enabled Office files');
-    print('  ✓ Multi-factor authentication (MFA) — all staff accounts');
-    print('  ✓ Patch management — weekly automated patching');
-    print('  ✓ Network segmentation — student/staff/server VLANs');
-    print('  ✓ Firewall rules — block known malicious IPs (incl. 185.220.101.47)');
+    print('SECURITY CONTROLS — Proposed');
+    print('══════════════════════════════════════');
+    print('PREVENTIVE (stop it happening):','t-out accent');
+    print('  - Email filtering for lookalike domains');
+    print('  - Mandatory MFA on all staff accounts');
+    print('  - Patch management schedule (weekly)');
+    print('  - Password manager + 16-char minimum policy');
+    print('');
+    print('DETECTIVE (catch it happening):','t-out warn');
+    print('  - SIEM monitoring with 24/7 alerting');
+    print('  - Quarterly vulnerability scans');
+    print('  - Login anomaly detection');
+    print('');
+    print('CORRECTIVE (recover after):','t-out highlight');
+    print('  - Tested daily backups (immutable, offsite)');
+    print('  - Documented incident response plan');
+    print('  - Cyber insurance policy review');
     printBlank();
-    print('DETECTIVE CONTROLS (catch attacks in progress):','t-out accent');
-    print('  ✓ SIEM — real-time alert monitoring (as used in Module 4)');
-    print('  ✓ Vulnerability scanning — weekly Nessus scans (Module 3)');
-    print('  ✓ Log monitoring — all servers, network devices, endpoints');
-    printBlank();
-    print('CORRECTIVE CONTROLS (recover from attacks):','t-out accent');
-    print('  ✓ Backup policy — hourly snapshots, daily full, offsite copy');
-    print('  ✓ Incident response plan — documented, tested quarterly');
-    print('  ✓ Business continuity plan — operations during outage');
-    printBlank();
-    printWOS('Security Controls','Controls are grouped into three types: <strong>Preventive</strong> (stop attacks happening), <strong>Detective</strong> (catch attacks happening), and <strong>Corrective</strong> (recover after). A mature program needs all three layers, not just one.');
-    if(!state.objectives[3]){
-      completeObj(3);
-      print('[ Objective 3 complete: Security controls defined ]','t-out highlight');
-      printExplainer('The "defense in depth" principle — layering preventive, detective and corrective controls — is why modern networks survive attacks that would have been catastrophic a decade ago. No single control is ever assumed to be perfect.');
-      aria('Controls fall into three types: <strong>Preventive</strong> (stop it happening), <strong>Detective</strong> (catch it happening), <strong>Corrective</strong> (recover after). A good security program needs all three — you can\'t just prevent everything, so you also need to detect and recover. Now use <code>board-report</code> to present to the school board!');
-    }
+    printWOS('Control Categories','Security controls fall into three buckets: Preventive (stops an attack), Detective (notices an attack), Corrective (recovers from one). A mature security program needs all three — prevention alone always eventually fails.');
+    completeObj(3);
+    print('[ Objective 3 complete: Security controls defined ]','t-out highlight');
+    printExplainer('This Preventive/Detective/Corrective model comes directly from frameworks like NIST CSF and ISO 27001, used by organisations of every size from schools to multinational banks.');
+    aria('A well-rounded set — prevention, detection, AND recovery. 💪 Now it\'s time to convince the people who hold the budget. Use <code>policy email</code> to notify staff, then <code>board-report</code> to pitch the full program with numbers.');
   },
   'policy email':()=>{
-    print('EMAIL SECURITY POLICY — NORTHFIELD ACADEMY');
-    print('Version 1.0 | Classification: Internal');
     printBlank();
-    print('1. PURPOSE');
-    print('   Protect staff and students from email-borne threats.');
+    print('DRAFT — Staff Security Policy Notice');
+    print('══════════════════════════════════════');
+    print('To: All Staff');
+    print('Subject: New Security Measures — Action Required');
+    print('');
+    print('Following a recent security incident, we are introducing:');
+    print('  1. Multi-factor authentication (MFA) — enable by Friday');
+    print('  2. New password requirements (16+ characters)');
+    print('  3. Mandatory phishing-awareness training (15 mins)');
+    print('  4. Report suspicious emails to: security@northfield.ac.uk');
+    print('');
+    print('These changes protect student data and prevent repeat incidents.');
     printBlank();
-    print('2. SCOPE');
-    print('   All @northfield.sch email accounts.');
-    printBlank();
-    print('3. POLICY RULES');
-    print('   3.1 Attachments with .exe, .bat, .ps1 extensions are blocked.');
-    print('   3.2 External emails are labelled [EXTERNAL] in subject line.');
-    print('   3.3 Suspicious links are checked against threat intelligence.');
-    print('   3.4 Staff must report phishing to security@northfield.sch.');
-    printBlank();
-    print('4. TRAINING');
-    print('   All staff complete phishing awareness training annually.');
-    printBlank();
-    printWOS('Policy Document Structure','Policies follow a standard structure: <strong>Purpose</strong>, <strong>Scope</strong>, <strong>Rules</strong>, and <strong>Training</strong> requirements. This structure makes them enforceable and auditable.');
-    aria('Policies are the <strong>written rules</strong> that support your controls. They\'re important because they set expectations and create accountability. If a staff member ignores the policy and causes a breach, you have documentation. Try <code>board-report</code> to finish the module!');
+    printWOS('Policy Communication','Even the best technical controls fail if staff don\'t understand or follow them. Clear, short, action-oriented policy emails get far higher compliance than long technical documents nobody reads.');
+    printExplainer('Human error is consistently cited as a leading factor across breaches industry-wide — which is exactly why staff communication is treated as a real security control, not just admin.');
+    aria('Good policy emails are short and tell people exactly what to do, not just what went wrong. Now bring it all together with <code>board-report</code> — time to make the business case.');
   },
   'board-report':()=>{
+    printBlank();
+    print('EXECUTIVE BOARD REPORT — Security Program Proposal','t-out accent');
+    print('══════════════════════════════════════════════════════');
+    print('Prepared for: Northfield Academy Board of Governors');
     print('');
-    print('BOARD PRESENTATION — NORTHFIELD ACADEMY CYBER SECURITY','t-out accent');
-    print('Presenting to: School Board, Principal, IT Manager');
-    print('Date: '+new Date().toLocaleDateString());
+    print('SITUATION:');
+    print('  A ransomware attack in [recent incident] cost ~$20,000 CAD');
+    print('  in IT recovery time alone, with no permanent data loss');
+    print('  only because backups happened to work.');
+    print('');
+    print('PROPOSAL: Annual security program investment');
+    print('  MFA, patching, monitoring, training, backups');
+    print('  Annual cost: $8,000 CAD/year','t-out highlight');
+    print('');
+    print('COST OF INACTION:');
+    print('  Average school breach recovery cost: $192,000+ CAD','t-out error');
+    print('  Plus: reputational damage, regulator scrutiny, downtime');
+    print('');
+    print('RETURN ON INVESTMENT: ~24x  ($192,000 ÷ $8,000)','t-out highlight');
+    print('RECOMMENDATION: Approve the $8,000 CAD/year security budget.');
     printBlank();
-    print('EXECUTIVE SUMMARY:','t-out accent');
-    print('Following last week\'s ransomware incident, we have conducted');
-    print('a full risk assessment and built a cybersecurity program.');
-    printBlank();
-    print('KEY FINDINGS:','t-out warn');
-    print('  • 6 risks identified: 2 Critical, 2 High, 1 Medium, 1 Low');
-    print('  • Critical gap: No email filtering was in place');
-    print('  • Critical gap: No MFA on admin accounts');
-    print('  • Critical gap: Backup frequency insufficient (daily only)');
-    printBlank();
-    print('RECOMMENDED INVESTMENT:','t-out accent');
-    print('  Email security gateway:    £2,400/year');
-    print('  MFA solution:              £1,200/year');
-    print('  Enhanced backup solution:  £800/year');
-    print('  Security awareness training: £600/year');
-    print('  TOTAL:                     £5,000/year','t-out highlight');
-    printBlank();
-    print('COST OF NOT ACTING:','t-out error');
-    print('  Average ransomware attack cost: £120,000+');
-    print('  Return on security investment:  24x','t-out highlight');
-    printBlank();
-    print('Board presentation complete.','t-out highlight');
-    printWOS('Executive Briefing','Board reports translate technical risk into business language: cost, ROI and consequences. This is how security teams justify their budget to non-technical leadership — the same structure used in real board presentations.');
-    if(!state.objectives[4]){
-      completeObj(4);
-      print('[ Objective 4 complete: Board presentation delivered ]','t-out highlight');
-      printExplainer('After the 2017 Equifax breach, the company\'s board faced direct criticism for inadequate security oversight, and several executives resigned. Boards are now legally and financially accountable for cyber risk — which is why this report matters as much as the technical work.');
-      ariaSuccess('🎉 <strong>Brilliant!</strong> You just showed the board that spending £5,000 on security prevents £120,000+ in losses — a 24x return. That\'s how security professionals win budget. You\'ve now learned the full cycle: scan, recon, assess vulnerabilities, respond to incidents, and build a program to prevent them!');
-    }
+    printWOS('Board Report Structure','Executives think in cost and risk, not technical detail. A good board report leads with the business case (cost of inaction vs cost of action) — that\'s the language that gets budgets approved.');
+    completeObj(4);
+    print('[ Objective 4 complete: Board presentation delivered ]','t-out highlight');
+    printExplainer('Translating technical risk into financial terms ("ROI", "cost of inaction") is one of the most valuable — and rare — skills in cybersecurity. It\'s exactly what separates a security manager from a junior analyst.');
+    ariaSuccess('🎉 <strong>Program approved!</strong> You went from reacting to an attack to building a complete, fundable security program — risk assessment, register, controls, and a board pitch with real ROI numbers. That\'s exactly what a security manager does.');
   }
 };
 
 function matchCmd(raw){
   const cmd=raw.trim().toLowerCase().replace(/\s+/g,' ');
   if(RESPONSES[cmd])return RESPONSES[cmd];
-  if(RESPONSES[raw.trim()])return RESPONSES[raw.trim()];
   if(cmd.includes('risk')&&cmd.includes('assess'))return RESPONSES['risk assess'];
-  if(cmd.includes('risk')&&cmd.includes('reg'))return RESPONSES['risk register'];
+  if(cmd.includes('risk')&&cmd.includes('register'))return RESPONSES['risk register'];
   if(cmd.includes('control'))return RESPONSES['controls'];
   if(cmd.includes('policy'))return RESPONSES['policy email'];
   if(cmd.includes('board'))return RESPONSES['board-report'];
-  if(cmd==='clear')return()=>{out.innerHTML='';};
+  if(cmd==='clear')return()=>{out.innerHTML='';print('[ Terminal cleared ]','t-out accent');};
   return null;
 }
 
-function runCommand(){const input=document.getElementById('cmdInput');const raw=input.value.trim();if(!raw)return;state.history.unshift(raw);state.historyIdx=-1;printCmd(raw);printBlank();const fn=matchCmd(raw);if(fn){fn();}else{print(`bash: ${esc(raw)}: command not found`,'t-out error');aria(`Unknown command. Type <code>help</code> to see available commands.`);}printBlank();input.value='';out.scrollTop=out.scrollHeight;}
-document.getElementById('cmdInput').addEventListener('keydown',e=>{if(e.key==='Enter'){runCommand();return;}if(e.key==='ArrowUp'){e.preventDefault();if(state.historyIdx<state.history.length-1){state.historyIdx++;document.getElementById('cmdInput').value=state.history[state.historyIdx];}}if(e.key==='ArrowDown'){e.preventDefault();if(state.historyIdx>0){state.historyIdx--;document.getElementById('cmdInput').value=state.history[state.historyIdx];}else{state.historyIdx=-1;document.getElementById('cmdInput').value='';}}});
+function runCommand(){
+  const input=document.getElementById('cmdInput');const raw=input.value.trim();if(!raw)return;
+  state.history.unshift(raw);state.historyIdx=-1;
+  printCmd(raw);printBlank();
+  const fn=matchCmd(raw);
+  if(fn){fn();}else{print(`bash: ${esc(raw)}: command not found`,'t-out error');aria(`I don't recognise <code>${esc(raw)}</code>. Type <code>help</code> to see available commands.`);}
+  printBlank();input.value='';out.scrollTop=out.scrollHeight;
+}
+
+document.getElementById('cmdInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){runCommand();return;}
+  if(e.key==='ArrowUp'){e.preventDefault();if(state.historyIdx<state.history.length-1){state.historyIdx++;document.getElementById('cmdInput').value=state.history[state.historyIdx];}}
+  if(e.key==='ArrowDown'){e.preventDefault();if(state.historyIdx>0){state.historyIdx--;document.getElementById('cmdInput').value=state.history[state.historyIdx];}else{state.historyIdx=-1;document.getElementById('cmdInput').value='';}}
+});
+
 function insertCmd(cmd){document.getElementById('cmdInput').value=cmd;document.getElementById('cmdInput').focus();}
 function toggleHint(){document.getElementById('hintBox').classList.toggle('visible');}
 function resetLab(){location.reload();}
