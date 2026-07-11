@@ -124,6 +124,12 @@
   .cert-badge{background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);color:#a78bfa;font-size:12px;font-family:var(--mono);padding:3px 11px;border-radius:99px;}
   .salary-row{background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:8px;padding:11px 14px;font-size:14px;color:var(--green);text-align:center;margin-top:8px;}
   .continue-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:11px 28px;border-radius:8px;cursor:pointer;margin-top:11px;}
+  .sound-toggle{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:12px;padding:4px 10px;border-radius:5px;cursor:pointer;}
+  .sound-toggle:hover{border-color:var(--accent);color:var(--accent);}
+  .choice-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+  .choice-btn{background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:8px 16px;border-radius:6px;cursor:pointer;transition:all .2s;}
+  .choice-btn:hover{border-color:var(--accent);color:var(--accent);}
+  @keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 </style>
 </head>
 <body>
@@ -171,6 +177,7 @@
       <span style="font-size:12px;">Progress</span>
       <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
     </div>
+    <button class="sound-toggle" id="soundBtn" onclick="toggleSound()">🔊 Sound</button>
   </div>
 </nav>
 
@@ -207,7 +214,7 @@
     <div class="sidebar-section">
       <div class="sidebar-label">Need a nudge?</div>
       <button class="hint-btn" onclick="toggleHint()">💡 Show hint</button>
-      <div class="hint-text" id="hintBox">Think about what a SIEM dashboard is for — it's the first place an analyst checks when something's wrong. Once you know which systems are affected, your next move should cut off their network access before the damage spreads further.</div>
+      <div class="hint-text" id="hintBox"></div>
     </div>
   </aside>
 
@@ -219,7 +226,7 @@
     <div class="terminal-output" id="termOut">
       <div class="t-line t-system">CyberPath Secure Lab — Module 4: Incident Response</div>
       <div class="t-line t-system">Northfield Academy SOC — SIEM Console v2.3</div>
-      <div class="t-info">🚨 Multiple ransomware encryption alerts incoming. Run <strong>siem alerts</strong> to see what's happening.</div>
+      <div class="t-info">🚨 Multiple ransomware encryption alerts incoming. Check your SIEM console to see which systems are being hit. 💡 Hit <strong>Show hint</strong> in the sidebar if you need the exact command.</div>
     </div>
     <div class="terminal-input-row">
       <span class="terminal-prompt-label">analyst@cyberpath:~$</span>
@@ -236,7 +243,7 @@
     </div>
     <div class="assistant-messages" id="assistantMsgs">
       <div class="msg">🚨 This is an <strong>active incident</strong>! Today you're learning <strong>incident response</strong> — the structured process security teams follow during a live attack: Identify, Contain, Investigate, Recover.</div>
-      <div class="msg">Start by checking the <strong>SIEM</strong> (Security Information and Event Management system) — it's the dashboard that aggregates alerts from every device on the network. Run <code>siem alerts</code>.</div>
+      <div class="msg">Start by checking the <strong>SIEM</strong> (Security Information and Event Management system) — it's the dashboard that aggregates alerts from every device on the network. 💡 A hint is available in the sidebar whenever you need the exact command.</div>
     </div>
     <div class="tools-ref">
       <div class="tools-label">Quick commands</div>
@@ -299,8 +306,74 @@ function aria(html){queueAria(()=>{const b=document.getElementById('assistantMsg
 function ariaSuccess(html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg celebrate';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
 function printWOS(title,html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=`<strong>📺 What's on the screen — ${title}</strong><br>${html}`;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
 function printExplainer(html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=`<strong>🌍 Real World Connection</strong><br>${html}`;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
-function completeObj(n){if(state.objectives[n])return;state.objectives[n]=true;const el=document.getElementById('obj'+n);el.classList.add('done');el.querySelector('.obj-check').textContent='✓';const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('progressBar').style.width=(done/4*100)+'%';syncProgress();if(done===4){const btn=document.createElement('button');btn.className='continue-btn';btn.textContent='✓ Mission complete — View My Results →';btn.onclick=()=>document.getElementById('celebration').classList.add('show');out.appendChild(btn);out.scrollTop=out.scrollHeight;}}
+function completeObj(n){if(state.objectives[n])return;state.objectives[n]=true;const el=document.getElementById('obj'+n);el.classList.add('done');el.querySelector('.obj-check').textContent='✓';el.scrollIntoView({behavior:'smooth',block:'nearest'});const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('progressBar').style.width=(done/4*100)+'%';syncProgress();updateHint();if(done===4){showCelebration();const btn=document.createElement('button');btn.className='continue-btn';btn.textContent='✓ Mission complete — View My Results →';btn.onclick=()=>document.getElementById('celebration').classList.add('show');out.appendChild(btn);out.scrollTop=out.scrollHeight;}else{sfxSuccess();}}
 function activateTl(id){document.getElementById(id).classList.add('active');}
+
+// ── Sound effects ──────────────────────────────────────────────────────────
+let soundOn=true;
+let audioCtx=null;
+function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx;}
+function beep(freq,dur,type='square',vol=0.18){if(!soundOn)return;try{const c=getCtx();const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.type=type;o.frequency.setValueAtTime(freq,c.currentTime);g.gain.setValueAtTime(vol,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);o.start(c.currentTime);o.stop(c.currentTime+dur);}catch(e){}}
+function sfxKey(){beep(440,0.04,'square',0.08);}
+function sfxSuccess(){beep(523,0.1,'sine',0.18);setTimeout(()=>beep(659,0.15,'sine',0.18),120);}
+function sfxWarn(){beep(200,0.18,'sawtooth',0.15);}
+function sfxComplete(){beep(523,0.1,'sine',0.2);setTimeout(()=>beep(659,0.1,'sine',0.2),110);setTimeout(()=>beep(784,0.1,'sine',0.2),220);setTimeout(()=>beep(1047,0.25,'sine',0.22),330);}
+function toggleSound(){soundOn=!soundOn;document.getElementById('soundBtn').textContent=soundOn?'🔊 Sound':'🔇 Sound';}
+
+// ── Confetti & celebration ──────────────────────────────────────────────────
+function spawnConfetti(){const emojis=['🔥','🛡️','🔒','⚡','✅','🎉','💻'];for(let i=0;i<28;i++){const el=document.createElement('div');el.textContent=emojis[Math.floor(Math.random()*emojis.length)];el.style.cssText=`position:fixed;top:-30px;left:${Math.random()*100}vw;font-size:${18+Math.random()*18}px;animation:confettiFall ${1.5+Math.random()*2}s ease-in forwards;pointer-events:none;z-index:9999;`;document.body.appendChild(el);setTimeout(()=>el.remove(),4000);}}
+function showCelebration(){sfxComplete();setTimeout(spawnConfetti,200);}
+
+// ── Decision points ─────────────────────────────────────────────────────────
+function printChoices(promptText,choices,onPick){const wrap=document.createElement('div');wrap.className='t-line';const p=document.createElement('div');p.className='t-out accent';p.innerHTML=promptText;wrap.appendChild(p);const row=document.createElement('div');row.className='choice-row';choices.forEach(c=>{const btn=document.createElement('button');btn.className='choice-btn';btn.textContent=c.label;btn.onclick=()=>{row.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);btn.style.borderColor=c.correct?'var(--green)':'var(--red)';btn.style.color=c.correct?'var(--green)':'var(--red)';onPick(c);};row.appendChild(btn);});wrap.appendChild(row);out.appendChild(wrap);out.scrollTop=out.scrollHeight;}
+
+function presentRansomDecision(){
+  printChoices('🚨 Judgment call: The ransom note demands £50,000 in Bitcoin within 24 hours. What do you do?',[
+    {label:'Pay the ransom',correct:false},
+    {label:'Restore from backup',correct:true},
+    {label:'Call police, wait for guidance',correct:false}
+  ],(choice)=>{
+    if(choice.correct){
+      sfxSuccess();
+      print('✓ Correct: Never pay the ransom. Restoring from a clean backup is faster, safer, and doesn\'t fund criminals.','t-out highlight');
+      aria('Good call! Paying ransoms is never recommended — there\'s no guarantee attackers will decrypt your files, and the money funds their next attack. Schools with good backup hygiene can often recover in hours rather than days.');
+    }else{
+      sfxWarn();
+      print('✗ Paying ransoms funds criminal operations and offers no guarantee your files will be decrypted. Always restore from backup if you have one.','t-out warn');
+      aria('Ransomware gangs are criminals — they don\'t always keep their promises. The right move is to restore from backup. That\'s why regular, tested backups are the most important defence against ransomware.');
+    }
+  });
+}
+
+function presentAttackVectorJudgment(){
+  printChoices('🔍 Based on the logs, what was the initial attack vector?',[
+    {label:'Phishing email with disguised .exe',correct:true},
+    {label:'Brute-force login attack',correct:false},
+    {label:'Unpatched software vulnerability',correct:false},
+    {label:'USB drive insertion',correct:false}
+  ],(choice)=>{
+    if(choice.correct){
+      sfxSuccess();
+      print('✓ Correct! A phishing email (Invoice_Overdue.pdf.exe) from the lookalike domain n0rthfield.co — classic social engineering.','t-out highlight');
+      aria('Phishing remains the #1 initial access method in ransomware attacks globally. The zero in "n0rthfield.co" is a lookalike technique designed to pass a quick visual check. Security awareness training is often the most effective defence here.');
+    }else{
+      sfxWarn();
+      print('✗ Review the log extract. Look at the 02:31 entry — what did user j.martin receive and open?','t-out warn');
+      aria('The logs showed a phishing email with a disguised attachment "Invoice_Overdue.pdf.exe" from n0rthfield.co (a lookalike domain using a zero instead of "o"). One careless click was all it took.');
+    }
+  });
+}
+
+// ── Dynamic hints ───────────────────────────────────────────────────────────
+const HINTS=[
+  'Check the SIEM alert feed to see which systems are affected. 💡 Command: <code>siem alerts</code>',
+  'Two servers are encrypting files. Cut them off from the network immediately. 💡 Commands: <code>isolate fs-01</code> then <code>isolate fs-02</code>',
+  'Systems contained. Now investigate how the attack started. 💡 Commands: <code>logs fs-01</code> then <code>investigate fs-01</code>',
+  'Patient zero identified. Restore the servers from backup. 💡 Command: <code>recover fs-01</code>',
+  'Recovery underway. Write the full incident report. 💡 Command: <code>ir-report</code>',
+  'All objectives complete! Click Mission Complete. 🏆'
+];
+function updateHint(){const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('hintBox').innerHTML=HINTS[Math.min(done,HINTS.length-1)];}
 
 const SIEM_ALERTS=[
   '[CRITICAL] FS-01: Mass file encryption detected (847 files/min)',
@@ -330,7 +403,8 @@ function isolateHost(host){
     print('[ Objective 2 complete: Affected systems contained ]','t-out highlight');
     printExplainer('Containment speed matters enormously — ransomware can encrypt an entire shared drive in minutes. The 2017 WannaCry outbreak spread to 150 countries in a single day because isolation didn\'t happen fast enough.');
     activateTl('tl4');
-    aria('Both file servers are now isolated — the bleeding has stopped. 🩹 Next, let\'s find out how this started. Check the logs with <code>logs fs-01</code>, then <code>investigate fs-01</code> to trace patient zero.');
+    aria('Both file servers are now isolated — the bleeding has stopped. 🩹 Next, let\'s find out how this started — check the system logs and trace where the infection began. 💡 Check your hint.');
+    setTimeout(presentRansomDecision,1200);
   }
 }
 
@@ -355,7 +429,7 @@ const RESPONSES={
     print('[ Objective 1 complete: Incident identified and scoped ]','t-out highlight');
     activateTl('tl5');
     printExplainer('That outbound connection to a Tor exit node is the ransomware "calling home" to its command-and-control (C2) server — this is how attackers receive instructions and exfiltrate data. Spotting C2 traffic is one of the fastest ways analysts confirm an active compromise.');
-    aria('🚨 <strong>Confirmed: ransomware</strong> on FS-01 and FS-02, both encrypting files right now, with a connection out to a known malicious IP. This matches LockBit-style behaviour. Priority one: <strong>contain it</strong>. Run <code>isolate fs-01</code> then <code>isolate fs-02</code> immediately.');
+    aria('🚨 <strong>Confirmed: ransomware</strong> on FS-01 and FS-02, both encrypting files right now, with a connection out to a known malicious IP. This matches LockBit-style behaviour. Priority one: <strong>contain it</strong> — isolate both servers immediately. 💡 Check your hint.');
   },
   'isolate fs-01':()=>isolateHost('fs-01'),
   'isolate fs-02':()=>isolateHost('fs-02'),
@@ -373,7 +447,7 @@ const RESPONSES={
     printBlank();
     printWOS('Log Analysis','Logs record every action on a system with a timestamp. Reading them in order reconstructs the "kill chain" — exactly how the attacker got in, what they did, and when. Note the lookalike domain "n0rthfield.co" (zero instead of "o") — a classic phishing trick.');
     printExplainer('Phishing remains the #1 initial access method in ransomware attacks according to most annual breach reports. One careless click on a disguised invoice is often all it takes.');
-    aria('Found it: a <strong>phishing email</strong> from a lookalike domain (n0rthfield.co — note the zero) with a disguised .exe attachment. j.martin opened it at 2:31 AM. Use <code>investigate fs-01</code> to confirm this is patient zero and trace the full chain.');
+    aria('Found it: a <strong>phishing email</strong> from a lookalike domain (n0rthfield.co — note the zero) with a disguised .exe attachment. j.martin opened it at 2:31 AM. Now confirm patient zero and trace the full kill chain. 💡 Check your hint.');
   },
   'investigate fs-01':()=>{
     printBlank();
@@ -394,7 +468,8 @@ const RESPONSES={
     print('[ Objective 3 complete: Patient zero identified ]','t-out highlight');
     activateTl('tl3');
     printExplainer('LockBit was, for several years, the most active ransomware-as-a-service operation worldwide, responsible for thousands of attacks before international law enforcement disrupted its infrastructure in 2024.');
-    aria('Excellent forensic work! 🔬 You\'ve traced the full attack chain: phishing email → malware execution → LockBit 3.0 deployment → lateral spread. Now it\'s time to recover. Run <code>recover fs-01</code> to begin restoring service.');
+    aria('Excellent forensic work! 🔬 You\'ve traced the full attack chain: phishing email → malware execution → LockBit 3.0 deployment → lateral spread. Now it\'s time to recover — restore the servers from clean backup. 💡 Check your hint.');
+    setTimeout(presentAttackVectorJudgment,800);
   },
   'recover fs-01':()=>{
     print('Beginning recovery procedure for FS-01...');
@@ -406,7 +481,7 @@ const RESPONSES={
       printBlank();
       printWOS('Recovery Procedure','Recovery never reconnects a system "as-is" — it\'s wiped and rebuilt from a known-clean backup, since you can\'t fully trust an infected machine again. This is why immutable, regularly-tested backups are a top priority for every organisation.');
       printExplainer('Without clean backups, victims face a brutal choice: pay the ransom (never guaranteed to get data back) or lose everything. The strongest defence against ransomware isn\'t prevention alone — it\'s reliable backups.');
-      aria('FS-01 is restored from a clean backup taken before the infection — much safer than trusting an encrypted machine. Repeat for FS-02 if needed, then finish up with <code>ir-report</code> to document everything for the school and any insurer/regulator.');
+      aria('FS-01 is restored from a clean backup taken before the infection — much safer than trusting an encrypted machine. Now write the full incident report so the school and any insurer or regulator has a clear record. 💡 Check your hint.');
     },2400);
   },
   'recover':()=>RESPONSES['recover fs-01'](),
@@ -458,6 +533,7 @@ function matchCmd(raw){
 
 function runCommand(){
   const input=document.getElementById('cmdInput');const raw=input.value.trim();if(!raw)return;
+  sfxKey();
   state.history.unshift(raw);state.historyIdx=-1;
   printCmd(raw);printBlank();
   const fn=matchCmd(raw);
@@ -474,6 +550,7 @@ document.getElementById('cmdInput').addEventListener('keydown',e=>{
 function insertCmd(cmd){document.getElementById('cmdInput').value=cmd;document.getElementById('cmdInput').focus();}
 function toggleHint(){document.getElementById('hintBox').classList.toggle('visible');}
 function resetLab(){location.reload();}
+updateHint();
 document.getElementById('cmdInput').focus();
 </script>
 </body>

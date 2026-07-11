@@ -18,6 +18,9 @@
   .progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:99px; transition:width .5s ease; width:0%; }
   .sound-toggle{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;padding:4px 9px;border-radius:6px;cursor:pointer;line-height:1;}
   .sound-toggle:hover{border-color:var(--accent);color:var(--accent);}
+  .choice-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+  .choice-btn{background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:8px 16px;border-radius:6px;cursor:pointer;transition:all .2s;}
+  .choice-btn:hover{border-color:var(--accent);color:var(--accent);}
   @keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(var(--rot));opacity:0;}}
   .program-banner{background:linear-gradient(135deg,rgba(0,212,255,.12),rgba(124,58,237,.12));border:1px solid rgba(0,212,255,.3);border-radius:99px;padding:8px 20px;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);animation:bannerPulse 2.4s ease-in-out infinite;}
   @keyframes bannerPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,255,.25);}50%{box-shadow:0 0 0 8px rgba(0,212,255,0);}}
@@ -228,7 +231,7 @@
     <div class="sidebar-section">
       <div class="sidebar-label">Need a nudge?</div>
       <button class="hint-btn" onclick="toggleHint()">💡 Show hint</button>
-      <div class="hint-text" id="hintBox">Every investigation starts the same way — figure out what's actually on the network before you decide what's wrong with it. Once something looks out of place, dig into that specific device before moving on.</div>
+      <div class="hint-text" id="hintBox"></div>
     </div>
   </aside>
 
@@ -240,7 +243,7 @@
     <div class="terminal-output" id="termOut">
       <div class="t-line t-system">CyberPath Secure Lab — Module 6: Capstone Project</div>
       <div class="t-line t-system">Westbridge College — Open Investigation</div>
-      <div class="t-info">🎓 No roadmap this time — you choose the order. A good starting point is recon: <strong>nmap -sn 10.0.0.0/24</strong></div>
+      <div class="t-info">🎓 No roadmap this time — just like the real job. Westbridge College has a problem somewhere on its network. Start with what every good investigator does first. 💡 Hit <strong>Show hint</strong> if you need a pointer.</div>
     </div>
     <div class="terminal-input-row">
       <span class="terminal-prompt-label">analyst@cyberpath:~$</span>
@@ -257,7 +260,7 @@
     </div>
     <div class="assistant-messages" id="assistantMsgs">
       <div class="msg">🎓 Welcome to the <strong>Capstone</strong>! This combines every skill from Modules 1-5. I'll give less hand-holding here — just like a real job, you'll need to decide what to do next.</div>
-      <div class="msg">A good place to start is always recon: <code>nmap -sn 10.0.0.0/24</code> to see what's actually on this network.</div>
+      <div class="msg">A good place to start is always recon — figure out what's actually on this network before deciding what's wrong with it. 💡 A hint is available in the sidebar whenever you need the exact command.</div>
     </div>
     <div class="tools-ref">
       <div class="tools-label">Quick commands</div>
@@ -361,7 +364,7 @@ function ariaSuccess(html){queueAria(()=>{const b=document.getElementById('assis
 function printWOS(title,html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=`<strong>📺 What's on the screen — ${title}</strong><br>${html}`;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
 function printExplainer(html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=`<strong>🌍 Real World Connection</strong><br>${html}`;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
 let audioCtx=null;let soundOn=true;
-function getCtx(){if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)();}return audioCtx;}
+function getCtx(){if(!audioCtx){audioCtx=new (window.AudioContext||window.webkitAudioContext)();}if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx;}
 function beep(freq,dur,type='sine',vol=0.08,delay=0){if(!soundOn)return;try{const ctx=getCtx();const t0=ctx.currentTime+delay;const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,t0);gain.gain.setValueAtTime(vol,t0);gain.gain.exponentialRampToValueAtTime(0.001,t0+dur);osc.connect(gain);gain.connect(ctx.destination);osc.start(t0);osc.stop(t0+dur);}catch(e){}}
 function sfxGrandFinale(){
   // Triumphant ascending fanfare, bigger than per-module completion
@@ -403,10 +406,64 @@ function showGrandFinale(){
   spawnConfetti(true);
   setTimeout(()=>spawnConfetti(true),1400);
 }
-function completeObj(n){if(state.objectives[n])return;state.objectives[n]=true;const el=document.getElementById('obj'+n);el.classList.add('done');el.querySelector('.obj-check').textContent='✓';const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('progressBar').style.width=(done/4*100)+'%';syncProgress();if(done===4){setCertDate();const btn=document.createElement('button');btn.className='continue-btn';btn.textContent='🎓 Program complete — View My Certificate →';btn.onclick=()=>showGrandFinale();out.appendChild(btn);out.scrollTop=out.scrollHeight;}}
+function completeObj(n){if(state.objectives[n])return;state.objectives[n]=true;const el=document.getElementById('obj'+n);el.classList.add('done');el.querySelector('.obj-check').textContent='✓';el.scrollIntoView({behavior:'smooth',block:'nearest'});const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('progressBar').style.width=(done/4*100)+'%';syncProgress();updateHint();if(done===4){setCertDate();const btn=document.createElement('button');btn.className='continue-btn';btn.textContent='🎓 Program complete — View My Certificate →';btn.onclick=()=>showGrandFinale();out.appendChild(btn);out.scrollTop=out.scrollHeight;}else{sfxSuccess();spawnConfetti();}}
 function unlockSkill(n){document.getElementById('sk'+n).classList.add('unlocked');}
 function setCertDate(){const d=new Date();document.getElementById('certDate').textContent='Completed '+d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});document.getElementById('certId').textContent='Certificate ID: CYBP-'+Math.random().toString(36).substring(2,8).toUpperCase()+'-'+d.getFullYear();if(state.studentName&&state.studentName!=='Solo Student'){document.getElementById('certName').textContent=state.studentName;document.getElementById('certNameInput').value=state.studentName;}}
 function updateCertName(){const v=document.getElementById('certNameInput').value.trim();if(v)document.getElementById('certName').textContent=v;}
+
+// ── Additional sound effects ─────────────────────────────────────────────────
+function sfxKey(){beep(440,0.04,'square',0.08);}
+function sfxSuccess(){beep(523,0.1,'sine',0.18);setTimeout(()=>beep(659,0.15,'sine',0.18),120);}
+function sfxWarn(){beep(200,0.18,'sawtooth',0.15);}
+
+// ── Decision points ─────────────────────────────────────────────────────────
+function printChoices(promptText,choices,onPick){const wrap=document.createElement('div');wrap.className='t-line';const p=document.createElement('div');p.className='t-out accent';p.innerHTML=promptText;wrap.appendChild(p);const row=document.createElement('div');row.className='choice-row';choices.forEach(c=>{const btn=document.createElement('button');btn.className='choice-btn';btn.textContent=c.label;btn.onclick=()=>{row.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);btn.style.borderColor=c.correct?'var(--green)':'var(--red)';btn.style.color=c.correct?'var(--green)':'var(--red)';onPick(c);};row.appendChild(btn);});wrap.appendChild(row);out.appendChild(wrap);out.scrollTop=out.scrollHeight;}
+
+function presentReconDecision(){
+  printChoices('🎯 Judgment call: The scan found an unknown device (10.0.0.99). Which should you investigate FIRST?',[
+    {label:'10.0.0.99 — the unknown device',correct:true},
+    {label:'srv-01 — it runs the web portal',correct:false},
+    {label:'wifi-ap-3 — could be a rogue AP',correct:false}
+  ],(choice)=>{
+    if(choice.correct){
+      sfxSuccess();
+      print('✓ Correct! An unrecognised device with no asset record is always priority #1 — it shouldn\'t be there.','t-out highlight');
+      aria('Good instinct. When something unknown appears on the network, you investigate it before anything else — it could be a planted device, a visitor\'s laptop, or an attacker\'s dropbox. 💡 Probe it further to find out exactly what it is.');
+    }else{
+      sfxWarn();
+      print('✗ Start with the unknown device. Known assets can wait — an unidentified device with no record shouldn\'t be on the network at all.','t-out warn');
+      aria('In any investigation, unknowns take priority over knowns. The unknown device could be anything — and the fact it\'s not in the asset register is a red flag on its own. Investigate 10.0.0.99 first.');
+    }
+  });
+}
+
+function presentContainmentDecision(){
+  printChoices('🚨 Data is actively being exfiltrated. What do you do FIRST?',[
+    {label:'Isolate both compromised systems immediately',correct:true},
+    {label:'Monitor quietly to gather more evidence',correct:false},
+    {label:'Back up the data before doing anything',correct:false}
+  ],(choice)=>{
+    if(choice.correct){
+      sfxSuccess();
+      print('✓ Correct! Every second of delay means more data leaving the network — contain first, investigate after.','t-out highlight');
+      aria('This is the Incident Response principle from Module 4: <strong>Contain first.</strong> Evidence can be gathered from the isolated system — but data lost to exfiltration is gone for good. Speed matters here.');
+    }else{
+      sfxWarn();
+      print('✗ When data is actively leaving, containment takes priority. Monitoring delays cost data; backing up a compromised system copies malware too.','t-out warn');
+      aria('Module 4 principle: stop the bleeding before you diagnose the patient. Containment is always the first physical action in an active incident. The forensic work happens on the isolated system.');
+    }
+  });
+}
+
+// ── Dynamic hints ───────────────────────────────────────────────────────────
+const HINTS=[
+  'Map what\'s on the network — you can\'t protect what you can\'t see. 💡 Command: <code>nmap -sn 10.0.0.0/24</code>',
+  'A rogue device is talking to an external IP. Investigate both. 💡 Commands: <code>nmap -sV 10.0.0.99</code> · <code>whois 91.108.4.1</code> · <code>nessus scan 10.0.0.50</code>',
+  'Vulnerabilities confirmed and exfiltration in progress. Contain both threats. 💡 Commands: <code>isolate 10.0.0.99</code> then <code>isolate srv-01</code>',
+  'Breach contained. Prevent a repeat with a risk assessment and board briefing. 💡 Commands: <code>risk assess</code> then <code>board-report</code>',
+  'All four phases complete! Click Program Complete. 🏆'
+];
+function updateHint(){const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('hintBox').innerHTML=HINTS[Math.min(done,HINTS.length-1)];}
 
 const RESPONSES={
   'help':()=>{
@@ -421,7 +478,7 @@ const RESPONSES={
     print('  risk assess               — evaluate organisational risk');
     print('  board-report              — final executive briefing');
     printBlank();
-    aria('No fixed order this time — try starting with <code>nmap -sn 10.0.0.0/24</code> to see what\'s on the network.');
+    aria('No fixed order this time — try starting with a network discovery scan to see what\'s on the network. 💡 Check your hint.');
   },
   'nmap -sn 10.0.0.0/24':()=>{
     printBlank();
@@ -439,7 +496,8 @@ const RESPONSES={
     completeObj(1);unlockSkill(1);
     print('[ Objective 1 complete: Network mapped ]','t-out highlight');
     printExplainer('Asset inventory is foundational to security — you cannot protect what you don\'t know exists. Unmanaged "rogue" devices are a leading cause of undetected breaches in real organisations.');
-    aria('🚩 <strong>10.0.0.99</strong> isn\'t in any asset record — that\'s suspicious on its own. Dig deeper with <code>nmap -sV 10.0.0.99</code> to see what it actually is.');
+    aria('🚩 <strong>10.0.0.99</strong> isn\'t in any asset record — that\'s suspicious on its own. Dig deeper into that unknown device to see what\'s actually running on it. 💡 Check your hint.');
+    setTimeout(presentReconDecision,900);
   },
   'nmap -sv 10.0.0.99':()=>RESPONSES['nmap -sV 10.0.0.99'](),
   'nmap -sV 10.0.0.99':()=>{
@@ -454,7 +512,7 @@ const RESPONSES={
     printBlank();
     printWOS('Service Fingerprinting','Port 4444 is a famous default for reverse-shell backdoors (used by tools like Metasploit). Combined with an unidentified device and an unexplained outbound connection, this strongly suggests compromise.');
     printExplainer('Attackers often plant small, cheap devices like a Raspberry Pi on a network to maintain persistent access — this is called a "dropbox." It looks harmless physically but gives full remote access.');
-    aria('Port <strong>4444</strong> is a classic backdoor signature. This device is "phoning home" to <code>91.108.4.1</code>. Check who owns that IP with <code>whois 91.108.4.1</code>.');
+    aria('Port <strong>4444</strong> is a classic backdoor signature. This device is "phoning home" to an external IP. Look up who owns it — OSINT will tell you. 💡 Check your hint.');
   },
   'whois 91.108.4.1':()=>{
     printBlank();
@@ -468,7 +526,7 @@ const RESPONSES={
     printWOS('WHOIS Lookup','WHOIS reveals who registered an IP block. Infrastructure tied to messaging/anonymising services with many abuse reports is a common pattern for attacker-controlled C2 servers — they blend in with legitimate traffic.');
     unlockSkill(2);
     printExplainer('OSINT (Open-Source Intelligence) — gathering public information like WHOIS, DNS, and certificate records — is one of the very first skills real threat intelligence analysts learn, often before any "hacking" at all.');
-    aria('This IP belongs to anonymising infrastructure with a history of abuse reports — classic C2 (command-and-control) territory. Try <code>shodan 91.108.4.1</code> for one more angle, or move on to scanning the rest of the network with <code>nessus scan 10.0.0.50</code>.');
+    aria('This IP belongs to anonymising infrastructure with a history of abuse reports — classic C2 territory. Run one more OSINT tool on it, then scan the rest of the network for vulnerabilities. 💡 Check your hint.');
   },
   'shodan 91.108.4.1':()=>{
     printBlank();
@@ -480,7 +538,7 @@ const RESPONSES={
     printBlank();
     printWOS('Shodan Search','Shodan indexes internet-connected devices and their banners — like a search engine for infrastructure rather than web pages. A self-reported "C2-Framework" banner is about as clear a red flag as OSINT ever gives you.');
     printExplainer('Security researchers use Shodan every day to find exposed cameras, industrial systems, and — as here — attacker infrastructure that hasn\'t bothered to hide itself well.');
-    aria('That confirms it — this is command-and-control infrastructure. Now check the rest of the network for vulnerabilities: <code>nessus scan 10.0.0.50</code>.');
+    aria('That confirms it — this is command-and-control infrastructure. Now check the rest of the network for vulnerabilities. 💡 Check your hint.');
   },
   'nessus scan 10.0.0.50':()=>{
     printBlank();
@@ -497,7 +555,7 @@ const RESPONSES={
     completeObj(2);unlockSkill(3);
     print('[ Objective 2 complete: Vulnerabilities identified ]','t-out highlight');
     printExplainer('Real breaches are rarely one mistake — they\'re usually a chain: an unpatched flaw, plus weak credentials, plus a missed unauthorised device. Fixing only one link still leaves the door open.');
-    aria('Now we know how they got in. Check <code>siem alerts</code> to see what\'s happening right now, then start containing the threat.');
+    aria('Now we know how they got in. Check the SIEM to see what\'s happening right now, then start containing the threat. 💡 Check your hint.');
   },
   'siem alerts':()=>{
     printBlank();
@@ -513,14 +571,15 @@ const RESPONSES={
     printWOS('Exfiltration Timeline','2.3GB of outbound transfer is a huge red flag — that\'s not normal web traffic, that\'s data leaving the network. SIEMs catch this kind of volume anomaly long before a human would notice anything "feels off."');
     unlockSkill(4);
     printExplainer('Data exfiltration is often the actual goal behind a breach — the rest (backdoors, credential theft) is just how attackers get to this stage. Catching it in progress, rather than after the fact, can be the difference between a contained incident and a full-blown crisis.');
-    aria('🚨 Data is actively leaving the network <strong>right now</strong>. Stop it — isolate both the rogue device and the compromised server: <code>isolate 10.0.0.99</code> and <code>isolate srv-01</code>.');
+    aria('🚨 Data is actively leaving the network <strong>right now</strong>. Stop it — isolate both the rogue device and the compromised server immediately. 💡 Check your hint.');
+    setTimeout(presentContainmentDecision,900);
   },
   'isolate 10.0.0.99':()=>{
     printBlank();
     print('Isolating 10.0.0.99 from network...');
     print('10.0.0.99: Quarantined. Rogue device contained.','t-out highlight');
     printWOS('Containing the Rogue Device','Isolating the unauthorised device cuts off its physical presence on the network — but the compromised server (srv-01) is still actively talking to the attacker, so containment isn\'t finished yet.');
-    aria('Rogue device contained. The exfiltration is likely still happening via srv-01 though — isolate that too: <code>isolate srv-01</code>.');
+    aria('Rogue device contained. The exfiltration is likely still happening via the compromised server — isolate that too. 💡 Check your hint.');
   },
   'isolate srv-01':()=>{
     printBlank();
@@ -533,7 +592,7 @@ const RESPONSES={
     completeObj(3);
     print('[ Objective 3 complete: Breach contained ]','t-out highlight');
     printExplainer('The fastest real-world incident responses combine exactly this sequence: identify anomalous traffic, trace it to its source(s), and isolate every implicated system — not just the obvious one.');
-    aria('Excellent — both compromised systems are isolated and the breach is contained. ✅ Last step: make sure this can\'t happen again. Run <code>risk assess</code> then <code>board-report</code> to finish the program.');
+    aria('Excellent — both compromised systems are isolated and the breach is contained. ✅ Last step: make sure this can\'t happen again. Assess the risks and present the final briefing to leadership. 💡 Check your hint.');
   },
   'isolate fs-01':()=>RESPONSES['isolate srv-01'](),
   'risk assess':()=>{
@@ -550,7 +609,7 @@ const RESPONSES={
     printWOS('Westbridge Risk Table','Same risk model as Module 5 — likelihood × impact — applied to a brand-new scenario. Notice "Unmanaged devices" tops the list: it\'s literally how this entire incident started.');
     unlockSkill(5);
     printExplainer('Every incident response should end by feeding lessons back into the risk register. Without that step, organisations fix the symptom but not the underlying weakness — and the same type of incident happens again.');
-    aria('Asset management — knowing what\'s on your network — is now the #1 risk. Wrap this up with <code>board-report</code> for the final executive briefing.');
+    aria('Asset management — knowing what\'s on your network — is now the #1 risk. Wrap this up with the final executive briefing. 💡 Check your hint.');
   },
   'board-report':()=>{
     printBlank();
@@ -602,6 +661,7 @@ function matchCmd(raw){
 
 function runCommand(){
   const input=document.getElementById('cmdInput');const raw=input.value.trim();if(!raw)return;
+  sfxKey();
   state.history.unshift(raw);state.historyIdx=-1;
   printCmd(raw);printBlank();
   const fn=matchCmd(raw);
@@ -618,6 +678,7 @@ document.getElementById('cmdInput').addEventListener('keydown',e=>{
 function insertCmd(cmd){document.getElementById('cmdInput').value=cmd;document.getElementById('cmdInput').focus();}
 function toggleHint(){document.getElementById('hintBox').classList.toggle('visible');}
 function resetLab(){location.reload();}
+updateHint();
 document.getElementById('cmdInput').focus();
 </script>
 </body>

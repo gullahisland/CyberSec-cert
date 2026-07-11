@@ -52,9 +52,15 @@
   .how-text{font-size:14px;color:var(--muted);line-height:1.5;}
   footer{background:var(--panel);border-top:1px solid var(--border);padding:24px;text-align:center;font-size:13px;color:var(--muted);}
   footer a{color:var(--accent);text-decoration:none;}
+  .sound-toggle{position:fixed;top:16px;right:16px;z-index:100;background:var(--panel);border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:12px;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .2s;}
+  .sound-toggle:hover{border-color:var(--accent);color:var(--accent);}
+  @keyframes scanLine{0%{top:-2px;}100%{top:100%;}}
+  .hero::after{content:'';position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.15),transparent);animation:scanLine 4s linear infinite;pointer-events:none;}
 </style>
 </head>
 <body>
+
+<button class="sound-toggle" id="soundToggle" onclick="toggleSound()">🔊 Sound ON</button>
 
 <div class="hero">
   <div class="hero-eyebrow">🛡️ Free · Browser-Based · No Install Required</div>
@@ -150,22 +156,94 @@
   </div>
 </div>
 
-<div class="section">
-  <div class="section-label">How it works</div>
-  <div class="section-title">Designed for Summer Camps</div>
-  <div class="how-grid">
-    <div class="how-card"><div class="how-num">01</div><div class="how-title">Open in any browser</div><div class="how-text">No downloads, no accounts, no IT setup. Works on Chromebooks, tablets, any device.</div></div>
-    <div class="how-card"><div class="how-num">02</div><div class="how-title">Students enter class code</div><div class="how-text">Each student types their name and the instructor's session code. Instant join.</div></div>
-    <div class="how-card"><div class="how-num">03</div><div class="how-title">Instructor sees live progress</div><div class="how-text">The dashboard updates every 8 seconds. See exactly who's on which objective.</div></div>
-    <div class="how-card"><div class="how-num">04</div><div class="how-title">One module per day</div><div class="how-text">Each module takes 40-60 minutes. The 6-day program fits a standard summer camp week.</div></div>
-  </div>
-</div>
-
 <footer>
   <strong style="color:var(--accent);font-family:var(--mono)">CYBERPATH</strong> — Free youth cybersecurity education ·
   <a href="instructor_dashboard.html">Instructor Dashboard</a> ·
   <a href="module1_cyber_lab.html">Start Module 1</a>
 </footer>
 
+<script>
+// ── Audio Engine ──────────────────────────────────────────────────
+let audioCtx=null,soundOn=true;
+function getCtx(){
+  if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  return audioCtx;
+}
+function beep(freq,dur,type='sine',vol=0.06){
+  if(!soundOn)return;
+  const c=getCtx(),o=c.createOscillator(),g=c.createGain();
+  o.connect(g);g.connect(c.destination);
+  o.type=type;o.frequency.setValueAtTime(freq,c.currentTime);
+  g.gain.setValueAtTime(vol,c.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
+  o.start(c.currentTime);o.stop(c.currentTime+dur);
+}
+
+// Hover blip — short digital ping
+function sfxHover(){
+  if(!soundOn)return;
+  beep(880,0.06,'sine',0.04);
+}
+
+// Card click — descending sweep (launching something)
+function sfxClick(){
+  if(!soundOn)return;
+  const c=getCtx(),o=c.createOscillator(),g=c.createGain();
+  o.connect(g);g.connect(c.destination);
+  o.type='sine';
+  o.frequency.setValueAtTime(660,c.currentTime);
+  o.frequency.exponentialRampToValueAtTime(220,c.currentTime+0.18);
+  g.gain.setValueAtTime(0.07,c.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.2);
+  o.start(c.currentTime);o.stop(c.currentTime+0.22);
+}
+
+// Boot sequence — plays once on first click anywhere
+function sfxBoot(){
+  if(!soundOn)return;
+  const freqs=[220,330,440,660,880];
+  freqs.forEach((f,i)=>setTimeout(()=>beep(f,0.1,'square',0.04),i*60));
+}
+
+// Capstone card gets a special hover — higher + shimmer
+function sfxCapstoneHover(){
+  if(!soundOn)return;
+  beep(1047,0.05,'sine',0.035);
+  setTimeout(()=>beep(1319,0.05,'sine',0.025),40);
+}
+
+function toggleSound(){
+  soundOn=!soundOn;
+  document.getElementById('soundToggle').textContent=soundOn?'🔊 Sound ON':'🔇 Sound OFF';
+}
+
+// ── Attach sounds ─────────────────────────────────────────────────
+let booted=false;
+function ensureBoot(){if(!booted){booted=true;sfxBoot();}}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  // Module cards
+  document.querySelectorAll('.module-card').forEach(card=>{
+    const isCapstone=card.classList.contains('capstone');
+    card.addEventListener('mouseenter',()=>{
+      ensureBoot();
+      isCapstone?sfxCapstoneHover():sfxHover();
+    });
+    card.addEventListener('click',()=>sfxClick());
+  });
+
+  // Primary & secondary buttons
+  document.querySelectorAll('.btn-primary,.btn-secondary').forEach(btn=>{
+    btn.addEventListener('mouseenter',()=>{ensureBoot();sfxHover();});
+    btn.addEventListener('click',()=>sfxClick());
+  });
+
+  // Chips — very subtle blip
+  document.querySelectorAll('.chip').forEach(chip=>{
+    chip.addEventListener('mouseenter',()=>{if(soundOn)beep(660,0.04,'sine',0.02);});
+  });
+});
+</script>
 </body>
 </html>
