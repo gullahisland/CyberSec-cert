@@ -172,58 +172,168 @@ function getCtx(){
 }
 function beep(freq,dur,type='sine',vol=0.06){
   if(!soundOn)return;
-  const c=getCtx(),o=c.createOscillator(),g=c.createGain();
-  o.connect(g);g.connect(c.destination);
-  o.type=type;o.frequency.setValueAtTime(freq,c.currentTime);
-  g.gain.setValueAtTime(vol,c.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
-  o.start(c.currentTime);o.stop(c.currentTime+dur);
+  try{
+    const c=getCtx(),o=c.createOscillator(),g=c.createGain();
+    o.connect(g);g.connect(c.destination);
+    o.type=type;o.frequency.setValueAtTime(freq,c.currentTime);
+    g.gain.setValueAtTime(vol,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+dur);
+    o.start(c.currentTime);o.stop(c.currentTime+dur);
+  }catch(e){}
 }
 
-// Hover blip — short digital ping
+// ── Ambient sound system ──────────────────────────────────────────
+let ambientNodes=null,blipTimer=null;
+
+function startAmbient(){
+  if(ambientNodes||!soundOn)return;
+  try{
+    const c=getCtx();
+
+    // Master gain (very quiet overall)
+    const master=c.createGain();
+    master.gain.setValueAtTime(0,c.currentTime);
+    master.gain.linearRampToValueAtTime(0.035,c.currentTime+3); // fade in over 3s
+    master.connect(c.destination);
+
+    // Low bass drone — 55hz (deep hum)
+    const drone=c.createOscillator();
+    drone.type='sine';
+    drone.frequency.value=55;
+    const droneGain=c.createGain();
+    droneGain.gain.value=0.6;
+    drone.connect(droneGain);
+    droneGain.connect(master);
+    drone.start();
+
+    // Second harmonic — 110hz (octave above, slightly detuned for warmth)
+    const drone2=c.createOscillator();
+    drone2.type='sine';
+    drone2.frequency.value=110.3;
+    const drone2Gain=c.createGain();
+    drone2Gain.gain.value=0.25;
+    drone2.connect(drone2Gain);
+    drone2Gain.connect(master);
+    drone2.start();
+
+    // Slow LFO — breathes the drone volume (0.08hz = ~12s cycle)
+    const lfo=c.createOscillator();
+    lfo.type='sine';
+    lfo.frequency.value=0.08;
+    const lfoGain=c.createGain();
+    lfoGain.gain.value=0.012;
+    lfo.connect(lfoGain);
+    lfoGain.connect(master.gain);
+    lfo.start();
+
+    // White noise layer — very faint static
+    const bufSize=2*c.sampleRate;
+    const buf=c.createBuffer(1,bufSize,c.sampleRate);
+    const data=buf.getChannelData(0);
+    for(let i=0;i<bufSize;i++)data[i]=(Math.random()*2-1);
+    const noise=c.createBufferSource();
+    noise.buffer=buf;noise.loop=true;
+    const noiseFilter=c.createBiquadFilter();
+    noiseFilter.type='lowpass';noiseFilter.frequency.value=400;
+    const noiseGain=c.createGain();
+    noiseGain.gain.value=0.04;
+    noise.connect(noiseFilter);noiseFilter.connect(noiseGain);noiseGain.connect(master);
+    noise.start();
+
+    ambientNodes={drone,drone2,lfo,noise,master};
+
+    // Random data blips — occasional cyber beeps
+    function scheduleBlip(){
+      if(!ambientNodes||!soundOn)return;
+      const delay=2000+Math.random()*5000; // every 2-7 seconds
+      blipTimer=setTimeout(()=>{
+        if(!soundOn){scheduleBlip();return;}
+        const blipFreqs=[440,523,659,784,880,1047];
+        const f=blipFreqs[Math.floor(Math.random()*blipFreqs.length)];
+        beep(f,0.04+Math.random()*0.06,'square',0.018);
+        // occasional double-blip
+        if(Math.random()>0.6)setTimeout(()=>beep(f*1.5,0.04,'square',0.012),80);
+        scheduleBlip();
+      },delay);
+    }
+    scheduleBlip();
+
+  }catch(e){}
+}
+
+function stopAmbient(){
+  if(blipTimer){clearTimeout(blipTimer);blipTimer=null;}
+  if(!ambientNodes)return;
+  try{
+    const c=getCtx();
+    ambientNodes.master.gain.linearRampToValueAtTime(0,c.currentTime+1);
+    setTimeout(()=>{
+      try{
+        ambientNodes.drone.stop();
+        ambientNodes.drone2.stop();
+        ambientNodes.lfo.stop();
+        ambientNodes.noise.stop();
+      }catch(e){}
+      ambientNodes=null;
+    },1100);
+  }catch(e){ambientNodes=null;}
+}
+
+// ── One-shot SFX ─────────────────────────────────────────────────
 function sfxHover(){
   if(!soundOn)return;
   beep(880,0.06,'sine',0.04);
 }
 
-// Card click — descending sweep (launching something)
 function sfxClick(){
   if(!soundOn)return;
-  const c=getCtx(),o=c.createOscillator(),g=c.createGain();
-  o.connect(g);g.connect(c.destination);
-  o.type='sine';
-  o.frequency.setValueAtTime(660,c.currentTime);
-  o.frequency.exponentialRampToValueAtTime(220,c.currentTime+0.18);
-  g.gain.setValueAtTime(0.07,c.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.2);
-  o.start(c.currentTime);o.stop(c.currentTime+0.22);
+  try{
+    const c=getCtx(),o=c.createOscillator(),g=c.createGain();
+    o.connect(g);g.connect(c.destination);
+    o.type='sine';
+    o.frequency.setValueAtTime(660,c.currentTime);
+    o.frequency.exponentialRampToValueAtTime(220,c.currentTime+0.18);
+    g.gain.setValueAtTime(0.08,c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.22);
+    o.start(c.currentTime);o.stop(c.currentTime+0.25);
+  }catch(e){}
 }
 
-// Boot sequence — plays once on first click anywhere
 function sfxBoot(){
   if(!soundOn)return;
   const freqs=[220,330,440,660,880];
-  freqs.forEach((f,i)=>setTimeout(()=>beep(f,0.1,'square',0.04),i*60));
+  freqs.forEach((f,i)=>setTimeout(()=>beep(f,0.1,'square',0.045),i*70));
 }
 
-// Capstone card gets a special hover — higher + shimmer
 function sfxCapstoneHover(){
   if(!soundOn)return;
   beep(1047,0.05,'sine',0.035);
-  setTimeout(()=>beep(1319,0.05,'sine',0.025),40);
+  setTimeout(()=>beep(1319,0.05,'sine',0.025),45);
 }
 
+// ── Toggle ────────────────────────────────────────────────────────
 function toggleSound(){
   soundOn=!soundOn;
   document.getElementById('soundToggle').textContent=soundOn?'🔊 Sound ON':'🔇 Sound OFF';
+  if(soundOn){
+    startAmbient();
+  }else{
+    stopAmbient();
+  }
+}
+
+// ── Bootstrap on first interaction ───────────────────────────────
+let booted=false;
+function ensureBoot(){
+  if(booted)return;
+  booted=true;
+  sfxBoot();
+  // Start ambient after boot sequence finishes
+  setTimeout(startAmbient,500);
 }
 
 // ── Attach sounds ─────────────────────────────────────────────────
-let booted=false;
-function ensureBoot(){if(!booted){booted=true;sfxBoot();}}
-
 document.addEventListener('DOMContentLoaded',()=>{
-  // Module cards
   document.querySelectorAll('.module-card').forEach(card=>{
     const isCapstone=card.classList.contains('capstone');
     card.addEventListener('mouseenter',()=>{
@@ -233,13 +343,11 @@ document.addEventListener('DOMContentLoaded',()=>{
     card.addEventListener('click',()=>sfxClick());
   });
 
-  // Primary & secondary buttons
   document.querySelectorAll('.btn-primary,.btn-secondary').forEach(btn=>{
     btn.addEventListener('mouseenter',()=>{ensureBoot();sfxHover();});
     btn.addEventListener('click',()=>sfxClick());
   });
 
-  // Chips — very subtle blip
   document.querySelectorAll('.chip').forEach(chip=>{
     chip.addEventListener('mouseenter',()=>{if(soundOn)beep(660,0.04,'sine',0.02);});
   });
