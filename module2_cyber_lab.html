@@ -86,6 +86,11 @@
   .ov-card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
   .ov-card-text{font-size:13px;color:var(--muted);line-height:1.5;}
   .ov-skill{display:inline-block;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--accent);font-family:var(--mono);font-size:12px;padding:3px 10px;border-radius:99px;margin:3px;}
+  .audio-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px;opacity:1;transition:opacity .5s;}
+  .audio-hint-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:hintPulse 1.4s ease-in-out infinite;}
+  @keyframes hintPulse{0%,100%{opacity:.3;transform:scale(1);}50%{opacity:1;transform:scale(1.3);}}
+  .ov-back-btn{position:absolute;top:20px;left:20px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:13px;padding:7px 14px;border-radius:7px;cursor:pointer;transition:color .2s,border-color .2s;}
+  .ov-back-btn:hover{color:var(--accent);border-color:var(--accent);}
   .ov-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:14px 40px;border-radius:10px;cursor:pointer;margin-top:8px;}
   .join-modal{position:fixed;inset:0;background:rgba(10,14,26,.95);z-index:200;display:flex;align-items:center;justify-content:center;}
   .join-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;max-width:400px;width:100%;}
@@ -131,6 +136,7 @@
 <body>
 
 <div class="overview-modal" id="overviewModal">
+  <button class="ov-back-btn" onclick="history.back()">&#8592; Back</button>
   <div class="overview-box">
     <div class="ov-badge">Module 2 of 6 · OSINT & Threat Intelligence</div>
     <div class="ov-icon">🌐</div>
@@ -161,6 +167,7 @@
       <span class="ov-skill">OSINT</span>
     </div>
     <br>
+  <div class="audio-hint" id="audioHint"><span class="audio-hint-dot"></span>Click anywhere to enable sound</div>
     <button class="ov-btn" onclick="showJoin()">Start Investigation →</button>
   </div>
 </div>
@@ -559,7 +566,7 @@ function resetLab(){location.reload();}
 updateHint();
 document.getElementById('cmdInput').focus();
 
-document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();},{once:true});
+document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();var h=document.getElementById('audioHint');if(h){h.style.opacity='0';setTimeout(function(){h.style.display='none';},500);}},{once:true});
 </script>
 </body>
 </html>
