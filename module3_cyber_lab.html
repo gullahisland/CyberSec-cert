@@ -126,6 +126,26 @@
   .ov-back-btn{position:absolute;top:20px;left:20px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:13px;padding:7px 14px;border-radius:7px;cursor:pointer;transition:color .2s,border-color .2s;}
   .ov-back-btn:hover{color:var(--accent);border-color:var(--accent);}
   .ov-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:14px 40px;border-radius:11px;cursor:pointer;margin-top:8px;}
+  .incoming-msg{background:#0d1117;border:1px solid rgba(0,212,255,.25);border-radius:10px;padding:16px 18px;margin:0 auto 18px;max-width:520px;text-align:left;font-family:var(--mono);font-size:13px;}
+  .incoming-header{color:var(--accent);font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;}
+  .incoming-from{color:var(--muted);margin-bottom:2px;}
+  .incoming-subject{color:var(--text);font-weight:600;margin-bottom:10px;}
+  .incoming-body{color:#aebccf;line-height:1.7;font-family:var(--sans);font-size:14px;}
+  .incoming-sig{color:var(--muted);margin-top:8px;font-family:var(--mono);font-size:12px;}
+  .incoming-play{background:transparent;border:1px solid rgba(0,212,255,.3);color:var(--accent);font-family:var(--mono);font-size:12px;padding:4px 10px;border-radius:5px;cursor:pointer;margin-top:10px;transition:all .2s;}
+  .incoming-play:hover{background:rgba(0,212,255,.08);border-color:var(--accent);}
+  .char-briefing{display:flex;align-items:flex-start;gap:13px;background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:11px;padding:14px 16px;margin:0 auto 22px;max-width:520px;text-align:left;}
+  .char-avatar{font-size:28px;flex-shrink:0;margin-top:2px;}
+  .char-name{font-size:11px;font-weight:700;color:var(--accent);font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;}
+  .char-msg{font-size:14px;color:var(--text);line-height:1.6;font-style:italic;}
+  .char-voice-btn{background:rgba(0,212,255,.1);border:2px solid var(--accent);color:var(--accent);font-size:13px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;flex-shrink:0;transition:all .2s;font-family:var(--mono);letter-spacing:.04em;}
+  .char-voice-btn:hover{background:rgba(0,212,255,.22);box-shadow:0 0 14px rgba(0,212,255,.35);}
+  .speaking-indicator{display:none;background:rgba(0,212,255,.12);border:1px solid var(--accent);color:var(--accent);font-size:10px;font-family:var(--mono);font-weight:700;padding:2px 9px;border-radius:99px;letter-spacing:.1em;margin-left:auto;animation:speakPulse 1s ease-in-out infinite;align-self:center;}
+  .speaking-indicator.active{display:flex;}
+  @keyframes speakPulse{0%,100%{opacity:.5}50%{opacity:1}}
+  .audio-hint{position:absolute;top:20px;right:20px;font-family:var(--mono);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px;opacity:1;transition:opacity .5s;}
+  .audio-hint-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:hintPulse 1.4s ease-in-out infinite;}
+  @keyframes hintPulse{0%,100%{opacity:.3;transform:scale(1);}50%{opacity:1;transform:scale(1.3);}}
   .career-section{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:540px;width:100%;text-align:left;margin-top:8px;}
   .career-title{font-size:14px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px;text-align:center;}
   .career-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:16px;}
@@ -200,6 +220,7 @@
       <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
     </div>
   </div>
+  <button id="voiceToggle" class="sound-toggle" onclick="toggleVoice()">🎙️ Voice ON</button>
 </nav>
 
 <div class="layout">
@@ -256,9 +277,9 @@
 
   <div class="assistant-panel">
     <div class="assistant-header">
-      <div class="assistant-avatar">🤖</div>
-      <div><div class="assistant-name">ARIA</div><div class="assistant-role">AI Security Guide</div></div>
-      <div class="online-dot"></div>
+      <div class="assistant-avatar" id="assistantAvatar">👩‍💻</div>
+      <div><div class="assistant-name" id="assistantName">Alex Morgan</div><div class="assistant-role">Security Engineer</div></div>
+      <div class="online-dot"></div><span class="speaking-indicator" id="speakingIndicator">◉ SPEAKING</span>
     </div>
     <div class="assistant-messages" id="assistantMsgs">
       <div class="msg">Welcome to <strong>Module 3</strong>! Today we're doing <strong>vulnerability scanning</strong> — systematically checking a system for known weaknesses before attackers find them. 🔬</div>
@@ -392,7 +413,7 @@ function stopAmbient(){
   ambient=null;
 }
 function spawnConfetti(){const emojis=['🎉','✨','🔬','🎊','⭐','🛡️'];const container=document.createElement('div');container.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:400;overflow:hidden;';document.body.appendChild(container);for(let i=0;i<28;i++){const span=document.createElement('span');span.textContent=emojis[Math.floor(Math.random()*emojis.length)];span.style.position='absolute';span.style.left=Math.random()*100+'%';span.style.top='-40px';span.style.fontSize=(16+Math.random()*22)+'px';span.style.setProperty('--rot',(Math.random()*360|0)+'deg');const dur=(2.4+Math.random()*1.6).toFixed(2);const del=(Math.random()*0.5).toFixed(2);span.style.animation=`confettiFall ${dur}s ${del}s ease-in forwards`;container.appendChild(span);}setTimeout(()=>container.remove(),4600);}
-function showCelebration(){document.getElementById('celebration').classList.add('show');sfxComplete();spawnConfetti();}
+function showCelebration(){document.getElementById('celebration').classList.add('show');sfxComplete();spawnConfetti();setTimeout(()=>playAudio("alex_m3_complete.mp3"),2000);}
 
 function printChoices(promptText,choices,onPick){
   const wrap=document.createElement('div');wrap.className='t-line';
@@ -610,7 +631,15 @@ function resetLab(){location.reload();}
 updateHint();
 document.getElementById('cmdInput').focus();
 
-document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();var h=document.getElementById('audioHint');if(h){h.style.opacity='0';setTimeout(function(){h.style.display='none';},500);}},{once:true});
+document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();var h=document.getElementById('audioHint');if(h){h.style.opacity='0';setTimeout(()=>h.style.display='none',500);}setTimeout(()=>playAudio('alex_m3_briefing.mp3'),800);},{once:true});
+
+let voiceOn=true;let currentAudio=null;
+function _showSpeaking(on){const ind=document.getElementById('speakingIndicator');const av=document.getElementById('assistantAvatar');if(ind)ind.classList.toggle('active',on);if(av)av.classList.toggle('speaking',on);}
+function playAudio(src){if(!voiceOn)return;if(currentAudio){currentAudio.pause();currentAudio=null;}const a=new Audio(src);currentAudio=a;a.onplay=()=>_showSpeaking(true);a.onended=a.onerror=()=>{_showSpeaking(false);currentAudio=null;};a.play().catch(()=>{});}
+function toggleVoice(){voiceOn=!voiceOn;const b=document.getElementById('voiceToggle');if(b){b.textContent=voiceOn?'🎙️ Voice ON':'🔇 Voice OFF';b.style.color=voiceOn?'':'var(--muted)';}if(!voiceOn&&currentAudio){currentAudio.pause();currentAudio=null;_showSpeaking(false);}}
+function speakBriefing(){playAudio('alex_m3_briefing.mp3');}
+function speakWelcome(){setTimeout(()=>playAudio('alex_m3_welcome.mp3'),900);}
+
 </script>
 </body>
 </html>

@@ -98,6 +98,13 @@
   .ov-back-btn{position:absolute;top:20px;left:20px;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:13px;padding:7px 14px;border-radius:7px;cursor:pointer;transition:color .2s,border-color .2s;}
   .ov-back-btn:hover{color:var(--accent);border-color:var(--accent);}
   .ov-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:14px 40px;border-radius:11px;cursor:pointer;margin-top:8px;}
+  .incoming-msg{background:#0d1117;border:1px solid rgba(0,212,255,.25);border-radius:10px;padding:16px 18px;margin-bottom:22px;text-align:left;font-family:var(--mono);font-size:13px;}
+  .incoming-header{color:var(--accent);font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .incoming-from{color:var(--muted);margin-bottom:2px;}<br>  .incoming-subject{color:var(--text);font-weight:600;margin-bottom:10px;}
+  .incoming-body{color:#aebccf;line-height:1.7;font-family:var(--sans);font-size:14px;}
+  .incoming-sig{color:var(--muted);margin-top:8px;font-family:var(--mono);font-size:12px;}
+  .incoming-play{background:transparent;border:1px solid rgba(0,212,255,.3);color:var(--accent);font-family:var(--mono);font-size:12px;padding:4px 10px;border-radius:5px;cursor:pointer;margin-top:10px;transition:all .2s;}
+  .incoming-play:hover{background:rgba(0,212,255,.08);border-color:var(--accent);}
   .join-modal{position:fixed;inset:0;background:rgba(10,14,26,.95);z-index:200;display:flex;align-items:center;justify-content:center;}
   .join-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:40px;text-align:center;max-width:400px;width:100%;}
   .join-title{font-size:22px;font-weight:700;color:var(--accent);font-family:var(--mono);margin-bottom:8px;}
@@ -185,6 +192,17 @@
       <span class="ov-skill">Incident Reporting</span>
     </div>
     <br>
+    <div class="incoming-msg">
+      <div class="incoming-header">📥 Incoming Message</div>
+      <div class="incoming-from">FROM: Yuki Adeyemi, Security Manager</div>
+      <div class="incoming-subject">SUBJECT: Unknown Device Detected</div>
+      <div class="incoming-body">
+        Jordan flagged an unknown device on the Northfield network during routine inventory. It doesn't match any approved records. Could be harmless — or not. Diego will lead the investigation.<br><br>
+        The question, as always — what do we know?
+        <div class="incoming-sig">— Yuki Adeyemi</div>
+      </div>
+      <button class="incoming-play" onclick="playAudio('yuki_m1_briefing.mp3')">🔊 Hear message</button>
+    </div>
     <div class="char-briefing">
       <div class="char-avatar">🕵️</div>
       <div style="flex:1;">
@@ -850,7 +868,7 @@ function resetLab(){location.reload();}
 updateHint();
 document.getElementById('cmdInput').focus();
 
-document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();var h=document.getElementById('audioHint');if(h){h.style.opacity='0';setTimeout(function(){h.style.display='none';},500);}},{once:true});
+document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();var h=document.getElementById('audioHint');if(h){h.style.opacity='0';setTimeout(function(){h.style.display='none';},500);}setTimeout(function(){playAudio('yuki_m1_briefing.mp3');},800);},{once:true});
 </script>
 </body>
 </html>
