@@ -798,7 +798,7 @@ function speakText(text){if(!voiceOn||!window.speechSynthesis)return;window.spee
 function speakIncoming(){const el=document.querySelector('.incoming-msg');if(!el)return;const t=el.innerText.replace(/^[\s\S]*?SUBJECT:[^\n]*\n/,'').trim();speakText(t);}
 function toggleVoice(){voiceOn=!voiceOn;const b=document.getElementById('voiceToggle');if(b){b.textContent=voiceOn?'🎙️ Voice ON':'🔇 Voice OFF';b.style.color=voiceOn?'':'var(--muted)';}if(!voiceOn&&currentAudio){currentAudio.pause();currentAudio=null;_showSpeaking(false);};}
 function speakBriefing(){playAudio('yuki_m6_welcome.mp3');}
-function speakWelcome(){playAudio('yuki_m6_welcome.mp3');}
+function speakWelcome(){speakText('This is the capstone. Diego, Alex, and Jordan are all on standby. No roadmap, no hints — Westbridge College has a breach and you decide where to start. Apply everything you've learned.');}
 
 function startPauseCheck(){if(!state.sessionId)return;setInterval(checkPause,5000);}
 async function checkPause(){if(!state.sessionId)return;try{const r=await fetch(`${SUPABASE_URL}/rest/v1/sessions?id=eq.${state.sessionId}&select=paused`,{headers:HEADERS});const d=await r.json();const ov=document.getElementById('pauseOverlay');if(d[0]?.paused){ov.style.display='flex';}else{ov.style.display='none';}}catch(e){}}

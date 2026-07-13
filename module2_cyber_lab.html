@@ -436,7 +436,7 @@ function stopAmbient(){
   ambient=null;
 }
 function spawnConfetti(){const emojis=['🎉','✨','🏆','🎊','⭐','🌐'];const container=document.createElement('div');container.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:400;overflow:hidden;';document.body.appendChild(container);for(let i=0;i<28;i++){const span=document.createElement('span');span.textContent=emojis[Math.floor(Math.random()*emojis.length)];span.style.position='absolute';span.style.left=Math.random()*100+'%';span.style.top='-40px';span.style.fontSize=(16+Math.random()*22)+'px';span.style.setProperty('--rot',(Math.random()*360|0)+'deg');const dur=(2.4+Math.random()*1.6).toFixed(2);const del=(Math.random()*0.5).toFixed(2);span.style.animation=`confettiFall ${dur}s ${del}s ease-in forwards`;container.appendChild(span);}setTimeout(()=>container.remove(),4600);}
-function showCelebration(){document.getElementById('celebration').classList.add('show');sfxComplete();spawnConfetti();setTimeout(()=>playAudio("diego_m2_complete.mp3"),2000);}
+function showCelebration(){document.getElementById('celebration').classList.add('show');sfxComplete();spawnConfetti();setTimeout(()=>speakText('Outstanding recon work. You used WHOIS, GeoIP, and Shodan to build a complete intelligence picture. That's exactly how threat intelligence analysts work.'),2000);}
 
 function printChoices(promptText,choices,onPick){
   const wrap=document.createElement('div');wrap.className='t-line';
@@ -613,7 +613,7 @@ function speakText(text){if(!voiceOn||!window.speechSynthesis)return;window.spee
 function speakIncoming(){const el=document.querySelector('.incoming-msg');if(!el)return;const t=el.innerText.replace(/^[\s\S]*?SUBJECT:[^\n]*\n/,'').trim();speakText(t);}
 function toggleVoice(){voiceOn=!voiceOn;const b=document.getElementById('voiceToggle');if(b){b.textContent=voiceOn?'🎙️ Voice ON':'🔇 Voice OFF';b.style.color=voiceOn?'':'var(--muted)';}if(!voiceOn){if(currentAudio){currentAudio.pause();currentAudio=null;}if(window.speechSynthesis)window.speechSynthesis.cancel();_showSpeaking(false);}}
 function speakBriefing(){playAudio('diego_m2_welcome.mp3');}
-function speakWelcome(){playAudio('diego_m2_welcome.mp3');}
+function speakWelcome(){speakText('Jordan spotted an external IP in the logs — 185.220.101.47. Our job is to find out exactly who or what that is. OSINT is the tool. Let's trace it.');}
 
 function startPauseCheck(){if(!state.sessionId)return;setInterval(checkPause,5000);}
 async function checkPause(){if(!state.sessionId)return;try{const r=await fetch(`${SUPABASE_URL}/rest/v1/sessions?id=eq.${state.sessionId}&select=paused`,{headers:HEADERS});const d=await r.json();const ov=document.getElementById('pauseOverlay');if(d[0]?.paused){ov.style.display='flex';}else{ov.style.display='none';}}catch(e){}}

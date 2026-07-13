@@ -429,7 +429,7 @@ function stopAmbient(){
 
 // ── Confetti & celebration ──────────────────────────────────────────────────
 function spawnConfetti(){const emojis=['🔥','🛡️','🔒','⚡','✅','🎉','💻'];for(let i=0;i<28;i++){const el=document.createElement('div');el.textContent=emojis[Math.floor(Math.random()*emojis.length)];el.style.cssText=`position:fixed;top:-30px;left:${Math.random()*100}vw;font-size:${18+Math.random()*18}px;animation:confettiFall ${1.5+Math.random()*2}s ease-in forwards;pointer-events:none;z-index:9999;`;document.body.appendChild(el);setTimeout(()=>el.remove(),4000);}}
-function showCelebration(){sfxComplete();setTimeout(spawnConfetti,200);setTimeout(()=>playAudio("jordan_m4_complete.mp3"),2000);}
+function showCelebration(){sfxComplete();setTimeout(spawnConfetti,200);setTimeout(()=>speakText('You contained an active ransomware attack, preserved evidence, and led the recovery. That is incident response under real pressure. Well done.'),2000);}
 
 // ── Decision points ─────────────────────────────────────────────────────────
 function printChoices(promptText,choices,onPick){const wrap=document.createElement('div');wrap.className='t-line';const p=document.createElement('div');p.className='t-out accent';p.innerHTML=promptText;wrap.appendChild(p);const row=document.createElement('div');row.className='choice-row';choices.forEach(c=>{const btn=document.createElement('button');btn.className='choice-btn';btn.textContent=c.label;btn.onclick=()=>{row.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);btn.style.borderColor=c.correct?'var(--green)':'var(--red)';btn.style.color=c.correct?'var(--green)':'var(--red)';onPick(c);};row.appendChild(btn);});wrap.appendChild(row);out.appendChild(wrap);out.scrollTop=out.scrollHeight;}
@@ -669,7 +669,7 @@ function speakText(text){if(!voiceOn||!window.speechSynthesis)return;window.spee
 function speakIncoming(){const el=document.querySelector('.incoming-msg');if(!el)return;const t=el.innerText.replace(/^[\s\S]*?SUBJECT:[^\n]*\n/,'').trim();speakText(t);}
 function toggleVoice(){voiceOn=!voiceOn;const b=document.getElementById('voiceToggle');if(b){b.textContent=voiceOn?'🎙️ Voice ON':'🔇 Voice OFF';b.style.color=voiceOn?'':'var(--muted)';}if(!voiceOn){if(currentAudio){currentAudio.pause();currentAudio=null;}if(window.speechSynthesis)window.speechSynthesis.cancel();_showSpeaking(false);}}
 function speakBriefing(){playAudio('jordan_m4_welcome.mp3');}
-function speakWelcome(){playAudio('jordan_m4_welcome.mp3');}
+function speakWelcome(){speakText('I know it's 2:47 AM — stay with me. Files are encrypting right now. We're going to contain this, investigate it, and recover from it. One step at a time.');}
 
 function startPauseCheck(){if(!state.sessionId)return;setInterval(checkPause,5000);}
 async function checkPause(){if(!state.sessionId)return;try{const r=await fetch(`${SUPABASE_URL}/rest/v1/sessions?id=eq.${state.sessionId}&select=paused`,{headers:HEADERS});const d=await r.json();const ov=document.getElementById('pauseOverlay');if(d[0]?.paused){ov.style.display='flex';}else{ov.style.display='none';}}catch(e){}}
