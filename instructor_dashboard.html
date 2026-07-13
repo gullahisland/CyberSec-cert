@@ -296,7 +296,7 @@ async function startSession(){
   const code=document.getElementById('sessionCodeInput').value.trim().toUpperCase();
   sessionId=code||generateCode();
   currentModule=parseInt(document.querySelector('.mod-btn.selected').dataset.mod);
-  try{await fetch(`${SUPABASE_URL}/rest/v1/sessions`,{method:'POST',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({id:sessionId})});}catch(e){}
+  try{const sr=await fetch(`${SUPABASE_URL}/rest/v1/sessions`,{method:'POST',headers:{...HEADERS,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id:sessionId,paused:false})});if(!sr.ok){const e=await sr.text();console.error('Session create failed:',sr.status,e);}else{console.log('Session created:',sessionId);}}catch(e){console.error('Session create error:',e);}
   document.getElementById('setupModal').style.display='none';
   document.getElementById('sessionBadge').textContent=sessionId;
   document.getElementById('panelTitle').textContent=`Class — Module ${currentModule}`;
@@ -364,7 +364,7 @@ function showDetail(student){
 function setFilter(f,el){currentFilter=f;document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderDashboard();}
 function copyLink(){const url=location.href.replace('instructor_dashboard.html',MODULE_LABS[currentModule]);navigator.clipboard.writeText(url).then(()=>toast('Lab link copied ✓'));}
 function newSession(){allStudents=[];selectedStudent=null;sessionId=null;sessionPaused=false;document.getElementById('sessionCodeInput').value='';document.getElementById('setupModal').style.display='flex';const pb=document.getElementById('pauseBtn');pb.textContent='⏸ Pause all labs';pb.style.color='';pb.style.borderColor='';}
-async function togglePause(){if(!sessionId)return;sessionPaused=!sessionPaused;try{await fetch(`${SUPABASE_URL}/rest/v1/sessions?id=eq.${sessionId}`,{method:'PATCH',headers:HEADERS,body:JSON.stringify({paused:sessionPaused})});const pb=document.getElementById('pauseBtn');if(sessionPaused){pb.textContent='▶ Resume all labs';pb.style.color='var(--green)';pb.style.borderColor='var(--green)';toast('Labs paused — students will see a hold screen ✓');}else{pb.textContent='⏸ Pause all labs';pb.style.color='';pb.style.borderColor='';toast('Labs resumed ✓');}}catch(e){toast('Could not reach Supabase');}}
+async function togglePause(){if(!sessionId)return;sessionPaused=!sessionPaused;try{const pr=await fetch(`${SUPABASE_URL}/rest/v1/sessions`,{method:'POST',headers:{...HEADERS,'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({id:sessionId,paused:sessionPaused})});if(!pr.ok){const e=await pr.text();console.error('Pause UPSERT failed:',pr.status,e);toast('Could not reach Supabase');sessionPaused=!sessionPaused;return;}console.log('Pause toggled:',sessionPaused);const pb=document.getElementById('pauseBtn');if(sessionPaused){pb.textContent='▶ Resume all labs';pb.style.color='var(--green)';pb.style.borderColor='var(--green)';toast('Labs paused — students will see a hold screen ✓');}else{pb.textContent='⏸ Pause all labs';pb.style.color='';pb.style.borderColor='';toast('Labs resumed ✓');}}catch(e){console.error('Pause error:',e);toast('Could not reach Supabase');sessionPaused=!sessionPaused;}}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
