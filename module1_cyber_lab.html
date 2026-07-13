@@ -409,14 +409,17 @@ function _showSpeaking(on){
   if(avatar) avatar.classList.toggle('speaking',on);
 }
 
+function speakText(text){if(!voiceOn||!window.speechSynthesis)return;window.speechSynthesis.cancel();const utt=new SpeechSynthesisUtterance(text);utt.rate=0.95;utt.pitch=1.0;utt.onstart=()=>_showSpeaking(true);utt.onend=()=>_showSpeaking(false);utt.onerror=()=>_showSpeaking(false);window.speechSynthesis.speak(utt);}
 function playAudio(src){
   if(!voiceOn) return;
+  if(window.speechSynthesis) window.speechSynthesis.cancel();
   if(currentAudio){ currentAudio.pause(); currentAudio=null; }
   const audio = new Audio(src);
   currentAudio = audio;
   audio.onplay  = ()=>_showSpeaking(true);
-  audio.onended = audio.onerror = ()=>{ _showSpeaking(false); currentAudio=null; };
-  audio.play().catch(()=>{});
+  audio.onended = ()=>{ _showSpeaking(false); currentAudio=null; };
+  audio.onerror = ()=>{ _showSpeaking(false); currentAudio=null; const t=(document.querySelector('.char-msg')?.textContent||'').replace(/^["“]|["”]$/g,'').trim(); if(t) speakText(t); };
+  audio.play().catch(()=>{ _showSpeaking(false); });
 }
 
 function toggleVoice(){
@@ -433,7 +436,7 @@ function stripTags(html){ return html.replace(/<[^>]*>/g,'').replace(/&lt;/g,'<'
 function speakBriefing(){ playAudio('diego_m1_briefing.mp3'); }
 
 // Auto-spoken when simulation starts
-function speakWelcome(){ setTimeout(()=>{ playAudio('diego_m1_welcome.mp3'); }, 900); }
+function speakWelcome(){playAudio('diego_m1_welcome.mp3');}, 900); }
 
 // Called by 🔊 buttons on individual messages (Web Speech fallback)
 function speakMsg(btn){
