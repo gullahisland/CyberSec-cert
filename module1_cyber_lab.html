@@ -212,7 +212,7 @@
       <button class="char-voice-btn" title="Hear Diego's briefing" onclick="speakBriefing()">🔊 Hear briefing</button>
     </div>
   <div class="audio-hint" id="audioHint"><span class="audio-hint-dot"></span>Click anywhere to enable sound</div>
-    <button class="ov-btn" onclick="showJoin()">Start Investigation →</button>
+    <button class="ov-btn" onclick="event.stopPropagation();showJoin()">Start Investigation →</button>
   </div>
 </div>
 

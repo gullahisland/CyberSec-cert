@@ -205,7 +205,7 @@
       <div class="char-msg">"Log4Shell is one of the most dangerous vulnerabilities ever found. Scan this server, assess the severity, and build a remediation plan the IT team can act on today."</div></div>
       <button class="char-voice-btn" onclick="speakBriefing()">🔊 Hear briefing</button>
     </div>
-    <button class="ov-btn" onclick="showJoin()">Begin Scan →</button>
+    <button class="ov-btn" onclick="event.stopPropagation();showJoin()">Begin Scan →</button>
   </div>
 </div>
 
