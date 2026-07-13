@@ -870,7 +870,7 @@ function resetLab(){location.reload();}
 updateHint();
 document.getElementById('cmdInput').focus();
 
-document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();var h=document.getElementById('audioHint');if(h){h.style.opacity='0';setTimeout(function(){h.style.display='none';},500);}overviewAudioTimer=setTimeout(function(){playAudio('yuki_m1_briefing.mp3');},800);},{once:true});
+document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();},{once:true});
 </script>
 </body>
 </html>

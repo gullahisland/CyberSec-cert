@@ -658,7 +658,7 @@ function resetLab(){location.reload();}
 updateHint();
 document.getElementById('cmdInput').focus();
 
-document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();var h=document.getElementById('audioHint');if(h){h.style.opacity='0';setTimeout(()=>h.style.display='none',500);}overviewAudioTimer=setTimeout(()=>playAudio('jordan_m4_briefing.mp3'),800);},{once:true});
+document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();},{once:true});
 
 let voiceOn=true;let overviewAudioTimer=null;let currentAudio=null;
 function _showSpeaking(on){const ind=document.getElementById('speakingIndicator');const av=document.getElementById('assistantAvatar');if(ind)ind.classList.toggle('active',on);if(av)av.classList.toggle('speaking',on);}
