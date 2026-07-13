@@ -189,7 +189,7 @@
       <button class="incoming-play" onclick="playAudio('jordan_m4_briefing.mp3')">🔊 Hear message</button>
     </div>
     <div class="char-briefing">
-      <div class="char-avatar">🔧</div>
+      <div class="char-avatar">👨🏽‍💻</div>
       <div style="flex:1;"><div class="char-name">Jordan Singh · IT Support Specialist</div>
       <div class="char-msg">"I know it's 2:47 AM — stay with me. Files are encrypting right now. We're going to contain this, investigate it, and recover. One step at a time."</div></div>
       <button class="char-voice-btn" onclick="speakBriefing()">🔊 Hear briefing</button>
@@ -282,7 +282,7 @@
 
   <div class="assistant-panel">
     <div class="assistant-header">
-      <div class="assistant-avatar" id="assistantAvatar">🔧</div>
+      <div class="assistant-avatar" id="assistantAvatar">👨🏽‍💻</div>
       <div><div class="assistant-name" id="assistantName">Jordan Singh</div><div class="assistant-role">IT Support Specialist</div></div>
       <div class="online-dot"></div><span class="speaking-indicator" id="speakingIndicator">◉ SPEAKING</span>
     </div>
@@ -664,7 +664,7 @@ let voiceOn=true;let currentAudio=null;
 function _showSpeaking(on){const ind=document.getElementById('speakingIndicator');const av=document.getElementById('assistantAvatar');if(ind)ind.classList.toggle('active',on);if(av)av.classList.toggle('speaking',on);}
 function playAudio(src){if(!voiceOn)return;if(currentAudio){currentAudio.pause();currentAudio=null;}const a=new Audio(src);currentAudio=a;a.onplay=()=>_showSpeaking(true);a.onended=a.onerror=()=>{_showSpeaking(false);currentAudio=null;};a.play().catch(()=>{});}
 function toggleVoice(){voiceOn=!voiceOn;const b=document.getElementById('voiceToggle');if(b){b.textContent=voiceOn?'🎙️ Voice ON':'🔇 Voice OFF';b.style.color=voiceOn?'':'var(--muted)';}if(!voiceOn&&currentAudio){currentAudio.pause();currentAudio=null;_showSpeaking(false);}}
-function speakBriefing(){playAudio('jordan_m4_briefing.mp3');}
+function speakBriefing(){playAudio('jordan_m4_welcome.mp3');}
 function speakWelcome(){setTimeout(()=>playAudio('jordan_m4_welcome.mp3'),900);}
 
 </script>

@@ -608,7 +608,7 @@ let voiceOn=true;let currentAudio=null;
 function _showSpeaking(on){const ind=document.getElementById('speakingIndicator');const av=document.getElementById('assistantAvatar');if(ind)ind.classList.toggle('active',on);if(av)av.classList.toggle('speaking',on);}
 function playAudio(src){if(!voiceOn)return;if(currentAudio){currentAudio.pause();currentAudio=null;}const a=new Audio(src);currentAudio=a;a.onplay=()=>_showSpeaking(true);a.onended=a.onerror=()=>{_showSpeaking(false);currentAudio=null;};a.play().catch(()=>{});}
 function toggleVoice(){voiceOn=!voiceOn;const b=document.getElementById('voiceToggle');if(b){b.textContent=voiceOn?'🎙️ Voice ON':'🔇 Voice OFF';b.style.color=voiceOn?'':'var(--muted)';}if(!voiceOn&&currentAudio){currentAudio.pause();currentAudio=null;_showSpeaking(false);}}
-function speakBriefing(){playAudio('diego_m2_briefing.mp3');}
+function speakBriefing(){playAudio('diego_m2_welcome.mp3');}
 function speakWelcome(){setTimeout(()=>playAudio('diego_m2_welcome.mp3'),900);}
 
 </script>
