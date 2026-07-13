@@ -18,6 +18,8 @@
   .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .5s ease;width:0%;}
   .sound-toggle{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;padding:4px 9px;border-radius:6px;cursor:pointer;line-height:1;}
   .sound-toggle:hover{border-color:var(--accent);color:var(--accent);}
+  .back-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:13px;padding:4px 12px;border-radius:6px;text-decoration:none;transition:all .2s;}
+  .back-btn:hover{border-color:var(--accent);color:var(--accent);}
   .layout{display:grid;grid-template-columns:300px 1fr 260px;grid-template-rows:1fr;flex:1;overflow:hidden;height:calc(100vh - 56px);min-height:0;}
   .sidebar{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;position:sticky;top:0;align-self:start;height:calc(100vh - 56px);min-height:0;}
   .sidebar-section{padding:20px;border-bottom:1px solid var(--border);}
@@ -126,6 +128,23 @@
   .choice-btn.correct{border-color:var(--green);color:var(--green);}
   .choice-btn.wrong{border-color:var(--red);color:var(--red);}
   @keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(var(--rot));opacity:0;}}
+  /* ── Character briefing ── */
+  .char-briefing{display:flex;align-items:flex-start;gap:13px;background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.2);border-radius:11px;padding:14px 16px;margin:0 auto 22px;max-width:520px;text-align:left;}
+  .char-avatar{font-size:28px;flex-shrink:0;margin-top:2px;}
+  .char-name{font-size:11px;font-weight:700;color:var(--accent);font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;}
+  .char-msg{font-size:14px;color:var(--text);line-height:1.6;font-style:italic;}
+  .char-voice-btn{background:rgba(0,212,255,.1);border:2px solid var(--accent);color:var(--accent);font-size:13px;font-weight:700;padding:8px 14px;border-radius:8px;cursor:pointer;flex-shrink:0;transition:all .2s;font-family:var(--mono);letter-spacing:.04em;}
+  .char-voice-btn:hover{background:rgba(0,212,255,.22);box-shadow:0 0 14px rgba(0,212,255,.35);}
+  /* ── Speaking indicator (header badge) ── */
+  .speaking-indicator{display:none;background:rgba(0,212,255,.12);border:1px solid var(--accent);color:var(--accent);font-size:10px;font-family:var(--mono);font-weight:700;padding:2px 9px;border-radius:99px;letter-spacing:.1em;margin-left:auto;animation:speakPulse 1s ease-in-out infinite;align-self:center;}
+  .speaking-indicator.active{display:inline-block;}
+  @keyframes speakPulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+  /* ── Avatar glow when speaking ── */
+  .assistant-avatar.speaking{animation:avatarGlow 1s ease-in-out infinite;}
+  @keyframes avatarGlow{0%,100%{box-shadow:0 0 8px rgba(0,212,255,.6);}50%{box-shadow:0 0 22px rgba(0,212,255,1),0 0 42px rgba(0,212,255,.4);}}
+  /* ── Speak button on messages ── */
+  .speak-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:11px;padding:2px 7px;border-radius:4px;cursor:pointer;margin-top:7px;display:inline-block;}
+  .speak-btn:hover{border-color:var(--accent);color:var(--accent);}
 </style>
 </head>
 <body>
@@ -160,6 +179,14 @@
       <span class="ov-skill">Incident Reporting</span>
     </div>
     <br>
+    <div class="char-briefing">
+      <div class="char-avatar">🕵️</div>
+      <div style="flex:1;">
+        <div class="char-name">Dara Adeyemi · Senior SOC Analyst</div>
+        <div class="char-msg">"We've got an unknown device on the Northfield Academy network. Your job: find it, figure out what it is, and contain it. I'll walk you through every step — let's go."</div>
+      </div>
+      <button class="char-voice-btn" title="Hear Dara's briefing" onclick="speakBriefing()">🔊 Hear briefing</button>
+    </div>
     <button class="ov-btn" onclick="showJoin()">Start Investigation →</button>
   </div>
 </div>
@@ -178,10 +205,12 @@
 
 <nav>
   <div class="nav-logo">CYBER<span>PATH</span></div>
+  <a class="back-btn" href="index.html">← Home</a>
   <div class="nav-meta">
     <span class="badge">Module 1 of 6</span>
     <span>Who's on the Network?</span>
     <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="Toggle sound effects">🔊</button>
+    <button class="sound-toggle" id="voiceToggle" onclick="toggleVoice()" title="Toggle character voice" style="margin-left:-8px;">🎙️ Voice ON</button>
     <div style="display:flex;align-items:center;gap:8px;">
       <span style="font-size:12px;">Progress</span>
       <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
@@ -238,13 +267,14 @@
 
   <div class="assistant-panel">
     <div class="assistant-header">
-      <div class="assistant-avatar">🤖</div>
-      <div><div class="assistant-name">ARIA</div><div class="assistant-role">AI Security Guide</div></div>
-      <div class="online-dot"></div>
+      <div class="assistant-avatar" id="assistantAvatar">🕵️</div>
+      <div><div class="assistant-name">Dara Adeyemi</div><div class="assistant-role">Senior SOC Analyst</div></div>
+      <span class="speaking-indicator" id="speakingIndicator">🎙️ SPEAKING</span>
+      <div class="online-dot" style="margin-left:8px;"></div>
     </div>
     <div class="assistant-messages" id="assistantMsgs">
-      <div class="msg">Welcome to <strong>Module 1</strong>! I'm ARIA — your AI security guide. I'll explain what everything means as you go. 🔍</div>
-      <div class="msg">Today we're doing <strong>network reconnaissance</strong> — finding out exactly what's on the network. Think of it like taking a roll call for every device. 💡 A hint is available in the sidebar whenever you need the exact command.</div>
+      <div class="msg">👋 <strong>Dara Adeyemi here</strong> — Senior SOC Analyst. I'll be walking you through this investigation. Before every move, ask yourself: <em>"What do I know, and what do I still need to find out?"</em> 🔍<br><button class="speak-btn" onclick="speakMsg(this)">🔊 Hear this</button></div>
+      <div class="msg">We've got an <strong>unknown device</strong> on the Northfield Academy network. Someone flagged it — but we don't know what it is yet. First step: scan the network and see everything that's connected. 💡 Hit <strong>Show hint</strong> if you need the exact command.<br><button class="speak-btn" onclick="speakMsg(this)">🔊 Hear this</button></div>
     </div>
     <div class="tools-ref">
       <div class="tools-label">Quick commands</div>
@@ -315,8 +345,8 @@ function showJoin(){
   if(ov) ov.style.display='none';
   if(jm){jm.style.display='flex';}
 }
-function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code)syncProgress();}
-function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';}
+function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code)syncProgress();speakWelcome();}
+function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';speakWelcome();}
 
 async function syncProgress(){if(!state.sessionId||!state.studentName)return;const objs=Object.values(state.objectives);const lastCmd=state.history[0]||'';try{const checkRes=await fetch(`${SUPABASE_URL}/rest/v1/student_progress?session_id=eq.${state.sessionId}&student_name=eq.${encodeURIComponent(state.studentName)}&module=eq.1`,{headers:HEADERS});const existing=await checkRes.json();if(existing.length>0){await fetch(`${SUPABASE_URL}/rest/v1/student_progress?id=eq.${existing[0].id}`,{method:'PATCH',headers:HEADERS,body:JSON.stringify({objectives:objs,last_cmd:lastCmd,updated_at:new Date().toISOString()})});}else{await fetch(`${SUPABASE_URL}/rest/v1/student_progress`,{method:'POST',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({session_id:state.sessionId,student_name:state.studentName,module:1,objectives:objs,last_cmd:lastCmd})});}}catch(e){console.warn(e);}}
 
@@ -338,13 +368,99 @@ function printChoices(promptText,choices,onPick){
   wrap.appendChild(row);out.appendChild(wrap);out.scrollTop=out.scrollHeight;
 }
 
+// ── Web Speech API — Dara Adeyemi's voice ──────────────────────
+const SYNTH = window.speechSynthesis;
+const DARA = {pitch:1.08, rate:0.91, volume:0.87};
+let voiceOn = true;
+function toggleVoice(){
+  voiceOn=!voiceOn;
+  const btn=document.getElementById('voiceToggle');
+  btn.textContent=voiceOn?'🎙️ Voice ON':'🔇 Voice OFF';
+  btn.style.color=voiceOn?'':'var(--muted)';
+  if(!voiceOn&&SYNTH){SYNTH.cancel();const ind=document.getElementById('speakingIndicator');const avatar=document.getElementById('assistantAvatar');if(ind)ind.classList.remove('active');if(avatar)avatar.classList.remove('speaking');}
+}
+let voicesLoaded = false;
+let pendingSpeak = null;
+
+function stripTags(html){ return html.replace(/<[^>]*>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').trim(); }
+
+function speak(text, cfg){
+  if(!SYNTH||!voiceOn) return;
+  SYNTH.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.pitch  = cfg.pitch;
+  utt.rate   = cfg.rate;
+  utt.volume = cfg.volume;
+  const voices = SYNTH.getVoices();
+  // Prefer natural female English voices
+  const pick = voices.find(v=>v.name==='Samantha')
+    ||voices.find(v=>v.name==='Google UK English Female')
+    ||voices.find(v=>v.name==='Karen')
+    ||voices.find(v=>v.name==='Moira')
+    ||voices.find(v=>v.name.toLowerCase().includes('female'))
+    ||voices.find(v=>v.lang==='en-AU')
+    ||voices.find(v=>v.lang==='en-GB')
+    ||voices.find(v=>v.lang.startsWith('en'));
+  if(pick) utt.voice = pick;
+  // Show speaking indicator + avatar glow
+  const ind = document.getElementById('speakingIndicator');
+  const avatar = document.getElementById('assistantAvatar');
+  utt.onstart  = ()=>{ if(ind) ind.classList.add('active'); if(avatar) avatar.classList.add('speaking'); };
+  utt.onend = utt.onerror = ()=>{ if(ind) ind.classList.remove('active'); if(avatar) avatar.classList.remove('speaking'); };
+  SYNTH.speak(utt);
+}
+
+// Called by 🔊 buttons on individual messages
+function speakMsg(btn){
+  const msgDiv = btn.closest('.msg');
+  const clone = msgDiv.cloneNode(true);
+  clone.querySelectorAll('button').forEach(b=>b.remove());
+  speak(stripTags(clone.innerHTML), DARA);
+}
+
+// Called by the overview briefing card 🔊 button
+function speakBriefing(){
+  speak("Dara Adeyemi here — Senior SOC Analyst. We've got an unknown device on the Northfield Academy network. Your job: find it, figure out what it is, and contain it. I'll walk you through every step. Let's go.", DARA);
+}
+
+// Auto-spoken when the simulation starts — first message after join or skip
+function speakWelcome(){
+  setTimeout(()=>{
+    speak("Dara Adeyemi here — Senior SOC Analyst. I'll be walking you through this investigation. Before every move, ask yourself: what do I know, and what do I still need to find out? We've got an unknown device on the Northfield Academy network. Let's find it.", DARA);
+  }, 900);
+}
+
+// Voices may not load instantly on some browsers
+if(SYNTH && SYNTH.onvoiceschanged !== undefined){ SYNTH.onvoiceschanged = ()=>{ voicesLoaded=true; if(pendingSpeak){speak(pendingSpeak.t,pendingSpeak.c);pendingSpeak=null;} }; }
+
+// ── Assistant message queue ─────────────────────────────────────
 const ariaQueue=[];let ariaBusy=false;
 function processAriaQueue(){if(ariaBusy||ariaQueue.length===0)return;ariaBusy=true;const job=ariaQueue.shift();job();setTimeout(()=>{ariaBusy=false;processAriaQueue();},700);}
 function queueAria(fn){ariaQueue.push(fn);processAriaQueue();}
-function aria(html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
-function ariaSuccess(html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg celebrate';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
-function printWOS(title,html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=`<strong>📺 What's on the screen — ${title}</strong><br>${html}`;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
-function printExplainer(html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=`<strong>🌍 Real World Connection</strong><br>${html}`;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
+function aria(html){queueAria(()=>{
+  const b=document.getElementById('assistantMsgs');
+  const d=document.createElement('div');d.className='msg';
+  d.innerHTML=html+'<br><button class="speak-btn" onclick="speakMsg(this)">🔊 Hear this</button>';
+  b.appendChild(d);b.scrollTop=b.scrollHeight;
+});}
+function ariaSuccess(html){queueAria(()=>{
+  const b=document.getElementById('assistantMsgs');
+  const d=document.createElement('div');d.className='msg celebrate';
+  d.innerHTML=html+'<br><button class="speak-btn" onclick="speakMsg(this)">🔊 Hear this</button>';
+  b.appendChild(d);b.scrollTop=b.scrollHeight;
+});}
+function printWOS(title,html){queueAria(()=>{
+  const b=document.getElementById('assistantMsgs');
+  const d=document.createElement('div');d.className='msg';
+  d.innerHTML=`<strong>📺 What's on the screen — ${title}</strong><br>${html}<br><button class="speak-btn" onclick="speakMsg(this)">🔊 Hear this</button>`;
+  b.appendChild(d);b.scrollTop=b.scrollHeight;
+});}
+function printExplainer(html){queueAria(()=>{
+  const b=document.getElementById('assistantMsgs');
+  const d=document.createElement('div');d.className='msg';
+  d.innerHTML=`<strong>🌍 Real World Connection</strong><br>${html}<br><button class="speak-btn" onclick="speakMsg(this)">🔊 Hear this</button>`;
+  b.appendChild(d);b.scrollTop=b.scrollHeight;
+});}
 
 // ---- Sound effects (synthesized, no external files) ----
 let audioCtx=null;let soundOn=true;
