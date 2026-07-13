@@ -217,7 +217,7 @@
     <input class="join-input" id="joinCode" placeholder="CLASS CODE" maxlength="6"/>
     <input class="join-name" id="joinName" placeholder="Your nickname" maxlength="30"/>
     <button class="join-btn" onclick="joinSession()">Join Session →</button>
-    <div class="join-back" onclick="showOverview()" style="color:var(--muted);font-size:13px;margin-top:6px;cursor:pointer;">← Back to overview</div>
+    <div class="join-back" onclick="showOverview()" style="color:var(--accent);font-size:13px;margin-top:10px;cursor:pointer;opacity:.8;">← Back to overview</div>
     <div class="join-skip" onclick="skipJoin()">Skip — work solo</div>
   </div>
 </div>
@@ -646,9 +646,9 @@ function resetLab(){location.reload();}
 updateHint();
 document.getElementById('cmdInput').focus();
 
-document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();var h=document.getElementById('audioHint');if(h){h.style.opacity='0';setTimeout(()=>h.style.display='none',500);}setTimeout(()=>playAudio('alex_m3_briefing.mp3'),800);},{once:true});
+document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();var h=document.getElementById('audioHint');if(h){h.style.opacity='0';setTimeout(()=>h.style.display='none',500);}overviewAudioTimer=setTimeout(()=>playAudio('alex_m3_briefing.mp3'),800);},{once:true});
 
-let voiceOn=true;let currentAudio=null;
+let voiceOn=true;let overviewAudioTimer=null;let currentAudio=null;
 function _showSpeaking(on){const ind=document.getElementById('speakingIndicator');const av=document.getElementById('assistantAvatar');if(ind)ind.classList.toggle('active',on);if(av)av.classList.toggle('speaking',on);}
 function playAudio(src){if(!voiceOn)return;if(currentAudio){currentAudio.pause();currentAudio=null;}const a=new Audio(src);currentAudio=a;a.onplay=()=>_showSpeaking(true);a.onended=a.onerror=()=>{_showSpeaking(false);currentAudio=null;};a.play().catch(()=>{});}
 function toggleVoice(){voiceOn=!voiceOn;const b=document.getElementById('voiceToggle');if(b){b.textContent=voiceOn?'🎙️ Voice ON':'🔇 Voice OFF';b.style.color=voiceOn?'':'var(--muted)';}if(!voiceOn&&currentAudio){currentAudio.pause();currentAudio=null;_showSpeaking(false);}}

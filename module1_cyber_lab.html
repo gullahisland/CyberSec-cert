@@ -224,6 +224,7 @@
     <input class="join-input" id="joinCode" placeholder="CLASS CODE" maxlength="6"/>
     <input class="join-name" id="joinName" placeholder="Your nickname" maxlength="30"/>
     <button class="join-btn" onclick="joinSession()">Join Session →</button>
+        <div class="join-back" onclick="showOverview()" style="color:var(--accent);font-size:13px;margin-top:10px;cursor:pointer;opacity:.8;">← Back to overview</div>
     <div class="join-skip" onclick="skipJoin()">Skip — work solo</div>
   </div>
 </div>
@@ -372,6 +373,7 @@ function showJoin(){
   startAmbient();
 }
 function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code)syncProgress();speakWelcome();startAmbient();}
+function showOverview(){document.getElementById("joinModal").style.display="none";document.getElementById("overviewModal").style.display="flex";}
 function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';speakWelcome();startAmbient();}
 
 async function syncProgress(){if(!state.sessionId||!state.studentName)return;const objs=Object.values(state.objectives);const lastCmd=state.history[0]||'';try{const checkRes=await fetch(`${SUPABASE_URL}/rest/v1/student_progress?session_id=eq.${state.sessionId}&student_name=eq.${encodeURIComponent(state.studentName)}&module=eq.1`,{headers:HEADERS});const existing=await checkRes.json();if(existing.length>0){await fetch(`${SUPABASE_URL}/rest/v1/student_progress?id=eq.${existing[0].id}`,{method:'PATCH',headers:HEADERS,body:JSON.stringify({objectives:objs,last_cmd:lastCmd,updated_at:new Date().toISOString()})});}else{await fetch(`${SUPABASE_URL}/rest/v1/student_progress`,{method:'POST',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({session_id:state.sessionId,student_name:state.studentName,module:1,objectives:objs,last_cmd:lastCmd})});}}catch(e){console.warn(e);}}
@@ -868,7 +870,7 @@ function resetLab(){location.reload();}
 updateHint();
 document.getElementById('cmdInput').focus();
 
-document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();var h=document.getElementById('audioHint');if(h){h.style.opacity='0';setTimeout(function(){h.style.display='none';},500);}setTimeout(function(){playAudio('yuki_m1_briefing.mp3');},800);},{once:true});
+document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();var h=document.getElementById('audioHint');if(h){h.style.opacity='0';setTimeout(function(){h.style.display='none';},500);}overviewAudioTimer=setTimeout(function(){playAudio('yuki_m1_briefing.mp3');},800);},{once:true});
 </script>
 </body>
 </html>
