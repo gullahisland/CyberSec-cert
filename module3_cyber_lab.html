@@ -214,6 +214,7 @@
     <div class="join-title">Module 3</div>
     <div style="font-size:32px;margin:13px 0">🔬</div>
     <div class="join-sub">Enter your class code and name to join your instructor's session.</div>
+    <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:16px;text-align:left;">🔒 <strong style="color:var(--text);">Privacy notice:</strong> Use a nickname — no real names needed. Progress is saved during this session only. If you close this tab, you'll need to start over.</div>
     <input class="join-input" id="joinCode" placeholder="CLASS CODE" maxlength="6"/>
     <input class="join-name" id="joinName" placeholder="Your nickname" maxlength="30"/>
     <button class="join-btn" onclick="joinSession()">Join Session →</button>
@@ -331,6 +332,7 @@
     </div>
     <div class="salary-row">💰 Vulnerability Analyst starting salary: $48,000–$75,000 CAD · $60,000–$90,000 US</div>
   </div>
+  <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:14px 18px;font-size:13px;color:#fcd34d;margin-top:4px;margin-bottom:4px;">📸 <strong>Take a screenshot</strong> of this screen before closing — your progress won't be saved if you come back later.</div>
   <button class="cele-btn" onclick="window.location.href='module4_cyber_lab.html'">Next: Module 4 →</button>
   <button class="cele-btn2" onclick="resetLab()">Replay Module 3</button>
 </div>
@@ -343,7 +345,7 @@ const state={objectives:{1:false,2:false,3:false,4:false},sessionId:null,student
 
 function showOverview(){document.getElementById("joinModal").style.display="none";document.getElementById("overviewModal").style.display="flex";}
 function showJoin(){document.getElementById('overviewModal').style.display='none';document.getElementById('joinModal').style.display='flex';startAmbient();}
-function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code)syncProgress();startAmbient();}
+function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code){syncProgress();startPauseCheck();}startAmbient();}
 function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';startAmbient();}
 async function syncProgress(){if(!state.sessionId||!state.studentName)return;const objs=Object.values(state.objectives);const lastCmd=state.history[0]||'';try{const checkRes=await fetch(`${SUPABASE_URL}/rest/v1/student_progress?session_id=eq.${state.sessionId}&student_name=eq.${encodeURIComponent(state.studentName)}&module=eq.3`,{headers:HEADERS});const existing=await checkRes.json();if(existing.length>0){await fetch(`${SUPABASE_URL}/rest/v1/student_progress?id=eq.${existing[0].id}`,{method:'PATCH',headers:HEADERS,body:JSON.stringify({objectives:objs,last_cmd:lastCmd,updated_at:new Date().toISOString()})});}else{await fetch(`${SUPABASE_URL}/rest/v1/student_progress`,{method:'POST',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({session_id:state.sessionId,student_name:state.studentName,module:3,objectives:objs,last_cmd:lastCmd})});}}catch(e){console.warn('Sync error',e);}}
 const out=document.getElementById('termOut');
@@ -655,6 +657,9 @@ function toggleVoice(){voiceOn=!voiceOn;const b=document.getElementById('voiceTo
 function speakBriefing(){playAudio('alex_m3_welcome.mp3');}
 function speakWelcome(){setTimeout(()=>playAudio('alex_m3_welcome.mp3'),900);}
 
+function startPauseCheck(){if(!state.sessionId)return;setInterval(checkPause,5000);}
+async function checkPause(){if(!state.sessionId)return;try{const r=await fetch(`${SUPABASE_URL}/rest/v1/sessions?id=eq.${state.sessionId}&select=paused`,{headers:HEADERS});const d=await r.json();const ov=document.getElementById('pauseOverlay');if(d[0]?.paused){ov.style.display='flex';}else{ov.style.display='none';}}catch(e){}}
 </script>
+<div id="pauseOverlay" style="display:none;position:fixed;inset:0;background:rgba(10,14,26,.96);z-index:500;flex-direction:column;align-items:center;justify-content:center;gap:16px;"><div style="font-size:56px">⏸</div><div style="font-family:var(--mono);font-size:22px;color:var(--accent);font-weight:700;letter-spacing:.05em;">Lab Paused</div><div style="font-size:14px;color:var(--muted);margin-top:4px;">Your instructor has paused the session — sit tight!</div></div>
 </body>
 </html>
