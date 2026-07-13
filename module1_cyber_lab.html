@@ -408,10 +408,10 @@ function toggleVoice(){
 function stripTags(html){ return html.replace(/<[^>]*>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').trim(); }
 
 // Called by the overview briefing card 🔊 button
-function speakBriefing(){ playAudio('audio/diego_m1_briefing.mp3'); }
+function speakBriefing(){ playAudio('diego_m1_briefing.mp3'); }
 
 // Auto-spoken when simulation starts
-function speakWelcome(){ setTimeout(()=>{ playAudio('audio/diego_m1_welcome.mp3'); }, 900); }
+function speakWelcome(){ setTimeout(()=>{ playAudio('diego_m1_welcome.mp3'); }, 900); }
 
 // Called by 🔊 buttons on individual messages (Web Speech fallback)
 function speakMsg(btn){
@@ -547,7 +547,7 @@ function showCelebration(){
   document.getElementById('celebration').classList.add('show');
   sfxFinale();
   spawnConfetti();
-  setTimeout(()=>{ playAudio('audio/diego_m1_complete.mp3'); }, 2000);
+  setTimeout(()=>{ playAudio('diego_m1_complete.mp3'); }, 2000);
 }
 
 function completeObj(n){
