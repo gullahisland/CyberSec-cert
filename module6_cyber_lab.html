@@ -397,7 +397,7 @@ function startAmbient(){
   const c=getCtx();
   const master=c.createGain();
   master.gain.setValueAtTime(0,c.currentTime);
-  master.gain.linearRampToValueAtTime(0.38,c.currentTime+4);
+  master.gain.linearRampToValueAtTime(0.38,c.currentTime+1);
   master.connect(c.destination);
   function makeDrone(freq,vol,detune){
     const o=c.createOscillator(),g=c.createGain();
