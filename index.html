@@ -367,6 +367,14 @@ function enterSite() {
   setTimeout(startAmbient, 700);
 }
 
+// ── Auto-skip splash when returning from a module ─────────────────
+if(new URLSearchParams(location.search).get('skip')==='1'){
+  document.addEventListener('DOMContentLoaded',()=>{
+    const splash=document.getElementById('splash');
+    if(splash){splash.style.display='none';}
+  });
+}
+
 // ── Attach interaction sounds ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.module-card').forEach(card => {

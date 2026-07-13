@@ -126,7 +126,7 @@
   .continue-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;font-family:var(--mono);font-size:14px;font-weight:700;padding:11px 28px;border-radius:8px;cursor:pointer;margin-top:11px;}
   .sound-toggle{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:12px;padding:4px 10px;border-radius:5px;cursor:pointer;}
   .sound-toggle:hover{border-color:var(--accent);color:var(--accent);}
-  .back-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:13px;padding:4px 12px;border-radius:6px;text-decoration:none;transition:all .2s;}
+  .back-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:13px;padding:4px 12px;border-radius:6px;text-decoration:none;transition:all .2s;cursor:pointer;line-height:1;}
   .back-btn:hover{border-color:var(--accent);color:var(--accent);}
   .choice-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
   .choice-btn{background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:8px 16px;border-radius:6px;cursor:pointer;transition:all .2s;}
@@ -172,7 +172,7 @@
 
 <nav>
   <div class="nav-logo">CYBER<span>PATH</span></div>
-  <a class="back-btn" href="module3_cyber_lab.html">← Module 3</a>
+  <button class="back-btn" onclick="history.back()">← Back</button>
   <div class="nav-meta">
     <span class="badge">Module 4 of 6</span>
     <span>Incident Response</span>
@@ -294,8 +294,8 @@ const HEADERS={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authoriz
 const state={objectives:{1:false,2:false,3:false,4:false},sessionId:null,studentName:null,history:[],historyIdx:-1,isolated:{}};
 
 function showJoin(){document.getElementById('overviewModal').style.display='none';document.getElementById('joinModal').style.display='flex';}
-function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code)syncProgress();}
-function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';}
+function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code)syncProgress();startAmbient();}
+function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';startAmbient();}
 async function syncProgress(){if(!state.sessionId||!state.studentName)return;const objs=Object.values(state.objectives);const lastCmd=state.history[0]||'';try{const checkRes=await fetch(`${SUPABASE_URL}/rest/v1/student_progress?session_id=eq.${state.sessionId}&student_name=eq.${encodeURIComponent(state.studentName)}&module=eq.4`,{headers:HEADERS});const existing=await checkRes.json();if(existing.length>0){await fetch(`${SUPABASE_URL}/rest/v1/student_progress?id=eq.${existing[0].id}`,{method:'PATCH',headers:HEADERS,body:JSON.stringify({objectives:objs,last_cmd:lastCmd,updated_at:new Date().toISOString()})});}else{await fetch(`${SUPABASE_URL}/rest/v1/student_progress`,{method:'POST',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({session_id:state.sessionId,student_name:state.studentName,module:4,objectives:objs,last_cmd:lastCmd})});}}catch(e){console.warn('Sync error',e);}}
 const out=document.getElementById('termOut');
 function print(html,cls='t-out'){const d=document.createElement('div');d.className=`t-line ${cls}`;d.innerHTML=html;out.appendChild(d);out.scrollTop=out.scrollHeight;}
@@ -321,7 +321,66 @@ function sfxKey(){beep(440,0.04,'square',0.08);}
 function sfxSuccess(){beep(523,0.1,'sine',0.18);setTimeout(()=>beep(659,0.15,'sine',0.18),120);}
 function sfxWarn(){beep(200,0.18,'sawtooth',0.15);}
 function sfxComplete(){beep(523,0.1,'sine',0.2);setTimeout(()=>beep(659,0.1,'sine',0.2),110);setTimeout(()=>beep(784,0.1,'sine',0.2),220);setTimeout(()=>beep(1047,0.25,'sine',0.22),330);}
-function toggleSound(){soundOn=!soundOn;document.getElementById('soundBtn').textContent=soundOn?'🔊 Sound':'🔇 Sound';}
+function toggleSound(){soundOn=!soundOn;document.getElementById('soundBtn').textContent=soundOn?'🔊 Sound':'🔇 Sound';soundOn?startAmbient():stopAmbient();}
+// ── Ambient background (cyber hum, drone, blips) ──────────────
+let ambient=null,blipTimer=null;
+function ambTone(freq,dur,type,vol,delay){
+  if(!soundOn)return;
+  try{const c=getCtx(),t0=c.currentTime+(delay||0);
+  const o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.value=freq;
+  g.gain.setValueAtTime(vol||0.018,t0);g.gain.exponentialRampToValueAtTime(0.001,t0+dur);
+  o.connect(g);g.connect(c.destination);o.start(t0);o.stop(t0+dur+0.01);}catch(e){}
+}
+function startAmbient(){
+  if(ambient||!soundOn)return;
+  const c=getCtx();
+  const master=c.createGain();
+  master.gain.setValueAtTime(0,c.currentTime);
+  master.gain.linearRampToValueAtTime(0.38,c.currentTime+4);
+  master.connect(c.destination);
+  function makeDrone(freq,vol,detune){
+    const o=c.createOscillator(),g=c.createGain();
+    o.type='sine';o.frequency.value=freq;if(detune)o.detune.value=detune;
+    g.gain.value=vol;o.connect(g);g.connect(master);o.start();return o;
+  }
+  const d1=makeDrone(55,0.55,0),d2=makeDrone(82.4,0.3,3),d3=makeDrone(110,0.15,-2);
+  const lfo=c.createOscillator();lfo.type='sine';lfo.frequency.value=0.06;
+  const lfoG=c.createGain();lfoG.gain.value=0.07;lfo.connect(lfoG);lfoG.connect(master.gain);lfo.start();
+  const bufLen=c.sampleRate*3,buf=c.createBuffer(1,bufLen,c.sampleRate),data=buf.getChannelData(0);
+  for(let i=0;i<bufLen;i++)data[i]=Math.random()*2-1;
+  const ns=c.createBufferSource();ns.buffer=buf;ns.loop=true;
+  const bpf=c.createBiquadFilter();bpf.type='bandpass';bpf.frequency.value=600;bpf.Q.value=0.8;
+  const nsG=c.createGain();nsG.gain.value=0.05;ns.connect(bpf);bpf.connect(nsG);nsG.connect(master);ns.start();
+  const arpNotes=[220,261.6,329.6,392,440,523];let arpStep=0;
+  const arpInterval=setInterval(()=>{
+    if(!soundOn||!ambient){clearInterval(arpInterval);return;}
+    ambTone(arpNotes[arpStep++%arpNotes.length],0.18,'sine',0.018);
+  },480);
+  function scheduleBlip(){
+    if(!ambient)return;
+    blipTimer=setTimeout(()=>{
+      if(soundOn&&ambient){
+        const freqs=[440,523,659,784,1047,1175];
+        const f=freqs[Math.floor(Math.random()*freqs.length)];
+        ambTone(f,0.035+Math.random()*0.05,'square',0.02);
+        if(Math.random()>0.55)setTimeout(()=>ambTone(f*1.5,0.03,'square',0.013),70);
+      }
+      scheduleBlip();
+    },1500+Math.random()*4500);
+  }
+  scheduleBlip();
+  ambient={d1,d2,d3,lfo,ns,master,arpInterval};
+}
+function stopAmbient(){
+  if(blipTimer){clearTimeout(blipTimer);blipTimer=null;}
+  if(!ambient)return;
+  try{const c=getCtx();
+  ambient.master.gain.linearRampToValueAtTime(0,c.currentTime+1);
+  const snap=ambient;
+  setTimeout(()=>{try{snap.d1.stop();snap.d2.stop();snap.d3.stop();snap.lfo.stop();snap.ns.stop();}catch(e){}clearInterval(snap.arpInterval);},1100);}catch(e){}
+  ambient=null;
+}
 
 // ── Confetti & celebration ──────────────────────────────────────────────────
 function spawnConfetti(){const emojis=['🔥','🛡️','🔒','⚡','✅','🎉','💻'];for(let i=0;i<28;i++){const el=document.createElement('div');el.textContent=emojis[Math.floor(Math.random()*emojis.length)];el.style.cssText=`position:fixed;top:-30px;left:${Math.random()*100}vw;font-size:${18+Math.random()*18}px;animation:confettiFall ${1.5+Math.random()*2}s ease-in forwards;pointer-events:none;z-index:9999;`;document.body.appendChild(el);setTimeout(()=>el.remove(),4000);}}

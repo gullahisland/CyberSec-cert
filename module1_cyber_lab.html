@@ -18,7 +18,7 @@
   .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .5s ease;width:0%;}
   .sound-toggle{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:14px;padding:4px 9px;border-radius:6px;cursor:pointer;line-height:1;}
   .sound-toggle:hover{border-color:var(--accent);color:var(--accent);}
-  .back-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:13px;padding:4px 12px;border-radius:6px;text-decoration:none;transition:all .2s;}
+  .back-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:13px;padding:4px 12px;border-radius:6px;text-decoration:none;transition:all .2s;cursor:pointer;line-height:1;}
   .back-btn:hover{border-color:var(--accent);color:var(--accent);}
   .layout{display:grid;grid-template-columns:300px 1fr 260px;grid-template-rows:1fr;flex:1;overflow:hidden;height:calc(100vh - 56px);min-height:0;}
   .sidebar{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;position:sticky;top:0;align-self:start;height:calc(100vh - 56px);min-height:0;}
@@ -205,7 +205,7 @@
 
 <nav>
   <div class="nav-logo">CYBER<span>PATH</span></div>
-  <a class="back-btn" href="index.html">← Home</a>
+  <button class="back-btn" onclick="history.back()">← Back</button>
   <div class="nav-meta">
     <span class="badge">Module 1 of 6</span>
     <span>Who's on the Network?</span>
@@ -345,8 +345,8 @@ function showJoin(){
   if(ov) ov.style.display='none';
   if(jm){jm.style.display='flex';}
 }
-function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code)syncProgress();speakWelcome();}
-function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';speakWelcome();}
+function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code)syncProgress();speakWelcome();startAmbient();}
+function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';speakWelcome();startAmbient();}
 
 async function syncProgress(){if(!state.sessionId||!state.studentName)return;const objs=Object.values(state.objectives);const lastCmd=state.history[0]||'';try{const checkRes=await fetch(`${SUPABASE_URL}/rest/v1/student_progress?session_id=eq.${state.sessionId}&student_name=eq.${encodeURIComponent(state.studentName)}&module=eq.1`,{headers:HEADERS});const existing=await checkRes.json();if(existing.length>0){await fetch(`${SUPABASE_URL}/rest/v1/student_progress?id=eq.${existing[0].id}`,{method:'PATCH',headers:HEADERS,body:JSON.stringify({objectives:objs,last_cmd:lastCmd,updated_at:new Date().toISOString()})});}else{await fetch(`${SUPABASE_URL}/rest/v1/student_progress`,{method:'POST',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({session_id:state.sessionId,student_name:state.studentName,module:1,objectives:objs,last_cmd:lastCmd})});}}catch(e){console.warn(e);}}
 
@@ -478,7 +478,66 @@ function sfxFinale(){
   beep(659.25,0.35,'sine',0.06,0.42);
   beep(783.99,0.35,'sine',0.06,0.42);
 }
-function toggleSound(){soundOn=!soundOn;document.getElementById('soundToggle').textContent=soundOn?'🔊':'🔇';}
+function toggleSound(){soundOn=!soundOn;document.getElementById('soundToggle').textContent=soundOn?'🔊':'🔇';soundOn?startAmbient():stopAmbient();}
+// ── Ambient background (cyber hum, drone, blips) ──────────────
+let ambient=null,blipTimer=null;
+function ambTone(freq,dur,type,vol,delay){
+  if(!soundOn)return;
+  try{const c=getCtx(),t0=c.currentTime+(delay||0);
+  const o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.value=freq;
+  g.gain.setValueAtTime(vol||0.018,t0);g.gain.exponentialRampToValueAtTime(0.001,t0+dur);
+  o.connect(g);g.connect(c.destination);o.start(t0);o.stop(t0+dur+0.01);}catch(e){}
+}
+function startAmbient(){
+  if(ambient||!soundOn)return;
+  const c=getCtx();
+  const master=c.createGain();
+  master.gain.setValueAtTime(0,c.currentTime);
+  master.gain.linearRampToValueAtTime(0.38,c.currentTime+4);
+  master.connect(c.destination);
+  function makeDrone(freq,vol,detune){
+    const o=c.createOscillator(),g=c.createGain();
+    o.type='sine';o.frequency.value=freq;if(detune)o.detune.value=detune;
+    g.gain.value=vol;o.connect(g);g.connect(master);o.start();return o;
+  }
+  const d1=makeDrone(55,0.55,0),d2=makeDrone(82.4,0.3,3),d3=makeDrone(110,0.15,-2);
+  const lfo=c.createOscillator();lfo.type='sine';lfo.frequency.value=0.06;
+  const lfoG=c.createGain();lfoG.gain.value=0.07;lfo.connect(lfoG);lfoG.connect(master.gain);lfo.start();
+  const bufLen=c.sampleRate*3,buf=c.createBuffer(1,bufLen,c.sampleRate),data=buf.getChannelData(0);
+  for(let i=0;i<bufLen;i++)data[i]=Math.random()*2-1;
+  const ns=c.createBufferSource();ns.buffer=buf;ns.loop=true;
+  const bpf=c.createBiquadFilter();bpf.type='bandpass';bpf.frequency.value=600;bpf.Q.value=0.8;
+  const nsG=c.createGain();nsG.gain.value=0.05;ns.connect(bpf);bpf.connect(nsG);nsG.connect(master);ns.start();
+  const arpNotes=[220,261.6,329.6,392,440,523];let arpStep=0;
+  const arpInterval=setInterval(()=>{
+    if(!soundOn||!ambient){clearInterval(arpInterval);return;}
+    ambTone(arpNotes[arpStep++%arpNotes.length],0.18,'sine',0.018);
+  },480);
+  function scheduleBlip(){
+    if(!ambient)return;
+    blipTimer=setTimeout(()=>{
+      if(soundOn&&ambient){
+        const freqs=[440,523,659,784,1047,1175];
+        const f=freqs[Math.floor(Math.random()*freqs.length)];
+        ambTone(f,0.035+Math.random()*0.05,'square',0.02);
+        if(Math.random()>0.55)setTimeout(()=>ambTone(f*1.5,0.03,'square',0.013),70);
+      }
+      scheduleBlip();
+    },1500+Math.random()*4500);
+  }
+  scheduleBlip();
+  ambient={d1,d2,d3,lfo,ns,master,arpInterval};
+}
+function stopAmbient(){
+  if(blipTimer){clearTimeout(blipTimer);blipTimer=null;}
+  if(!ambient)return;
+  try{const c=getCtx();
+  ambient.master.gain.linearRampToValueAtTime(0,c.currentTime+1);
+  const snap=ambient;
+  setTimeout(()=>{try{snap.d1.stop();snap.d2.stop();snap.d3.stop();snap.lfo.stop();snap.ns.stop();}catch(e){}clearInterval(snap.arpInterval);},1100);}catch(e){}
+  ambient=null;
+}
 function spawnConfetti(){
   const emojis=['🎉','✨','🏆','🎊','⭐'];
   const container=document.createElement('div');
