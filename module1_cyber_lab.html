@@ -864,6 +864,8 @@ function toggleHint(){document.getElementById('hintBox').classList.toggle('visib
 function resetLab(){location.reload();}
 updateHint();
 document.getElementById('cmdInput').focus();
+
+document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();},{once:true});
 </script>
 </body>
 </html>
