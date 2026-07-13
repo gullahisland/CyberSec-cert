@@ -188,10 +188,10 @@
     <div class="char-briefing">
       <div class="char-avatar">🕵️</div>
       <div style="flex:1;">
-        <div class="char-name">Dara Adeyemi · Senior SOC Analyst</div>
+        <div class="char-name">Diego Alvarez · Senior SOC Analyst</div>
         <div class="char-msg">"We've got an unknown device on the Northfield Academy network. Your job: find it, figure out what it is, and contain it. I'll walk you through every step — let's go."</div>
       </div>
-      <button class="char-voice-btn" title="Hear Dara's briefing" onclick="speakBriefing()">🔊 Hear briefing</button>
+      <button class="char-voice-btn" title="Hear Diego's briefing" onclick="speakBriefing()">🔊 Hear briefing</button>
     </div>
   <div class="audio-hint" id="audioHint"><span class="audio-hint-dot"></span>Click anywhere to enable sound</div>
     <button class="ov-btn" onclick="showJoin()">Start Investigation →</button>
@@ -275,12 +275,12 @@
   <div class="assistant-panel">
     <div class="assistant-header">
       <div class="assistant-avatar" id="assistantAvatar">🕵️</div>
-      <div><div class="assistant-name">Dara Adeyemi</div><div class="assistant-role">Senior SOC Analyst</div></div>
+      <div><div class="assistant-name">Diego Alvarez</div><div class="assistant-role">Senior SOC Analyst</div></div>
       <span class="speaking-indicator" id="speakingIndicator">🎙️ SPEAKING</span>
       <div class="online-dot" style="margin-left:8px;"></div>
     </div>
     <div class="assistant-messages" id="assistantMsgs">
-      <div class="msg">👋 <strong>Dara Adeyemi here</strong> — Senior SOC Analyst. I'll be walking you through this investigation. Before every move, ask yourself: <em>"What do I know, and what do I still need to find out?"</em> 🔍<br><button class="speak-btn" onclick="speakMsg(this)">🔊 Hear this</button></div>
+      <div class="msg">👋 <strong>Diego Alvarez here</strong> — Senior SOC Analyst. I'll be walking you through this investigation. Before every move, ask yourself: <em>"What do I know, and what do I still need to find out?"</em> 🔍<br><button class="speak-btn" onclick="speakMsg(this)">🔊 Hear this</button></div>
       <div class="msg">We've got an <strong>unknown device</strong> on the Northfield Academy network. Someone flagged it — but we don't know what it is yet. First step: scan the network and see everything that's connected. 💡 Hit <strong>Show hint</strong> if you need the exact command.<br><button class="speak-btn" onclick="speakMsg(this)">🔊 Hear this</button></div>
     </div>
     <div class="tools-ref">
@@ -376,70 +376,47 @@ function printChoices(promptText,choices,onPick){
   wrap.appendChild(row);out.appendChild(wrap);out.scrollTop=out.scrollHeight;
 }
 
-// ── Web Speech API — Dara Adeyemi's voice ──────────────────────
-const SYNTH = window.speechSynthesis;
-const DARA = {pitch:1.08, rate:0.91, volume:0.87};
+// ── Character Voice — Diego Alvarez (edge-tts MP3) ──────────────
 let voiceOn = true;
+let currentAudio = null;
+
+function _showSpeaking(on){
+  const ind=document.getElementById('speakingIndicator');
+  const avatar=document.getElementById('assistantAvatar');
+  if(ind) ind.classList.toggle('active',on);
+  if(avatar) avatar.classList.toggle('speaking',on);
+}
+
+function playAudio(src){
+  if(!voiceOn) return;
+  if(currentAudio){ currentAudio.pause(); currentAudio=null; }
+  const audio = new Audio(src);
+  currentAudio = audio;
+  audio.onplay  = ()=>_showSpeaking(true);
+  audio.onended = audio.onerror = ()=>{ _showSpeaking(false); currentAudio=null; };
+  audio.play().catch(()=>{});
+}
+
 function toggleVoice(){
   voiceOn=!voiceOn;
   const btn=document.getElementById('voiceToggle');
   btn.textContent=voiceOn?'🎙️ Voice ON':'🔇 Voice OFF';
   btn.style.color=voiceOn?'':'var(--muted)';
-  if(!voiceOn&&SYNTH){SYNTH.cancel();const ind=document.getElementById('speakingIndicator');const avatar=document.getElementById('assistantAvatar');if(ind)ind.classList.remove('active');if(avatar)avatar.classList.remove('speaking');}
+  if(!voiceOn&&currentAudio){ currentAudio.pause(); currentAudio=null; _showSpeaking(false); }
 }
-let voicesLoaded = false;
-let pendingSpeak = null;
 
 function stripTags(html){ return html.replace(/<[^>]*>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').trim(); }
 
-function speak(text, cfg){
-  if(!SYNTH||!voiceOn) return;
-  SYNTH.cancel();
-  const utt = new SpeechSynthesisUtterance(text);
-  utt.pitch  = cfg.pitch;
-  utt.rate   = cfg.rate;
-  utt.volume = cfg.volume;
-  const voices = SYNTH.getVoices();
-  // Prefer natural female English voices
-  const pick = voices.find(v=>v.name==='Samantha')
-    ||voices.find(v=>v.name==='Google UK English Female')
-    ||voices.find(v=>v.name==='Karen')
-    ||voices.find(v=>v.name==='Moira')
-    ||voices.find(v=>v.name.toLowerCase().includes('female'))
-    ||voices.find(v=>v.lang==='en-AU')
-    ||voices.find(v=>v.lang==='en-GB')
-    ||voices.find(v=>v.lang.startsWith('en'));
-  if(pick) utt.voice = pick;
-  // Show speaking indicator + avatar glow
-  const ind = document.getElementById('speakingIndicator');
-  const avatar = document.getElementById('assistantAvatar');
-  utt.onstart  = ()=>{ if(ind) ind.classList.add('active'); if(avatar) avatar.classList.add('speaking'); };
-  utt.onend = utt.onerror = ()=>{ if(ind) ind.classList.remove('active'); if(avatar) avatar.classList.remove('speaking'); };
-  SYNTH.speak(utt);
-}
-
-// Called by 🔊 buttons on individual messages
-function speakMsg(btn){
-  const msgDiv = btn.closest('.msg');
-  const clone = msgDiv.cloneNode(true);
-  clone.querySelectorAll('button').forEach(b=>b.remove());
-  speak(stripTags(clone.innerHTML), DARA);
-}
-
 // Called by the overview briefing card 🔊 button
-function speakBriefing(){
-  speak("Dara Adeyemi here — Senior SOC Analyst. We've got an unknown device on the Northfield Academy network. Your job: find it, figure out what it is, and contain it. I'll walk you through every step. Let's go.", DARA);
-}
+function speakBriefing(){ playAudio('audio/diego_m1_briefing.mp3'); }
 
-// Auto-spoken when the simulation starts — first message after join or skip
-function speakWelcome(){
-  setTimeout(()=>{
-    speak("Dara Adeyemi here — Senior SOC Analyst. I'll be walking you through this investigation. Before every move, ask yourself: what do I know, and what do I still need to find out? We've got an unknown device on the Northfield Academy network. Let's find it.", DARA);
-  }, 900);
-}
+// Auto-spoken when simulation starts
+function speakWelcome(){ setTimeout(()=>{ playAudio('audio/diego_m1_welcome.mp3'); }, 900); }
 
-// Voices may not load instantly on some browsers
-if(SYNTH && SYNTH.onvoiceschanged !== undefined){ SYNTH.onvoiceschanged = ()=>{ voicesLoaded=true; if(pendingSpeak){speak(pendingSpeak.t,pendingSpeak.c);pendingSpeak=null;} }; }
+// Called by 🔊 buttons on individual messages (Web Speech fallback)
+function speakMsg(btn){
+  if(currentAudio){ currentAudio.pause(); currentAudio=null; _showSpeaking(false); }
+}
 
 // ── Assistant message queue ─────────────────────────────────────
 const ariaQueue=[];let ariaBusy=false;
@@ -570,6 +547,7 @@ function showCelebration(){
   document.getElementById('celebration').classList.add('show');
   sfxFinale();
   spawnConfetti();
+  setTimeout(()=>{ playAudio('audio/diego_m1_complete.mp3'); }, 2000);
 }
 
 function completeObj(n){
