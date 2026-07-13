@@ -96,6 +96,9 @@
   .empty-text{font-size:14px;line-height:1.6;}
   .toast{position:fixed;bottom:24px;right:24px;background:var(--panel);border:1px solid var(--green);color:var(--green);font-family:var(--mono);font-size:13px;padding:10px 18px;border-radius:8px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;}
   .toast.show{opacity:1;}
+  .db-warn{display:none;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.35);border-radius:10px;padding:12px 18px;margin:16px 24px 0;max-width:1400px;margin-left:auto;margin-right:auto;font-size:13px;color:var(--yellow);line-height:1.6;}
+  .db-warn strong{font-family:var(--mono);}
+  .db-warn a{color:var(--accent);text-decoration:underline;cursor:pointer;}
 
   /* === Lesson Plan Tab === */
   .tabs-bar{display:flex;gap:8px;max-width:1400px;margin:20px auto 0;padding:0 24px;}
@@ -175,6 +178,10 @@
     <button class="refresh-btn" id="soundToggle" onclick="toggleSound()" title="Toggle ambient sound">🔇 Sound OFF</button>
   </div>
 </nav>
+
+<div class="db-warn" id="dbWarn">
+  ⚠ <strong>Database not connected.</strong> The <code>student_progress</code> table doesn't exist yet in Supabase — students won't appear until you set it up. <a onclick="document.getElementById('dbWarn').style.display='none'">Dismiss</a>
+</div>
 
 <div class="tabs-bar">
   <button class="tab-btn active" id="tabBtnLive" onclick="switchTab('live')">📡 Live Session</button>
@@ -304,9 +311,11 @@ async function loadData(){
   if(!sessionId)return;
   try{
     const res=await fetch(`${SUPABASE_URL}/rest/v1/student_progress?session_id=eq.${sessionId}&module=eq.${currentModule}&order=updated_at.desc`,{headers:HEADERS});
+    if(!res.ok){const err=await res.json().catch(()=>({}));if(err.code==='42P01'||res.status===404||res.status===400){document.getElementById('dbWarn').style.display='block';}return;}
+    document.getElementById('dbWarn').style.display='none';
     allStudents=await res.json();
     renderDashboard();
-  }catch(e){console.warn('Load error:',e);}
+  }catch(e){console.warn('Load error:',e);document.getElementById('dbWarn').style.display='block';}
 }
 
 function getStatus(s){
