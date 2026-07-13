@@ -192,6 +192,19 @@
     </div>
     <br>
   <div class="audio-hint" id="audioHint"><span class="audio-hint-dot"></span>Click anywhere to enable sound</div>
+        <div class="incoming-msg">
+      <div class="incoming-header">📥 Incoming Message</div>
+      <div class="incoming-from">FROM: Alex Morgan, Security Engineer</div>
+      <div class="incoming-subject">SUBJECT: Student Portal — Unpatched Server</div>
+      <div class="incoming-body">The student portal server hasn't been patched in over six months. I'm seeing indicators consistent with <strong>Log4Shell (CVE-2021-44228)</strong>. We need a full vulnerability assessment and remediation plan immediately.<div class="incoming-sig">— Alex Morgan</div></div>
+      <button class="incoming-play" onclick="playAudio('alex_m3_briefing.mp3')">🔊 Hear message</button>
+    </div>
+    <div class="char-briefing">
+      <div class="char-avatar">👩‍💻</div>
+      <div style="flex:1;"><div class="char-name">Alex Morgan · Security Engineer</div>
+      <div class="char-msg">"Log4Shell is one of the most dangerous vulnerabilities ever found. Scan this server, assess the severity, and build a remediation plan the IT team can act on today."</div></div>
+      <button class="char-voice-btn" onclick="speakBriefing()">🔊 Hear briefing</button>
+    </div>
     <button class="ov-btn" onclick="showJoin()">Begin Scan →</button>
   </div>
 </div>
@@ -202,8 +215,9 @@
     <div style="font-size:32px;margin:13px 0">🔬</div>
     <div class="join-sub">Enter your class code and name to join your instructor's session.</div>
     <input class="join-input" id="joinCode" placeholder="CLASS CODE" maxlength="6"/>
-    <input class="join-name" id="joinName" placeholder="Your first name" maxlength="30"/>
+    <input class="join-name" id="joinName" placeholder="Your nickname" maxlength="30"/>
     <button class="join-btn" onclick="joinSession()">Join Session →</button>
+    <div class="join-back" onclick="showOverview()" style="color:var(--muted);font-size:13px;margin-top:6px;cursor:pointer;">← Back to overview</div>
     <div class="join-skip" onclick="skipJoin()">Skip — work solo</div>
   </div>
 </div>
@@ -327,6 +341,7 @@ const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 const HEADERS={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`};
 const state={objectives:{1:false,2:false,3:false,4:false},sessionId:null,studentName:null,history:[],historyIdx:-1,scanDone:false};
 
+function showOverview(){document.getElementById("joinModal").style.display="none";document.getElementById("overviewModal").style.display="flex";}
 function showJoin(){document.getElementById('overviewModal').style.display='none';document.getElementById('joinModal').style.display='flex';startAmbient();}
 function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code)syncProgress();startAmbient();}
 function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';startAmbient();}

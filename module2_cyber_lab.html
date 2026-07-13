@@ -188,6 +188,19 @@
     </div>
     <br>
   <div class="audio-hint" id="audioHint"><span class="audio-hint-dot"></span>Click anywhere to enable sound</div>
+        <div class="incoming-msg">
+      <div class="incoming-header">📥 Incoming Message</div>
+      <div class="incoming-from">FROM: Jordan Singh, IT Support Specialist</div>
+      <div class="incoming-subject">SUBJECT: External IP Address in Logs</div>
+      <div class="incoming-body">Following yesterday's rogue device investigation, I found a suspicious external IP: <strong>185.220.101.47</strong>. Something on our network is talking to it. Diego is leading this investigation.<div class="incoming-sig">— Jordan Singh</div></div>
+      <button class="incoming-play" onclick="playAudio('jordan_m2_briefing.mp3')">🔊 Hear message</button>
+    </div>
+    <div class="char-briefing">
+      <div class="char-avatar">🕵️</div>
+      <div style="flex:1;"><div class="char-name">Diego Alvarez · Senior SOC Analyst</div>
+      <div class="char-msg">"Jordan spotted an external IP in the logs — 185.220.101.47. Our job is to find out exactly who or what that is. OSINT is the tool. Let's trace it."</div></div>
+      <button class="char-voice-btn" onclick="speakBriefing()">🔊 Hear briefing</button>
+    </div>
     <button class="ov-btn" onclick="showJoin()">Start Investigation →</button>
   </div>
 </div>
@@ -198,8 +211,9 @@
     <div style="font-size:32px;margin:12px 0">🌐</div>
     <div class="join-sub">Enter your class code and name to join your instructor's session.</div>
     <input class="join-input" id="joinCode" placeholder="CLASS CODE" maxlength="6"/>
-    <input class="join-name" id="joinName" placeholder="Your first name" maxlength="30"/>
+    <input class="join-name" id="joinName" placeholder="Your nickname" maxlength="30"/>
     <button class="join-btn" onclick="joinSession()">Join Session →</button>
+    <div class="join-back" onclick="showOverview()" style="color:var(--muted);font-size:13px;margin-top:6px;cursor:pointer;">← Back to overview</div>
     <div class="join-skip" onclick="skipJoin()">Skip — work solo</div>
   </div>
 </div>
@@ -332,6 +346,7 @@ const SUPABASE_URL='https://mlgxqrpxftviqyfhosl.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1sZ3hxcnhweGZ0dmlxeWZob3NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1ODgyNzEsImV4cCI6MjA5ODE2NDI3MX0.wkmgVfohm8Qzfi_XNdz1vdXavsUOvMPcoZ6MVPMewD4';
 const HEADERS={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`};
 const state={objectives:{1:false,2:false,3:false,4:false},sessionId:null,studentName:null,history:[],historyIdx:-1};
+function showOverview(){document.getElementById("joinModal").style.display="none";document.getElementById("overviewModal").style.display="flex";}
 function showJoin(){document.getElementById('overviewModal').style.display='none';document.getElementById('joinModal').style.display='flex';startAmbient();}
 function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code)syncProgress();startAmbient();}
 function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';startAmbient();}
