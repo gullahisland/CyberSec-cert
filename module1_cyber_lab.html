@@ -436,7 +436,7 @@ function stripTags(html){ return html.replace(/<[^>]*>/g,'').replace(/&lt;/g,'<'
 function speakBriefing(){ playAudio('diego_m1_briefing.mp3'); }
 
 // Auto-spoken when simulation starts
-function speakWelcome(){playAudio('diego_m1_welcome.mp3');}, 900); }
+function speakWelcome(){playAudio('diego_m1_welcome.mp3');}
 
 // Called by 🔊 buttons on individual messages (Web Speech fallback)
 function speakMsg(btn){
