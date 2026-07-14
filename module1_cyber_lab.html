@@ -433,7 +433,7 @@ function toggleVoice(){
 function stripTags(html){ return html.replace(/<[^>]*>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').trim(); }
 
 // Called by the overview briefing card 🔊 button
-function speakWelcome(){const m=document.querySelector('#assistantMsgs .msg');const fb=m?(()=>{const cl=m.cloneNode(true);const b=cl.querySelector('button');if(b)b.remove();return cl.textContent.trim();})():'';playAudio('diego_m1_welcome.mp3',fb);}
+function speakWelcome(){const m=document.querySelector('#assistantMsgs .msg');if(!m)return;const cl=m.cloneNode(true);cl.querySelectorAll('button').forEach(b=>b.remove());const t=cl.textContent.trim();if(t)speakText(t);}
 function speakBriefing(){ playAudio('diego_m1_briefing.mp3'); }
 
 // Auto-spoken when simulation starts

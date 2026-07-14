@@ -667,7 +667,7 @@ function speakMsg(btn){
   const t=cl.textContent.trim();
   if(t) speakText(t);
 }
-function speakWelcome(){const m=document.querySelector('#assistantMsgs .msg');const fb=m?(()=>{const cl=m.cloneNode(true);const b=cl.querySelector('button');if(b)b.remove();return cl.textContent.trim();})():'';playAudio('alex_m3_welcome.mp3',fb);}
+function speakWelcome(){const m=document.querySelector('#assistantMsgs .msg');if(!m)return;const cl=m.cloneNode(true);cl.querySelectorAll('button').forEach(b=>b.remove());const t=cl.textContent.trim();if(t)speakText(t);}
 function speakBriefing(){playAudio('alex_m3_welcome.mp3');}
 
 function startPauseCheck(){if(!state.sessionId)return;setInterval(checkPause,5000);}
