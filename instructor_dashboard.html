@@ -70,6 +70,8 @@
   .sc-status.active{background:rgba(0,212,255,.1);color:var(--accent);}
   .sc-status.stuck{background:rgba(239,68,68,.1);color:var(--red);}
   .sc-status.idle{background:rgba(100,116,139,.1);color:var(--muted);}
+  .sc-status.left{background:rgba(100,116,139,.08);color:#4a5568;}
+  .student-card.left-session{opacity:.45;filter:grayscale(.6);}
   .sc-obj-dots{display:flex;gap:3px;margin-top:8px;}
   .sc-dot{width:8px;height:8px;border-radius:50%;background:var(--border);}
   .sc-dot.done{background:var(--green);}
@@ -173,7 +175,7 @@
     <div class="live-dot"></div>
     <span style="font-size:12px;color:var(--muted)">Live</span>
     <div class="session-badge" id="sessionBadge">—</div>
-    <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+    <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()">↻ Refresh</button>
     <button class="refresh-btn" onclick="newSession()" style="color:var(--accent2);border-color:rgba(124,58,237,.3)">+ New Session</button>
     <button class="refresh-btn" id="soundToggle" onclick="toggleSound()" title="Toggle ambient sound">🔇 Sound OFF</button>
   </div>
@@ -232,10 +234,9 @@
       <div class="broadcast-section">
         <div class="broadcast-label">Broadcast to All</div>
         <div class="broadcast-btns">
-          <button class="bc-btn" onclick="toast('Hint sent to all students ✓')">💡 Send hint to everyone</button>
           <button class="bc-btn" id="pauseBtn" onclick="togglePause()">⏸ Pause all labs</button>
           <button class="bc-btn" onclick="copyLink()">🔗 Copy student lab link</button>
-          <button class="bc-btn danger" onclick="if(confirm('End this session?'))toast('Session ended')">✕ End session</button>
+          <button class="bc-btn danger" onclick="endSession()">✕ End session</button>
         </div>
       </div>
     </div>
@@ -302,7 +303,7 @@ async function startSession(){
   document.getElementById('panelTitle').textContent=`Class — Module ${currentModule}`;
   updateObjBarTitles();
   loadData();
-  setInterval(loadData,8000);
+  setInterval(loadData,5000);
 }
 
 function updateObjBarTitles(){const objs=MODULE_OBJECTIVES[currentModule]||[];objs.forEach((o,i)=>{const el=document.getElementById('ob'+(i+1)+'t');if(el)el.textContent=o;});}
@@ -322,8 +323,8 @@ function getStatus(s){
   const objs=s.objectives||[];const done=objs.filter(Boolean).length;
   if(done===4)return'done';
   const minsAgo=(Date.now()-new Date(s.updated_at))/60000;
-  if(minsAgo>5)return'stuck';
-  if(done===0&&minsAgo>2)return'idle';
+  if(minsAgo>2)return'left';
+  if(done===0&&minsAgo>1)return'idle';
   return'active';
 }
 
@@ -346,8 +347,8 @@ function renderDashboard(){
   grid.innerHTML='';
   filtered.forEach(s=>{
     const status=getStatus(s);const objs=s.objectives||[false,false,false,false];const doneCount=objs.filter(Boolean).length;
-    const statusLabels={done:'✓ Done',active:'◉ Active',stuck:'⚠ Help?',idle:'○ Idle'};
-    const card=document.createElement('div');card.className='student-card'+(selectedStudent===s.student_name?' selected':'');
+    const statusLabels={done:'✓ Done',active:'◉ Active',stuck:'⚠ Help?',idle:'○ Idle',left:'⊘ Left'};
+    const card=document.createElement('div');card.className='student-card'+(selectedStudent===s.student_name?' selected':'')+(status==='left'?' left-session':'');
     card.innerHTML=`<div class="sc-name">${esc(s.student_name)}</div><div class="sc-module">Module ${s.module} · ${doneCount}/4 objectives</div><div class="sc-progress"><div class="sc-progress-fill" style="width:${doneCount/4*100}%"></div></div><span class="sc-status ${status}">${statusLabels[status]}</span><div class="sc-obj-dots">${objs.map((o,i)=>`<div class="sc-dot ${o?'done':''}"></div>`).join('')}</div>`;
     card.onclick=()=>showDetail(s);grid.appendChild(card);
   });
@@ -365,6 +366,21 @@ function setFilter(f,el){currentFilter=f;document.querySelectorAll('.filter-chip
 function copyLink(){const url=location.href.replace('instructor_dashboard.html',MODULE_LABS[currentModule]);navigator.clipboard.writeText(url).then(()=>toast('Lab link copied ✓'));}
 function newSession(){allStudents=[];selectedStudent=null;sessionId=null;sessionPaused=false;document.getElementById('sessionCodeInput').value='';document.getElementById('setupModal').style.display='flex';const pb=document.getElementById('pauseBtn');pb.textContent='⏸ Pause all labs';pb.style.color='';pb.style.borderColor='';}
 async function togglePause(){if(!sessionId)return;sessionPaused=!sessionPaused;try{const pr=await fetch(`${SUPABASE_URL}/rest/v1/sessions?id=eq.${sessionId}`,{method:'PATCH',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({paused:sessionPaused})});console.log('Pause PATCH status:',pr.status);if(!pr.ok){const e=await pr.text();console.error('Pause PATCH failed:',pr.status,e);toast('Could not update Supabase');sessionPaused=!sessionPaused;return;}const pb=document.getElementById('pauseBtn');if(sessionPaused){pb.textContent='▶ Resume all labs';pb.style.color='var(--green)';pb.style.borderColor='var(--green)';toast('Labs paused — students will see a hold screen ✓');}else{pb.textContent='⏸ Pause all labs';pb.style.color='';pb.style.borderColor='';toast('Labs resumed ✓');}}catch(e){console.error('Pause error:',e);toast('Could not reach Supabase');sessionPaused=!sessionPaused;}}
+async function manualRefresh(){
+  const btn=document.getElementById('refreshBtn');
+  if(btn){btn.textContent='↻ Refreshing…';btn.disabled=true;}
+  await loadData();
+  if(btn){btn.textContent='✓ Updated';setTimeout(()=>{btn.textContent='↻ Refresh';btn.disabled=false;},1200);}
+}
+async function endSession(){
+  if(!sessionId){toast('No active session');return;}
+  if(!confirm('End this session? Students will see a message and be sent to the home page.'))return;
+  try{
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/sessions?id=eq.${sessionId}`,{method:'DELETE',headers:HEADERS});
+    if(r.ok){toast('Session ended — students are being redirected ✓');setTimeout(newSession,2500);}
+    else{toast('Could not end session — check Supabase permissions');}
+  }catch(e){toast('Could not reach Supabase');}
+}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 
