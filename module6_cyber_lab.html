@@ -89,7 +89,7 @@
   .tools-label{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
   .tool-chip{display:inline-block;background:var(--panel2);border:1px solid var(--border);color:var(--accent);font-family:var(--mono);font-size:12px;padding:3px 8px;border-radius:4px;margin:3px 3px 3px 0;cursor:pointer;transition:all .2s}
   .tool-chip:hover{background:rgba(0,212,255,.08);border-color:var(--accent)}
-  .celebration{display:none;position:fixed;inset:0;background:rgba(10,14,26,.92);z-index:100;align-items:center;justify-content:center;flex-direction:column;text-align:center;gap:16px;overflow-y:auto;padding:24px}
+  .celebration{display:none;position:fixed;inset:0;background:rgba(10,14,26,.92);z-index:100;align-items:center;justify-content:flex-start;flex-direction:column;text-align:center;gap:16px;overflow-y:auto;padding:40px 24px}
   .celebration.show{display:flex}
   .cele-icon{font-size:64px}
   .cele-title{font-size:28px;font-weight:700;color:var(--accent);font-family:var(--mono)}
@@ -203,14 +203,14 @@
   <div class="audio-hint" id="audioHint"><span class="audio-hint-dot"></span>Click anywhere to enable sound</div>
         <div class="incoming-msg">
       <div class="incoming-header">📥 Incoming Message</div>
-      <div class="incoming-from">FROM: Yuki Adeyemi, Security Manager</div>
+      <div class="incoming-from">FROM: Yuki Adeyemi, CISO</div>
       <div class="incoming-subject">SUBJECT: New Assignment — Westbridge College</div>
       <div class="incoming-body">Westbridge College has a confirmed breach. We're going in cold — no prior intel, no network maps. Apply everything from Case Files 1–5. Diego, Alex, and Jordan are on standby.<div class="incoming-sig">— Yuki Adeyemi</div></div>
       <button class="incoming-play" onclick="playAudio('yuki_m6_briefing.mp3')">🔊 Hear message</button>
     </div>
     <div class="char-briefing">
       <div class="char-avatar">👩🏾‍💼</div>
-      <div style="flex:1;"><div class="char-name">Yuki Adeyemi · Security Manager</div>
+      <div style="flex:1;"><div class="char-name">Yuki Adeyemi · CISO</div>
       <div class="char-msg">"This is the capstone. No roadmap, no hints. Westbridge College has a breach and you decide where to start. Apply everything you've learned. Diego, Alex, and Jordan are on standby."</div></div>
       
     </div>
@@ -303,7 +303,7 @@
   <div class="assistant-panel">
     <div class="assistant-header">
       <div class="assistant-avatar" id="assistantAvatar">👩🏾‍💼</div>
-      <div><div class="assistant-name" id="assistantName">Yuki Adeyemi</div><div class="assistant-role">Security Manager</div></div>
+      <div><div class="assistant-name" id="assistantName">Yuki Adeyemi</div><div class="assistant-role">CISO</div></div>
       <div class="online-dot"></div><span class="speaking-indicator" id="speakingIndicator">◉ SPEAKING</span>
     </div>
     <div class="assistant-messages" id="assistantMsgs">
