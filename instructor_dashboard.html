@@ -323,9 +323,11 @@ async function loadData(){
 function getStatus(s){
   const objs=s.objectives||[];const done=objs.filter(Boolean).length;
   if(done===4)return'done';
-  const secsAgo=(Date.now()-new Date(s.updated_at))/1000;
-  if(secsAgo>40)return'left';
-  if(done===0&&secsAgo>180)return'idle';
+  const updatedAt=new Date(s.updated_at);
+  if(updatedAt.getFullYear()<2010)return'left';
+  const secsAgo=(Date.now()-updatedAt)/1000;
+  if(secsAgo>600)return'left';
+  if(secsAgo>180)return'idle';
   return'active';
 }
 

@@ -375,7 +375,8 @@ function showJoin(){
   if(ov) ov.style.display='none';
   if(jm){jm.style.display='flex';}
 }
-function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code){syncProgress();startPauseCheck();startHeartbeat();}speakWelcome();startAmbient();}
+async function joinPresence(){if(!state.sessionId||!state.studentName)return;try{const r=await fetch(`${SUPABASE_URL}/rest/v1/student_progress?session_id=eq.${state.sessionId}&student_name=eq.${encodeURIComponent(state.studentName)}&module=eq.1`,{headers:HEADERS});const ex=await r.json();if(ex.length>0){await fetch(`${SUPABASE_URL}/rest/v1/student_progress?id=eq.${ex[0].id}`,{method:'PATCH',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({updated_at:new Date().toISOString()})});}else{await syncProgress();}}catch(e){}}
+function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code){joinPresence();startPauseCheck();startHeartbeat();}speakWelcome();startAmbient();}
 function showOverview(){document.getElementById("joinModal").style.display="none";document.getElementById("overviewModal").style.display="flex";}
 function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';startAmbient();}
 
