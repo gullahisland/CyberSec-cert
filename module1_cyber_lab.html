@@ -372,7 +372,6 @@ function showJoin(){
   const jm=document.getElementById('joinModal');
   if(ov) ov.style.display='none';
   if(jm){jm.style.display='flex';}
-  startAmbient();
 }
 function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code){syncProgress();startPauseCheck();}speakWelcome();startAmbient();}
 function showOverview(){document.getElementById("joinModal").style.display="none";document.getElementById("overviewModal").style.display="flex";}
@@ -400,6 +399,7 @@ function printChoices(promptText,choices,onPick){
 
 // ── Character Voice — Diego Alvarez (edge-tts MP3) ──────────────
 let voiceOn = true;
+let _cachedVoices=[];if(window.speechSynthesis){_cachedVoices=window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=()=>{_cachedVoices=window.speechSynthesis.getVoices();};}
 let currentAudio = null;
 
 function _showSpeaking(on){
