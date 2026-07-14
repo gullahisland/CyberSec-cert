@@ -12,7 +12,14 @@ jobs:
     steps:
       - name: Ping Supabase REST endpoint
         run: |
-          curl -s -o /dev/null -w "Supabase ping HTTP status: %{http_code}\n" \
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             "https://mlgxqrpxftviqyfhosl.supabase.co/rest/v1/" \
             -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1sZ3hxcnhweGZ0dmlxeWZob3NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1ODgyNzEsImV4cCI6MjA5ODE2NDI3MX0.wkmgVfohm8Qzfi_XNdz1vdXavsUOvMPcoZ6MVPMewD4" \
-            -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1sZ3hxcnhweGZ0dmlxeWZob3NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1ODgyNzEsImV4cCI6MjA5ODE2NDI3MX0.wkmgVfohm8Qzfi_XNdz1vdXavsUOvMPcoZ6MVPMewD4"
+            -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1sZ3hxcnhweGZ0dmlxeWZob3NsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1ODgyNzEsImV4cCI6MjA5ODE2NDI3MX0.wkmgVfohm8Qzfi_XNdz1vdXavsUOvMPcoZ6MVPMewD4" \
+            --max-time 30 || true)
+          echo "Supabase ping HTTP status: $STATUS"
+          if [ "$STATUS" = "200" ] || [ "$STATUS" = "400" ]; then
+            echo "✅ Supabase is alive"
+          else
+            echo "⚠️ Unexpected status: $STATUS — project may be paused"
+          fi
