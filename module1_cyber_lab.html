@@ -207,7 +207,7 @@
       <div class="char-avatar">🕵️</div>
       <div style="flex:1;">
         <div class="char-name">Diego Alvarez · Senior SOC Analyst</div>
-        <div class="char-msg">"We've got an unknown device on the Northfield Academy network. Your job: find it, figure out what it is, and contain it. I'll walk you through every step — let's go."</div>
+        <div class="char-msg">"We've got an unknown device on the Northfield Academy network. Your job: find it, figure out what it is, and contain it in the Security Operations Center (SOC). I'll walk you through every step — let's go."</div>
       </div>
       
     </div>
@@ -441,6 +441,12 @@ function speakBriefing(){ playAudio('diego_m1_briefing.mp3'); }
 // Called by 🔊 buttons on individual messages (Web Speech fallback)
 function speakMsg(btn){
   if(currentAudio){ currentAudio.pause(); currentAudio=null; _showSpeaking(false); }
+  const msg=btn.closest('.msg');
+  if(!msg)return;
+  const cl=msg.cloneNode(true);
+  cl.querySelectorAll('button').forEach(b=>b.remove());
+  const t=cl.textContent.trim();
+  if(t) speakText(t);
 }
 
 // ── Assistant message queue ─────────────────────────────────────
