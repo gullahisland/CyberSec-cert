@@ -209,7 +209,7 @@
         <div class="char-name">Diego Alvarez · Senior SOC Analyst</div>
         <div class="char-msg">"We've got an unknown device on the Northfield Academy network. Your job: find it, figure out what it is, and contain it. I'll walk you through every step — let's go."</div>
       </div>
-      <button class="char-voice-btn" title="Hear Diego's briefing" onclick="speakBriefing()">🔊 Hear briefing</button>
+      
     </div>
   <div class="audio-hint" id="audioHint"><span class="audio-hint-dot"></span>Click anywhere to enable sound</div>
     <button class="ov-btn" onclick="event.stopPropagation();showJoin()">Start Investigation →</button>
@@ -226,7 +226,7 @@
     <input class="join-name" id="joinName" placeholder="Your nickname" maxlength="30"/>
     <button class="join-btn" onclick="joinSession()">Join Session →</button>
         <div class="join-back" onclick="showOverview()" style="color:var(--accent);font-size:13px;margin-top:10px;cursor:pointer;opacity:.8;">← Back to overview</div>
-    <div class="join-skip" onclick="skipJoin()">Skip — work solo</div>
+    <div class="join-skip" onclick="speakWelcome();skipJoin()">Skip — work solo</div>
   </div>
 </div>
 
@@ -374,9 +374,9 @@ function showJoin(){
   if(jm){jm.style.display='flex';}
   startAmbient();
 }
-function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code){syncProgress();startPauseCheck();}speakWelcome();startAmbient();}
+function joinSession(){speakWelcome();const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code){syncProgress();startPauseCheck();}speakWelcome();startAmbient();}
 function showOverview(){document.getElementById("joinModal").style.display="none";document.getElementById("overviewModal").style.display="flex";}
-function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';speakWelcome();startAmbient();}
+function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';startAmbient();}
 
 async function syncProgress(){if(!state.sessionId||!state.studentName)return;const objs=Object.values(state.objectives);const lastCmd=state.history[0]||'';try{const checkRes=await fetch(`${SUPABASE_URL}/rest/v1/student_progress?session_id=eq.${state.sessionId}&student_name=eq.${encodeURIComponent(state.studentName)}&module=eq.1`,{headers:HEADERS});const existing=await checkRes.json();if(existing.length>0){await fetch(`${SUPABASE_URL}/rest/v1/student_progress?id=eq.${existing[0].id}`,{method:'PATCH',headers:HEADERS,body:JSON.stringify({objectives:objs,last_cmd:lastCmd,updated_at:new Date().toISOString()})});}else{await fetch(`${SUPABASE_URL}/rest/v1/student_progress`,{method:'POST',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({session_id:state.sessionId,student_name:state.studentName,module:1,objectives:objs,last_cmd:lastCmd})});}}catch(e){console.warn(e);}}
 
@@ -436,7 +436,7 @@ function stripTags(html){ return html.replace(/<[^>]*>/g,'').replace(/&lt;/g,'<'
 function speakBriefing(){ playAudio('diego_m1_briefing.mp3'); }
 
 // Auto-spoken when simulation starts
-function speakWelcome(){setTimeout(()=>{const firstMsg=document.querySelector('#assistantMsgs .msg');if(!firstMsg)return;const clone=firstMsg.cloneNode(true);const btn=clone.querySelector('button');if(btn)btn.remove();speakText(clone.textContent.trim());},400);}
+function speakWelcome(){const firstMsg=document.querySelector('#assistantMsgs .msg');if(!firstMsg)return;const clone=firstMsg.cloneNode(true);const btn=clone.querySelector('button');if(btn)btn.remove();speakText(clone.textContent.trim());},400);}
 
 // Called by 🔊 buttons on individual messages (Web Speech fallback)
 function speakMsg(btn){
