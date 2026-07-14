@@ -175,6 +175,8 @@
   .name-input{flex:1;background:var(--panel2);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:14px;padding:11px 14px;border-radius:8px;outline:none;}
   .name-input:focus{border-color:var(--accent);}
   .name-save-btn{background:var(--accent);color:var(--bg);border:none;font-family:var(--mono);font-size:13px;font-weight:700;padding:11px 16px;border-radius:8px;cursor:pointer;}
+  .speak-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:11px;padding:2px 7px;border-radius:4px;cursor:pointer;margin-top:7px;display:inline-block;}
+  .speak-btn:hover{border-color:var(--accent);color:var(--accent);}
 </style>
 </head>
 <body>
@@ -797,6 +799,15 @@ function playAudio(src,fallbackText){if(!voiceOn)return;if(window.speechSynthesi
 function speakText(text){if(!voiceOn||!window.speechSynthesis)return;window.speechSynthesis.cancel();const utt=new SpeechSynthesisUtterance(text);utt.rate=0.95;utt.pitch=1.0;utt.onstart=()=>_showSpeaking(true);utt.onend=()=>{_showSpeaking(false);};utt.onerror=()=>_showSpeaking(false);window.speechSynthesis.speak(utt);}
 function speakIncoming(){const el=document.querySelector('.incoming-msg');if(!el)return;const t=el.innerText.replace(/^[\s\S]*?SUBJECT:[^\n]*\n/,'').trim();speakText(t);}
 function toggleVoice(){voiceOn=!voiceOn;const b=document.getElementById('voiceToggle');if(b){b.textContent=voiceOn?'🎙️ Voice ON':'🔇 Voice OFF';b.style.color=voiceOn?'':'var(--muted)';}if(!voiceOn&&currentAudio){currentAudio.pause();currentAudio=null;_showSpeaking(false);};}
+function speakMsg(btn){
+  if(currentAudio){ currentAudio.pause(); currentAudio=null; _showSpeaking(false); }
+  const msg=btn.closest('.msg');
+  if(!msg)return;
+  const cl=msg.cloneNode(true);
+  cl.querySelectorAll('button').forEach(b=>b.remove());
+  const t=cl.textContent.trim();
+  if(t) speakText(t);
+}
 function speakWelcome(){const m=document.querySelector('#assistantMsgs .msg');const fb=m?(()=>{const cl=m.cloneNode(true);const b=cl.querySelector('button');if(b)b.remove();return cl.textContent.trim();})():'';playAudio('yuki_m6_welcome.mp3',fb);}
 function speakBriefing(){playAudio('yuki_m6_welcome.mp3');}
 
