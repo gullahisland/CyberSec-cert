@@ -668,8 +668,8 @@ function playAudio(src,fallbackText){if(!voiceOn)return;if(window.speechSynthesi
 function speakText(text){if(!voiceOn||!window.speechSynthesis)return;window.speechSynthesis.cancel();const utt=new SpeechSynthesisUtterance(text);utt.rate=0.95;utt.pitch=1.0;utt.onstart=()=>_showSpeaking(true);utt.onend=()=>{_showSpeaking(false);};utt.onerror=()=>_showSpeaking(false);window.speechSynthesis.speak(utt);}
 function speakIncoming(){const el=document.querySelector('.incoming-msg');if(!el)return;const t=el.innerText.replace(/^[\s\S]*?SUBJECT:[^\n]*\n/,'').trim();speakText(t);}
 function toggleVoice(){voiceOn=!voiceOn;const b=document.getElementById('voiceToggle');if(b){b.textContent=voiceOn?'🎙️ Voice ON':'🔇 Voice OFF';b.style.color=voiceOn?'':'var(--muted)';}if(!voiceOn){if(currentAudio){currentAudio.pause();currentAudio=null;}if(window.speechSynthesis)window.speechSynthesis.cancel();_showSpeaking(false);}}
+function speakWelcome(){const m=document.querySelector('#assistantMsgs .msg');const fb=m?(()=>{const cl=m.cloneNode(true);const b=cl.querySelector('button');if(b)b.remove();return cl.textContent.trim();})():'';playAudio('jordan_m4_welcome.mp3',fb);}
 function speakBriefing(){playAudio('jordan_m4_welcome.mp3');}
-function speakWelcome(){playAudio('jordan_m4_welcome.mp3');}
 
 function startPauseCheck(){if(!state.sessionId)return;setInterval(checkPause,5000);}
 async function checkPause(){if(!state.sessionId)return;try{const r=await fetch(`${SUPABASE_URL}/rest/v1/sessions?id=eq.${state.sessionId}&select=paused`,{headers:HEADERS});const d=await r.json();const ov=document.getElementById('pauseOverlay');if(d[0]?.paused){ov.style.display='flex';}else{ov.style.display='none';}}catch(e){}}

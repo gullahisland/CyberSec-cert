@@ -374,7 +374,7 @@ function showJoin(){
   if(jm){jm.style.display='flex';}
   startAmbient();
 }
-function joinSession(){speakWelcome();const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code){syncProgress();startPauseCheck();}speakWelcome();startAmbient();}
+function joinSession(){const code=document.getElementById('joinCode').value.trim().toUpperCase();const name=document.getElementById('joinName').value.trim();if(!name){alert('Please enter your name!');return;}state.sessionId=code||null;state.studentName=name;document.getElementById('joinModal').style.display='none';if(code){syncProgress();startPauseCheck();}speakWelcome();startAmbient();}
 function showOverview(){document.getElementById("joinModal").style.display="none";document.getElementById("overviewModal").style.display="flex";}
 function skipJoin(){state.studentName='Solo Student';document.getElementById('joinModal').style.display='none';startAmbient();}
 
@@ -433,10 +433,10 @@ function toggleVoice(){
 function stripTags(html){ return html.replace(/<[^>]*>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').trim(); }
 
 // Called by the overview briefing card 🔊 button
+function speakWelcome(){const m=document.querySelector('#assistantMsgs .msg');const fb=m?(()=>{const cl=m.cloneNode(true);const b=cl.querySelector('button');if(b)b.remove();return cl.textContent.trim();})():'';playAudio('diego_m1_welcome.mp3',fb);}
 function speakBriefing(){ playAudio('diego_m1_briefing.mp3'); }
 
 // Auto-spoken when simulation starts
-function speakWelcome(){const firstMsg=document.querySelector('#assistantMsgs .msg');if(!firstMsg)return;const clone=firstMsg.cloneNode(true);const btn=clone.querySelector('button');if(btn)btn.remove();speakText(clone.textContent.trim());},400);}
 
 // Called by 🔊 buttons on individual messages (Web Speech fallback)
 function speakMsg(btn){
