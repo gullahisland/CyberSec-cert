@@ -327,8 +327,8 @@ function getStatus(s){
   const updatedAt=new Date(s.updated_at);
   if(updatedAt.getFullYear()<2010)return'left';
   const secsAgo=(Date.now()-updatedAt)/1000;
-  if(secsAgo>600)return'left';
-  if(secsAgo>180)return'idle';
+  if(secsAgo>1200)return'left';
+  if(secsAgo>300)return'idle';
   return'active';
 }
 
