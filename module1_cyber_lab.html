@@ -446,28 +446,7 @@ function toggleVoice(){
 function stripTags(html){ return html.replace(/<[^>]*>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').trim(); }
 
 // Called by the overview briefing card 🔊 button
-function speakWelcome(){
-  const msgs=document.querySelectorAll('#assistantMsgs .msg');
-  if(!msgs.length)return;
-  const parts=[];
-  msgs.forEach(m=>{const cl=m.cloneNode(true);cl.querySelectorAll('button').forEach(b=>b.remove());const t=cl.textContent.trim();if(t)parts.push(t);});
-  if(!parts.length||!voiceOn||!window.speechSynthesis)return;
-  window.speechSynthesis.cancel();
-  const speak=(idx)=>{
-    if(idx>=parts.length){_showSpeaking(false);return;}
-    const clean=parts[idx].replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FEFF}]/gu,'').replace(/\s+/g,' ').trim();
-    if(!clean){speak(idx+1);return;}
-    const utt=new SpeechSynthesisUtterance(clean);
-    utt.rate=0.92;utt.pitch=1.05;
-    const pick=_cachedVoices.find(v=>v.name==='Alex')||_cachedVoices.find(v=>v.name==='Google UK English Male')||_cachedVoices.find(v=>v.name.toLowerCase().includes('male')&&v.lang.startsWith('en'))||_cachedVoices.find(v=>v.lang==='en-US'&&!v.name.toLowerCase().includes('compact')&&!v.name.toLowerCase().includes('female'));
-    if(pick)utt.voice=pick;
-    if(idx===0)utt.onstart=()=>_showSpeaking(true);
-    utt.onend=()=>{if(idx<parts.length-1){setTimeout(()=>speak(idx+1),700);}else{_showSpeaking(false);}};
-    utt.onerror=()=>_showSpeaking(false);
-    window.speechSynthesis.speak(utt);
-  };
-  speak(0);
-}
+function speakWelcome(){playAudio('diego_m1_welcome.mp3');}
 function speakBriefing(){ playAudio('diego_m1_briefing.mp3'); }
 
 // Auto-spoken when simulation starts
