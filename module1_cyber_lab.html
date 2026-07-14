@@ -300,8 +300,8 @@
       <div class="online-dot" style="margin-left:8px;"></div>
     </div>
     <div class="assistant-messages" id="assistantMsgs">
-      <div class="msg">👋 <strong>Diego Alvarez here</strong> — Senior SOC Analyst. I'll be walking you through this investigation. Before every move, ask yourself: <em>"What do I know, and what do I still need to find out?"</em> 🔍<br><button class="speak-btn" onclick="speakMsg(this)">🔊 Hear this</button></div>
-      <div class="msg">We've got an <strong>unknown device</strong> on the Northfield Academy network. Someone flagged it — but we don't know what it is yet. First step: scan the network and see everything that's connected. 💡 Hit <strong>Show hint</strong> if you need the exact command.<br><button class="speak-btn" onclick="speakMsg(this)">🔊 Hear this</button></div>
+      <div class="msg">👋 <strong>Diego Alvarez here</strong> — Senior SOC Analyst. I'll be walking you through this investigation. Before every move, ask yourself: <em>"What do I know, and what do I still need to find out?"</em> 🔍</div>
+      <div class="msg">We've got an <strong>unknown device</strong> on the Northfield Academy network. Someone flagged it — but we don't know what it is yet. First step: scan the network and see everything that's connected. 💡 Hit <strong>Show hint</strong> if you need the exact command.</div>
     </div>
     <div class="tools-ref">
       <div class="tools-label">Quick commands</div>
@@ -461,25 +461,25 @@ function queueAria(fn){ariaQueue.push(fn);processAriaQueue();}
 function aria(html){queueAria(()=>{
   const b=document.getElementById('assistantMsgs');
   const d=document.createElement('div');d.className='msg';
-  d.innerHTML=html+'<br><button class="speak-btn" onclick="speakMsg(this)">🔊 Hear this</button>';
+  d.innerHTML=html;
   b.appendChild(d);b.scrollTop=b.scrollHeight;
 });}
 function ariaSuccess(html){queueAria(()=>{
   const b=document.getElementById('assistantMsgs');
   const d=document.createElement('div');d.className='msg celebrate';
-  d.innerHTML=html+'<br><button class="speak-btn" onclick="speakMsg(this)">🔊 Hear this</button>';
+  d.innerHTML=html;
   b.appendChild(d);b.scrollTop=b.scrollHeight;
 });}
 function printWOS(title,html){queueAria(()=>{
   const b=document.getElementById('assistantMsgs');
   const d=document.createElement('div');d.className='msg';
-  d.innerHTML=`<strong>📺 What's on the screen — ${title}</strong><br>${html}<br><button class="speak-btn" onclick="speakMsg(this)">🔊 Hear this</button>`;
+  d.innerHTML=`<strong>📺 What's on the screen — ${title}</strong><br>${html}`;
   b.appendChild(d);b.scrollTop=b.scrollHeight;
 });}
 function printExplainer(html){queueAria(()=>{
   const b=document.getElementById('assistantMsgs');
   const d=document.createElement('div');d.className='msg';
-  d.innerHTML=`<strong>🌍 Real World Connection</strong><br>${html}<br><button class="speak-btn" onclick="speakMsg(this)">🔊 Hear this</button>`;
+  d.innerHTML=`<strong>🌍 Real World Connection</strong><br>${html}`;
   b.appendChild(d);b.scrollTop=b.scrollHeight;
 });}
 
