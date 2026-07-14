@@ -447,34 +447,13 @@ function toggleVoice(){
 function stripTags(html){ return html.replace(/<[^>]*>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').trim(); }
 
 // Called by the overview briefing card 🔊 button
-function speakWelcome(){
-  const msgs=document.querySelectorAll('#assistantMsgs .msg');
-  if(!msgs.length)return;
-  const parts=[];
-  msgs.forEach(m=>{const cl=m.cloneNode(true);cl.querySelectorAll('button,strong').forEach(b=>{const t=document.createTextNode(b.textContent);b.replaceWith(t);});parts.push(cl.textContent.trim());});
-  speakText(parts.join('. '));
-}
+function speakWelcome(){const msgs=document.querySelectorAll('#assistantMsgs .msg');if(!msgs.length)return;const parts=[];msgs.forEach(m=>{const cl=m.cloneNode(true);cl.querySelectorAll('button').forEach(b=>b.remove());const t=cl.textContent.trim();if(t)parts.push(t);});speakText(parts.join('. '));}
 function speakBriefing(){ playAudio('diego_m1_briefing.mp3'); }
 
 // Auto-spoken when simulation starts
 
 // Called by 🔊 buttons on individual messages (Web Speech fallback)
-function speakMsg(btn){
-  if(currentAudio){currentAudio.pause();currentAudio=null;_showSpeaking(false);}
-  const msg=btn.closest('.msg');
-  if(!msg)return;
-  const cl=msg.cloneNode(true);
-  cl.querySelectorAll('button').forEach(b=>b.remove());
-  const t=cl.textContent.trim();
-  if(t)speakText(t);
-}
-  const msg=btn.closest('.msg');
-  if(!msg)return;
-  const cl=msg.cloneNode(true);
-  cl.querySelectorAll('button').forEach(b=>b.remove());
-  const t=cl.textContent.trim();
-  if(t) speakText(t);
-}
+function speakMsg(btn){if(currentAudio){currentAudio.pause();currentAudio=null;_showSpeaking(false);}const msg=btn.closest('.msg');if(!msg)return;const cl=msg.cloneNode(true);cl.querySelectorAll('button').forEach(b=>b.remove());const t=cl.textContent.trim();if(t)speakText(t);}
 
 // ── Assistant message queue ─────────────────────────────────────
 const ariaQueue=[];let ariaBusy=false;
