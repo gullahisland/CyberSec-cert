@@ -446,7 +446,7 @@ function toggleVoice(){
 function stripTags(html){ return html.replace(/<[^>]*>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').trim(); }
 
 // Called by the overview briefing card 🔊 button
-function speakWelcome(){playAudio('diego_m1_welcome.mp3');}
+function speakWelcome(){speakText('Diego Alvarez here, Senior SOC Analyst. I\'ll be walking you through this investigation. Before every move, ask yourself: what do I know, and what do I still need to find out? We\'ve got an unknown device on the Northfield Academy network. Someone flagged it, but we don\'t know what it is yet. First step: scan the network and see everything that\'s connected. Hit Show hint if you need the exact command.');}
 function speakBriefing(){ playAudio('diego_m1_briefing.mp3'); }
 
 // Auto-spoken when simulation starts

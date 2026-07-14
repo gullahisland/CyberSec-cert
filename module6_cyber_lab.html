@@ -810,7 +810,7 @@ function speakText(text){
   utt.onerror=()=>_showSpeaking(false);
   window.speechSynthesis.speak(utt);
 }
-function speakWelcome(){playAudio('yuki_m6_welcome.mp3');}
+function speakWelcome(){speakText('Welcome to the Capstone! This combines every skill from Modules 1 through 5. I\'ll give less hand-holding here. Just like a real job, you\'ll need to decide what to do next. A good place to start is always recon: figure out what\'s actually on this network before deciding what\'s wrong with it. A hint is available in the sidebar whenever you need the exact command.');}
 function speakBriefing(){playAudio('yuki_m6_welcome.mp3');}
 
 function startPauseCheck(){if(!state.sessionId)return;setInterval(checkPause,5000);}

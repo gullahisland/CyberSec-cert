@@ -669,7 +669,7 @@ function speakText(text){
   utt.onerror=()=>_showSpeaking(false);
   window.speechSynthesis.speak(utt);
 }
-function speakWelcome(){playAudio('alex_m3_welcome.mp3');}
+function speakWelcome(){speakText('Welcome to Module 3. Today we\'re doing vulnerability scanning, systematically checking a system for known weaknesses before attackers find them. We\'re using Nessus, the industry-standard vulnerability scanner. It checks thousands of known CVEs, Common Vulnerabilities and Exposures, automatically. Run a scan on the target server to find them all. A hint is available in the sidebar whenever you need the exact command.');}
 function speakBriefing(){playAudio('alex_m3_welcome.mp3');}
 
 function startPauseCheck(){if(!state.sessionId)return;setInterval(checkPause,5000);}

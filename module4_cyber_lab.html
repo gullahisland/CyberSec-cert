@@ -681,7 +681,7 @@ function speakText(text){
   utt.onerror=()=>_showSpeaking(false);
   window.speechSynthesis.speak(utt);
 }
-function speakWelcome(){playAudio('jordan_m4_welcome.mp3');}
+function speakWelcome(){speakText('This is an active incident. Today you\'re learning incident response, the structured process security teams follow during a live attack: Identify, Contain, Investigate, Recover. Start by checking the SIEM, the Security Information and Event Management system. It\'s the dashboard that aggregates alerts from every device on the network. A hint is available in the sidebar whenever you need the exact command.');}
 function speakBriefing(){playAudio('jordan_m4_welcome.mp3');}
 
 function startPauseCheck(){if(!state.sessionId)return;setInterval(checkPause,5000);}
