@@ -215,11 +215,12 @@
         </div>
       </div>
       <div class="filter-bar">
-        <div class="filter-chip active" onclick="setFilter('all',this)">All</div>
-        <div class="filter-chip" onclick="setFilter('done',this)">✓ Completed</div>
+        <div class="filter-chip active" onclick="setFilter('connected',this)">Connected</div>
         <div class="filter-chip" onclick="setFilter('active',this)">◉ Active</div>
-        <div class="filter-chip" onclick="setFilter('stuck',this)">⚠ Needs help</div>
         <div class="filter-chip" onclick="setFilter('idle',this)">○ Idle</div>
+        <div class="filter-chip" onclick="setFilter('stuck',this)">⚠ Needs Help</div>
+        <div class="filter-chip" onclick="setFilter('done',this)">✓ Completed</div>
+        <div class="filter-chip" onclick="setFilter('left',this)">⊘ Left</div>
       </div>
       <div class="student-grid" id="studentGrid">
         <div class="empty-state"><div class="empty-icon">📡</div><div class="empty-text">Start a session above to see students.</div></div>
@@ -322,15 +323,15 @@ async function loadData(){
 function getStatus(s){
   const objs=s.objectives||[];const done=objs.filter(Boolean).length;
   if(done===4)return'done';
-  const minsAgo=(Date.now()-new Date(s.updated_at))/60000;
-  if(minsAgo>2)return'left';
-  if(done===0&&minsAgo>1)return'idle';
+  const secsAgo=(Date.now()-new Date(s.updated_at))/1000;
+  if(secsAgo>40)return'left';
+  if(done===0&&secsAgo>20)return'idle';
   return'active';
 }
 
 function renderDashboard(){
   const students=allStudents;
-  const filtered=currentFilter==='all'?students:students.filter(s=>getStatus(s)===currentFilter);
+  const filtered=currentFilter==='connected'?students.filter(s=>getStatus(s)!=='left'):students.filter(s=>getStatus(s)===currentFilter);
   const done=students.filter(s=>getStatus(s)==='done').length;
   const active=students.filter(s=>getStatus(s)==='active').length;
   const stuck=students.filter(s=>getStatus(s)==='stuck').length;
@@ -363,6 +364,7 @@ function showDetail(student){
 }
 
 function setFilter(f,el){currentFilter=f;document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderDashboard();}
+
 function copyLink(){const url=location.href.replace('instructor_dashboard.html',MODULE_LABS[currentModule]);navigator.clipboard.writeText(url).then(()=>toast('Lab link copied ✓'));}
 function newSession(){allStudents=[];selectedStudent=null;sessionId=null;sessionPaused=false;document.getElementById('sessionCodeInput').value='';document.getElementById('setupModal').style.display='flex';const pb=document.getElementById('pauseBtn');pb.textContent='⏸ Pause all labs';pb.style.color='';pb.style.borderColor='';}
 async function togglePause(){if(!sessionId)return;sessionPaused=!sessionPaused;try{const pr=await fetch(`${SUPABASE_URL}/rest/v1/sessions?id=eq.${sessionId}`,{method:'PATCH',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({paused:sessionPaused})});console.log('Pause PATCH status:',pr.status);if(!pr.ok){const e=await pr.text();console.error('Pause PATCH failed:',pr.status,e);toast('Could not update Supabase');sessionPaused=!sessionPaused;return;}const pb=document.getElementById('pauseBtn');if(sessionPaused){pb.textContent='▶ Resume all labs';pb.style.color='var(--green)';pb.style.borderColor='var(--green)';toast('Labs paused — students will see a hold screen ✓');}else{pb.textContent='⏸ Pause all labs';pb.style.color='';pb.style.borderColor='';toast('Labs resumed ✓');}}catch(e){console.error('Pause error:',e);toast('Could not reach Supabase');sessionPaused=!sessionPaused;}}
@@ -376,9 +378,9 @@ async function endSession(){
   if(!sessionId){toast('No active session');return;}
   if(!confirm('End this session? Students will see a message and be sent to the home page.'))return;
   try{
-    const r=await fetch(`${SUPABASE_URL}/rest/v1/sessions?id=eq.${sessionId}`,{method:'DELETE',headers:HEADERS});
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/sessions?id=eq.${sessionId}`,{method:'PATCH',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({paused:true,ended:true})});
     if(r.ok){toast('Session ended — students are being redirected ✓');setTimeout(newSession,2500);}
-    else{toast('Could not end session — check Supabase permissions');}
+    else{const e=await r.text();console.error('End session failed:',e);toast('Could not end session — run the SQL migration in Supabase first');}
   }catch(e){toast('Could not reach Supabase');}
 }
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
