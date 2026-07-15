@@ -380,11 +380,17 @@ async function manualRefresh(){
 }
 async function endSession(){
   if(!sessionId){toast('No active session');return;}
-  if(!confirm('End this session? Students will see a message and be sent to the home page.'))return;
+  if(!confirm('End this session? Students will be redirected and all session data will be deleted immediately.'))return;
   try{
+    // 1. Signal modules to redirect students
     const r=await fetch(`${SUPABASE_URL}/rest/v1/sessions?id=eq.${sessionId}`,{method:'PATCH',headers:{...HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({paused:true,ended:true})});
-    if(r.ok){toast('Session ended — students are being redirected ✓');setTimeout(newSession,2500);}
-    else{const e=await r.text();console.error('End session failed:',e);toast('Could not end session — run the SQL migration in Supabase first');}
+    if(!r.ok){const e=await r.text();console.error('End session failed:',e);toast('Could not end session');return;}
+    // 2. Delete all student progress for this session immediately
+    await fetch(`${SUPABASE_URL}/rest/v1/student_progress?session_id=eq.${sessionId}`,{method:'DELETE',headers:{...HEADERS,'Prefer':'return=minimal'}});
+    // 3. Delete the session record itself
+    await fetch(`${SUPABASE_URL}/rest/v1/sessions?id=eq.${sessionId}`,{method:'DELETE',headers:{...HEADERS,'Prefer':'return=minimal'}});
+    toast('Session ended — all student data deleted ✓');
+    setTimeout(newSession,2500);
   }catch(e){toast('Could not reach Supabase');}
 }
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
