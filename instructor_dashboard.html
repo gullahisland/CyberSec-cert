@@ -260,7 +260,7 @@ const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 const HEADERS={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`};
 const MODULE_OBJECTIVES={1:['Identify devices on network','Find rogue device','Block rogue device','Write incident report'],2:['WhoIs IP lookup','Find geolocation','Shodan recon','File threat report'],3:['Run vuln scan','Identify critical CVEs','Check default creds','Create remediation plan'],4:['Confirm & scope incident','Contain affected systems','Find patient zero','Recover & document'],5:['Conduct risk assessment','Build risk register','Define controls','Present to board'],6:['Phase 1: Recon','Phase 2: Assess','Phase 3: Respond','Phase 4: Secure']};
 const MODULE_LABS={1:'module1_cyber_lab.html',2:'module2_cyber_lab.html',3:'module3_cyber_lab.html',4:'module4_cyber_lab.html',5:'module5_cyber_lab.html',6:'module6_cyber_lab.html'};
-let sessionId=null,currentModule=1,allStudents=[],currentFilter='all',selectedStudent=null,sessionPaused=false;
+let sessionId=null,currentModule=1,allStudents=[],currentFilter='connected',selectedStudent=null,sessionPaused=false;
 
 // ── Ambient audio (default OFF for instructor focus) ──────────────
 let soundOn=false,ambient=null,blipTimer=null,audioCtx=null;
@@ -334,7 +334,7 @@ function getStatus(s){
 
 function renderDashboard(){
   const students=allStudents;
-  const filtered=currentFilter==='connected'?students.filter(s=>getStatus(s)!=='left'):students.filter(s=>getStatus(s)===currentFilter);
+  const filtered=currentFilter==='connected'||currentFilter==='all'?students.filter(s=>getStatus(s)!=='left'):students.filter(s=>getStatus(s)===currentFilter);
   const done=students.filter(s=>getStatus(s)==='done').length;
   const active=students.filter(s=>getStatus(s)==='active').length;
   const stuck=students.filter(s=>getStatus(s)==='stuck').length;
