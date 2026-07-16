@@ -576,7 +576,7 @@ function completeObj(n){
   el.scrollIntoView({behavior:'smooth',block:'nearest'});
   const done=Object.values(state.objectives).filter(Boolean).length;
   document.getElementById('progressBar').style.width=(done/7*100)+'%';
-  syncProgress();
+  
   updateHint();
   if(done===7){
     sfxComplete();
