@@ -570,7 +570,8 @@ function spawnConfetti(){
 function showCelebration(){
   document.getElementById('celebration').classList.add('show');
   sfxFinale();
-  spawnConfetti();
+  setTimeout(()=>spawnConfetti(),100);
+  setTimeout(()=>spawnConfetti(),800);
   setTimeout(()=>{ playAudio('diego_m1_complete.mp3'); }, 2000);
 }
 

@@ -422,7 +422,7 @@ function stopAmbient(){
   ambient=null;
 }
 function spawnConfetti(){const emojis=['🎉','✨','🔬','🎊','⭐','🛡️'];const container=document.createElement('div');container.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:400;overflow:hidden;';document.body.appendChild(container);for(let i=0;i<28;i++){const span=document.createElement('span');span.textContent=emojis[Math.floor(Math.random()*emojis.length)];span.style.position='absolute';span.style.left=Math.random()*100+'%';span.style.top='-40px';span.style.fontSize=(16+Math.random()*22)+'px';span.style.setProperty('--rot',(Math.random()*360|0)+'deg');const dur=(2.4+Math.random()*1.6).toFixed(2);const del=(Math.random()*0.5).toFixed(2);span.style.animation=`confettiFall ${dur}s ${del}s ease-in forwards`;container.appendChild(span);}setTimeout(()=>container.remove(),4600);}
-function showCelebration(){document.getElementById('celebration').classList.add('show');sfxComplete();spawnConfetti();setTimeout(()=>playAudio('alex_m3_complete.mp3'),2000);}
+function showCelebration(){document.getElementById('celebration').classList.add('show');sfxComplete();setTimeout(()=>spawnConfetti(),100);setTimeout(()=>spawnConfetti(),800);setTimeout(()=>playAudio('alex_m3_complete.mp3'),2000);}
 
 function printChoices(promptText,choices,onPick){
   const wrap=document.createElement('div');wrap.className='t-line';
