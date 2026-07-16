@@ -304,6 +304,12 @@
 </div>
 
 <div class="celebration" id="celebration">
+  <div class="celebration-inner">
+  <div style="display:flex;gap:10px;margin-bottom:8px;align-self:flex-start;">
+    <button class="back-btn" onclick="history.back()" style="font-size:13px;padding:6px 14px;">← Back</button>
+    <a class="back-btn" href="index.html?skip=1" style="text-decoration:none;font-size:13px;padding:6px 14px;">⌂ Home</a>
+  </div>
+
   <div class="cele-icon">🛡️</div>
   <div class="cele-title">Vulnerabilities Patched!</div>
   <div class="cele-sub">You found Log4Shell, Spring4Shell, default credentials and weak encryption — then built a remediation plan to fix them all.<br><br><strong style="color:#10b981;">Skill unlocked: Vulnerability Management</strong></div>
@@ -328,7 +334,8 @@
   <button class="cele-btn" onclick="window.location.href='module4_cyber_lab.html'">Next: Module 4 →</button>
   <button class="cele-btn2" onclick="resetLab()">Replay Module 3</button>
   <div style="margin-top:20px;font-size:11px;color:rgba(125,141,163,.5);letter-spacing:.05em;">CyberPath · Designed &amp; built by <span style="color:var(--accent);opacity:.8;">Adejoke Osuntogun</span></div>
-</div>
+
+  </div></div>
 
 <script>
 const state={objectives:{1:false,2:false,3:false,4:false},history:[],historyIdx:-1,scanDone:false};
