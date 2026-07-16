@@ -207,6 +207,416 @@
   </div>
 </div>
 
-    <div style="font-size:32px;margin:12px 0">🌐</div>
-    <div class="join-sub">Enter your class code and name to join your instructor's session.</div>
-    <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:16px;text-align:left;">
+</div>
+
+<nav>
+  <img src="kf-logo-dark-bg.png" alt="KnowledgeFlow Cybersafety Foundation" style="height:44px;">
+  <button class="back-btn" onclick="history.back()">← Back</button>
+  <a class="back-btn" href="index.html?skip=1" style="text-decoration:none;">⌂ Home</a>
+  <div class="nav-meta">
+    <span class="badge">Module 2 of 6</span>
+    <span>Who Are You Talking To?</span>
+    <button class="sound-toggle" id="soundToggle" onclick="toggleSound()" title="Toggle sound effects">🔊</button>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:12px;">Progress</span>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar"></div></div>
+    </div>
+  </div>
+  <button id="voiceToggle" class="sound-toggle" onclick="toggleVoice()">🎙️ Voice ON</button>
+</nav>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Mission Brief</div>
+      <div class="scenario-title">🌐 Suspicious Outbound Traffic</div>
+      <div class="scenario-text">Following yesterday's rogue device discovery, outbound traffic to <strong>185.220.101.47</strong> has been detected. Someone — or something — on the school network is calling home. Find out who's on the other end.</div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Objectives</div>
+      <ul class="obj-list">
+        <li class="obj-item" id="obj1"><div class="obj-check">1</div><span>Look up who owns the IP using WhoIs</span></li>
+        <li class="obj-item" id="obj2"><div class="obj-check">2</div><span>Find the IP's geographic location</span></li>
+        <li class="obj-item" id="obj3"><div class="obj-check">3</div><span>Search Shodan for open ports & vulns</span></li>
+        <li class="obj-item" id="obj4"><div class="obj-check">4</div><span>Assess and report the threat level</span></li>
+      </ul>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Intel Gathered</div>
+      <div class="info-box" id="intelBox"><span style="color:var(--muted)">Run WhoIs to start building intel...</span></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Need a nudge?</div>
+      <button class="hint-btn" onclick="toggleHint()">💡 Show hint</button>
+      <div class="hint-text" id="hintBox"></div>
+    </div>
+  </aside>
+
+  <div class="terminal-wrap">
+    <div class="terminal-header">
+      <div class="terminal-dots"><div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div></div>
+      <span class="terminal-title">analyst@cyberpath:~$ — OSINT & Recon Terminal</span>
+    </div>
+    <div class="terminal-output" id="termOut">
+      <div class="t-line t-system">CyberPath Secure Lab — Module 2: OSINT & Threat Intelligence</div>
+      <div class="t-line t-system">Target IP flagged: 185.220.101.47</div>
+      <div class="t-info">🌐 Outbound traffic detected to an unknown IP. Your first move: find out who owns it. 💡 Hit <strong>Show hint</strong> in the sidebar if you need the exact command.</div>
+    </div>
+    <div class="terminal-input-row">
+      <span class="terminal-prompt-label">analyst@cyberpath:~$</span>
+      <input class="terminal-input" id="cmdInput" type="text" placeholder="type a command..." autocomplete="off" spellcheck="false"/>
+      <button class="run-btn" onclick="runCommand()">RUN ↵</button>
+    </div>
+  </div>
+
+  <div class="assistant-panel">
+    <div class="assistant-header">
+      <div class="assistant-avatar" id="assistantAvatar">🕵️</div>
+      <div><div class="assistant-name" id="assistantName">Diego Alvarez</div><div class="assistant-role">Senior SOC Analyst</div></div>
+      <div class="online-dot"></div><span class="speaking-indicator" id="speakingIndicator">◉ SPEAKING</span>
+    </div>
+    <div class="assistant-messages" id="assistantMsgs">
+      <div class="msg">Welcome to <strong>Module 2</strong>! Today we're doing <strong>OSINT</strong> — using public information to investigate a threat. No hacking, just clever research. 🌐</div>
+      <div class="msg"><strong>WhoIs</strong> is like a phone book for the internet — every IP address and domain name is registered somewhere, by someone. Start there: find out who owns this suspicious IP. 💡 A hint is available in the sidebar whenever you need the exact command.</div>
+    </div>
+    <div class="tools-ref">
+      <div class="tools-label">Quick commands</div>
+      <span class="tool-chip" onclick="insertCmd('whois 185.220.101.47')">whois</span>
+      <span class="tool-chip" onclick="insertCmd('geoip 185.220.101.47')">geoip</span>
+      <span class="tool-chip" onclick="insertCmd('shodan 185.220.101.47')">shodan</span>
+      <span class="tool-chip" onclick="insertCmd('report 185.220.101.47 high')">report</span>
+      <span class="tool-chip" onclick="insertCmd('help')">help</span>
+    </div>
+  </div>
+</div>
+
+<div class="celebration" id="celebration">
+  <div class="cele-icon">🕵️</div>
+  <div class="cele-title">Recon Complete!</div>
+  <div class="cele-sub">You tracked an IP to a Tor exit node in Germany, found two critical CVEs on Shodan, and filed a high-severity threat intelligence report. That's real OSINT work.</div>
+  <div class="career-section">
+    <div class="career-title">🎯 Where this skill takes you</div>
+    <div class="career-grid">
+      <div class="career-card">
+        <div class="career-card-icon">🔍</div>
+        <div class="career-card-title">Threat Intelligence Analyst</div>
+        <div class="career-card-text">Tracks attacker infrastructure using OSINT tools. High demand at banks, governments, and security firms.</div>
+      </div>
+      <div class="career-card">
+        <div class="career-card-icon">🕵️</div>
+        <div class="career-card-title">OSINT Investigator</div>
+        <div class="career-card-text">Used by journalists, law enforcement, and corporations to investigate people and organisations using public data.</div>
+      </div>
+      <div class="career-card">
+        <div class="career-card-icon">🌐</div>
+        <div class="career-card-title">Cyber Threat Hunter</div>
+        <div class="career-card-text">Proactively searches networks for hidden attackers. OSINT is how you build a picture of who you're hunting.</div>
+      </div>
+      <div class="career-card">
+        <div class="career-card-icon">🏛️</div>
+        <div class="career-card-title">Digital Forensics Investigator</div>
+        <div class="career-card-text">Investigates cybercrimes for police and courts. IP intelligence is core evidence in prosecutions.</div>
+      </div>
+    </div>
+    <div class="sidebar-label" style="margin-bottom:8px;">Certifications that teach this</div>
+    <div class="cert-row">
+      <span class="cert-badge">CompTIA Security+</span>
+      <span class="cert-badge">GCTI (GIAC)</span>
+      <span class="cert-badge">CEH</span>
+      <span class="cert-badge">OSCP</span>
+    </div>
+    <div class="salary-row">💰 Threat Intelligence Analyst: <strong>$58,000–$92,000</strong> CAD · <strong>$65,000–$110,000</strong> US</div>
+  </div>
+  <div style="display:flex;gap:12px;margin-top:8px;">
+    <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:14px 18px;font-size:13px;color:#fcd34d;margin-top:4px;margin-bottom:4px;">📸 <strong>Take a screenshot</strong> of this screen before closing — your progress won't be saved if you come back later.</div>
+  <button class="cele-btn" onclick="window.location.href='module3_cyber_lab.html'">Next: Module 3 →</button>
+    <button class="cele-btn2" onclick="resetLab()">Replay</button>
+  </div>
+  <div style="margin-top:20px;font-size:11px;color:rgba(125,141,163,.5);letter-spacing:.05em;">CyberPath · Designed &amp; built by <span style="color:var(--accent);opacity:.8;">Adejoke Osuntogun</span></div>
+</div>
+
+<script>
+const state={objectives:{1:false,2:false,3:false,4:false},history:[],historyIdx:-1};
+const out=document.getElementById('termOut');
+function print(html,cls='t-out'){const d=document.createElement('div');d.className=`t-line ${cls}`;d.innerHTML=html;out.appendChild(d);out.scrollTop=out.scrollHeight;}
+function printCmd(cmd){print(`<span class="t-prompt">analyst@cyberpath:~$</span> <span class="t-cmd">${esc(cmd)}</span>`);}
+function printBlank(){const d=document.createElement('div');d.style.height='6px';out.appendChild(d);}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+const ariaQueue=[];let ariaBusy=false;
+function processAriaQueue(){if(ariaBusy||ariaQueue.length===0)return;ariaBusy=true;const job=ariaQueue.shift();job();setTimeout(()=>{ariaBusy=false;processAriaQueue();},700);}
+function queueAria(fn){ariaQueue.push(fn);processAriaQueue();}
+function aria(html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
+function ariaSuccess(html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg celebrate';d.innerHTML=html;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
+function printWOS(title,html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=`<strong>📺 What's on the screen — ${title}</strong><br>${html}`;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
+function printExplainer(html){queueAria(()=>{const b=document.getElementById('assistantMsgs');const d=document.createElement('div');d.className='msg';d.innerHTML=`<strong>🌍 Real World Connection</strong><br>${html}`;b.appendChild(d);b.scrollTop=b.scrollHeight;});}
+
+// ---- Sound effects ----
+let audioCtx=null;let soundOn=true;
+function getCtx(){if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)();}if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx;}
+function beep(freq,dur,type='sine',vol=0.08,delay=0){if(!soundOn)return;try{const ctx=getCtx();const t0=ctx.currentTime+delay;const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,t0);gain.gain.setValueAtTime(vol,t0);gain.gain.exponentialRampToValueAtTime(0.001,t0+dur);osc.connect(gain);gain.connect(ctx.destination);osc.start(t0);osc.stop(t0+dur);}catch(e){}}
+function sfxKey(){beep(700,0.04,'square',0.035);}
+function sfxSuccess(){beep(880,0.12,'sine',0.07);beep(1320,0.15,'sine',0.07,0.1);}
+function sfxWarn(){beep(180,0.18,'sawtooth',0.06);}
+function sfxComplete(){beep(660,0.12,'sine',0.08,0);beep(880,0.12,'sine',0.08,0.12);beep(1100,0.12,'sine',0.08,0.24);beep(1320,0.25,'sine',0.09,0.36);}
+function toggleSound(){soundOn=!soundOn;document.getElementById('soundToggle').textContent=soundOn?'🔊':'🔇';soundOn?startAmbient():stopAmbient();}
+// ── Ambient background (cyber hum, drone, blips) ──────────────
+let ambient=null,blipTimer=null;
+function ambTone(freq,dur,type,vol,delay){
+  if(!soundOn)return;
+  try{const c=getCtx(),t0=c.currentTime+(delay||0);
+  const o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.value=freq;
+  g.gain.setValueAtTime(vol||0.018,t0);g.gain.exponentialRampToValueAtTime(0.001,t0+dur);
+  o.connect(g);g.connect(c.destination);o.start(t0);o.stop(t0+dur+0.01);}catch(e){}
+}
+function startAmbient(){
+  if(ambient||!soundOn)return;
+  const c=getCtx();
+  const master=c.createGain();
+  master.gain.setValueAtTime(0,c.currentTime);
+  master.gain.linearRampToValueAtTime(0.38,c.currentTime+1);
+  master.connect(c.destination);
+  function makeDrone(freq,vol,detune){
+    const o=c.createOscillator(),g=c.createGain();
+    o.type='sine';o.frequency.value=freq;if(detune)o.detune.value=detune;
+    g.gain.value=vol;o.connect(g);g.connect(master);o.start();return o;
+  }
+  const d1=makeDrone(55,0.55,0),d2=makeDrone(82.4,0.3,3),d3=makeDrone(110,0.15,-2);
+  const lfo=c.createOscillator();lfo.type='sine';lfo.frequency.value=0.06;
+  const lfoG=c.createGain();lfoG.gain.value=0.07;lfo.connect(lfoG);lfoG.connect(master.gain);lfo.start();
+  const bufLen=c.sampleRate*3,buf=c.createBuffer(1,bufLen,c.sampleRate),data=buf.getChannelData(0);
+  for(let i=0;i<bufLen;i++)data[i]=Math.random()*2-1;
+  const ns=c.createBufferSource();ns.buffer=buf;ns.loop=true;
+  const bpf=c.createBiquadFilter();bpf.type='bandpass';bpf.frequency.value=600;bpf.Q.value=0.8;
+  const nsG=c.createGain();nsG.gain.value=0.05;ns.connect(bpf);bpf.connect(nsG);nsG.connect(master);ns.start();
+  const arpNotes=[220,261.6,329.6,392,440,523];let arpStep=0;
+  const arpInterval=setInterval(()=>{
+    if(!soundOn||!ambient){clearInterval(arpInterval);return;}
+    ambTone(arpNotes[arpStep++%arpNotes.length],0.18,'sine',0.018);
+  },480);
+  function scheduleBlip(){
+    if(!ambient)return;
+    blipTimer=setTimeout(()=>{
+      if(soundOn&&ambient){
+        const freqs=[440,523,659,784,1047,1175];
+        const f=freqs[Math.floor(Math.random()*freqs.length)];
+        ambTone(f,0.035+Math.random()*0.05,'square',0.02);
+        if(Math.random()>0.55)setTimeout(()=>ambTone(f*1.5,0.03,'square',0.013),70);
+      }
+      scheduleBlip();
+    },1500+Math.random()*4500);
+  }
+  scheduleBlip();
+  ambient={d1,d2,d3,lfo,ns,master,arpInterval};
+}
+function stopAmbient(){
+  if(blipTimer){clearTimeout(blipTimer);blipTimer=null;}
+  if(!ambient)return;
+  try{const c=getCtx();
+  ambient.master.gain.linearRampToValueAtTime(0,c.currentTime+1);
+  const snap=ambient;
+  setTimeout(()=>{try{snap.d1.stop();snap.d2.stop();snap.d3.stop();snap.lfo.stop();snap.ns.stop();}catch(e){}clearInterval(snap.arpInterval);},1100);}catch(e){}
+  ambient=null;
+}
+function spawnConfetti(){const emojis=['🎉','✨','🏆','🎊','⭐','🌐'];const container=document.createElement('div');container.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:400;overflow:hidden;';document.body.appendChild(container);for(let i=0;i<28;i++){const span=document.createElement('span');span.textContent=emojis[Math.floor(Math.random()*emojis.length)];span.style.position='absolute';span.style.left=Math.random()*100+'%';span.style.top='-40px';span.style.fontSize=(16+Math.random()*22)+'px';span.style.setProperty('--rot',(Math.random()*360|0)+'deg');const dur=(2.4+Math.random()*1.6).toFixed(2);const del=(Math.random()*0.5).toFixed(2);span.style.animation=`confettiFall ${dur}s ${del}s ease-in forwards`;container.appendChild(span);}setTimeout(()=>container.remove(),4600);}
+function showCelebration(){document.getElementById('celebration').classList.add('show');sfxComplete();spawnConfetti();setTimeout(()=>playAudio('diego_m2_complete.mp3'),2000);}
+
+function printChoices(promptText,choices,onPick){
+  const wrap=document.createElement('div');wrap.className='t-line';
+  const label=document.createElement('div');label.className='t-out accent';label.style.marginBottom='6px';label.textContent=promptText;wrap.appendChild(label);
+  const row=document.createElement('div');row.className='choice-row';
+  choices.forEach(c=>{const b=document.createElement('button');b.className='choice-btn';b.type='button';b.textContent=c.label;b.onclick=()=>{sfxKey();onPick(c,b,row);};row.appendChild(b);});
+  wrap.appendChild(row);out.appendChild(wrap);out.scrollTop=out.scrollHeight;
+}
+
+const HINTS=[
+  'In OSINT, always start with ownership — find out who registered the IP. 💡 Command: <code>whois 185.220.101.47</code>',
+  'You know the owner. Now find its physical location — what country and city is this server in? 💡 Command: <code>geoip 185.220.101.47</code>',
+  'Location confirmed. Now check what services and vulnerabilities are exposed on this server. 💡 Command: <code>shodan 185.220.101.47</code>',
+  'All the intel is in. Now make your judgment call — type your report command to start the assessment. 💡 Command: <code>report 185.220.101.47 high</code>',
+  'All objectives complete! Click the mission complete button to view your results. 🏆'
+];
+function updateHint(){const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('hintBox').innerHTML=HINTS[Math.min(done,HINTS.length-1)];}
+
+function completeObj(n){if(state.objectives[n])return;state.objectives[n]=true;const el=document.getElementById('obj'+n);el.classList.add('done');el.querySelector('.obj-check').textContent='✓';el.scrollIntoView({behavior:'smooth',block:'nearest'});const done=Object.values(state.objectives).filter(Boolean).length;document.getElementById('progressBar').style.width=(done/4*100)+'%';syncProgress();updateHint();if(done===4){sfxComplete();const btn=document.createElement('button');btn.className='continue-btn';btn.textContent='✓ Mission complete — View My Results →';btn.onclick=()=>showCelebration();out.appendChild(btn);out.scrollTop=out.scrollHeight;}else{sfxSuccess();}}
+
+function updateIntel(html){document.getElementById('intelBox').innerHTML=html;}
+
+const RESPONSES={
+  'whois 185.220.101.47':()=>{
+    print('WhoIs lookup: 185.220.101.47');printBlank();
+    print('inetnum:   185.220.101.0 - 185.220.101.255');
+    print('netname:   TorExitNodes','t-out warn');
+    print('descr:     Tor Exit Relay Network','t-out warn');
+    print('country:   DE');
+    print('orgname:   Torchier Communications Network');
+    print('remarks:   This network operates Tor exit nodes','t-out warn');
+    printBlank();
+    printWOS('WhoIs output',`
+      <strong>inetnum</strong> — the range of IP addresses owned by this organisation (like a block of house numbers on a street).<br><br>
+      <strong>netname: TorExitNodes</strong> — this IP belongs to a <em>Tor network</em>. Tor (The Onion Router) anonymises internet traffic by bouncing it through multiple servers. Think of it as an untraceable postal route.<br><br>
+      <strong>country: DE</strong> — registered in Germany, though Tor traffic can originate from anywhere in the world.<br><br>
+      <strong>Why is this suspicious?</strong> Legitimate school systems don't need to communicate with Tor exit nodes.
+    `);
+    completeObj(1);
+    print('[ Objective 1 complete: IP owner identified ]','t-out highlight');
+    printExplainer(`<strong>WhoIs</strong> is completely public — you can look up any IP or domain right now. Law enforcement uses WhoIs constantly to trace cybercriminals. Many attackers use Tor to hide, but investigators can still follow the money, the patterns, and the infrastructure.`);
+    updateIntel(`<div style="font-size:13px;line-height:1.8;font-family:var(--mono)"><span style="color:var(--muted)">Owner:</span> <span style="color:var(--yellow)">Tor Exit Network</span><br><span style="color:var(--muted)">Country:</span> Germany 🇩🇪<br><span style="color:var(--muted)">Network:</span> 185.220.101.0/24</div>`);
+    aria('🚨 <strong>Tor exit node!</strong> This is significant. Tor is used to hide internet activity — legitimate uses exist, but it\'s also the tool of choice for cybercriminals. Now check its exact geographic location. 💡 Check your hint.');
+  },
+  'geoip 185.220.101.47':()=>{
+    print('GeoIP lookup: 185.220.101.47');printBlank();
+    print('Country:        Germany 🇩🇪','t-out highlight');
+    print('City:           Frankfurt am Main');
+    print('ISP:            Torchier Communications Network');
+    print('Proxy/VPN/Tor:  YES — Tor Exit Node Detected','t-out warn');
+    print('Threat Score:   87/100 (HIGH)','t-out error');
+    printBlank();
+    printWOS('GeoIP result',`
+      <strong>Threat Score: 87/100</strong> — threat intelligence databases track millions of IPs and score them based on known malicious activity. 87/100 means this IP is flagged by most security systems as high-risk.<br><br>
+      <strong>Proxy/VPN/Tor: YES</strong> — confirmed as a Tor exit node. Traffic leaving through this server could have originated from anywhere on Earth.<br><br>
+      <strong>Important:</strong> Even though the server is in Frankfurt, the person controlling it could be sitting anywhere — London, Lagos, or Los Angeles.
+    `);
+    completeObj(2);
+    print('[ Objective 2 complete: Location confirmed ]','t-out highlight');
+    printExplainer(`<strong>GeoIP</strong> is used by streaming services (to block content by region), by fraud teams (to flag logins from unusual countries), and by security analysts. However, savvy attackers use Tor precisely to defeat GeoIP — the physical location of the server tells us very little about where the attacker actually is.`);
+    updateIntel(`<div style="font-size:13px;line-height:1.8;font-family:var(--mono)"><span style="color:var(--muted)">Owner:</span> <span style="color:var(--yellow)">Tor Exit Network</span><br><span style="color:var(--muted)">Location:</span> Frankfurt, Germany 🇩🇪<br><span style="color:var(--muted)">Threat:</span> <span style="color:var(--red)">87/100 HIGH</span><br><span style="color:var(--muted)">Tor Node:</span> <span style="color:var(--yellow)">YES ⚠️</span></div>`);
+    aria('Threat score of 87/100 — almost the maximum. Most firewalls would block this automatically. Now dig deeper: check what services and vulnerabilities this server is actually running. 💡 Check your hint.');
+  },
+  'shodan 185.220.101.47':()=>{
+    print('Shodan search: 185.220.101.47');printBlank();
+    print('OPEN PORTS & SERVICES');
+    print('9001/tcp  open  tor    Tor OR port (relay)','t-out warn');
+    print('9030/tcp  open  tor    Tor directory port','t-out warn');
+    print('443/tcp   open  https  nginx 1.18.0');
+    print('80/tcp    open  http   nginx 1.18.0');
+    print('');
+    print('VULNERABILITIES DETECTED');
+    print('CVE-2021-41773  Apache path traversal  CRITICAL','t-out error');
+    print('CVE-2021-42013  Apache RCE              CRITICAL','t-out error');
+    printBlank();
+    printWOS('Shodan results',`
+      <strong>Shodan</strong> is called "the world's most dangerous search engine" — it indexes every internet-connected device and what services they expose. Unlike Google, it searches devices, not websites.<br><br>
+      <strong>Port 9001/9030 — Tor</strong> — these are the standard ports Tor relays use. Confirmed Tor node.<br><br>
+      <strong>Port 80/443</strong> — web server running. Could be serving malware, a control panel, or nothing suspicious.<br><br>
+      <strong>CVE-2021-41773 / CVE-2021-42013</strong> — "CVE" stands for Common Vulnerabilities and Exposures. These are known security flaws with official ID numbers. The number after the year is just a serial number. Both of these allow attackers to read files and execute code remotely.
+    `);
+    completeObj(3);
+    print('[ Objective 3 complete: Shodan recon complete ]','t-out highlight');
+    printExplainer(`<strong>Shodan</strong> is freely available and used by security researchers, penetration testers — and attackers. It's a double-edged sword. Defenders use it to find their own exposed devices before attackers do. Many organisations run automated Shodan scans against their own infrastructure weekly.`);
+    updateIntel(`<div style="font-size:13px;line-height:1.8;font-family:var(--mono)"><span style="color:var(--muted)">Owner:</span> <span style="color:var(--yellow)">Tor Exit Network</span><br><span style="color:var(--muted)">Location:</span> Frankfurt 🇩🇪<br><span style="color:var(--muted)">Threat:</span> <span style="color:var(--red)">87/100 CRITICAL</span><br><span style="color:var(--muted)">CVEs:</span> <span style="color:var(--red)">2 CRITICAL</span><br><span style="color:var(--muted)">Ports:</span> 80, 443, 9001, 9030</div>`);
+    aria('Two critical CVEs on an already suspicious Tor exit node. This is clearly a <strong>malicious server</strong>. Now make your judgment call — what should happen to this IP? 💡 Check your hint.');
+  },
+  'report 185.220.101.47 high':()=>fileReport(),
+  'report 185.220.101.47 critical':()=>fileReport(),
+};
+
+function fileReport(){
+  if(state.objectives[4]){print('Report already filed. Mission complete!','t-out warn');return;}
+  print('Preparing threat intelligence report — two judgment calls first.');
+  printBlank();
+  printChoices('What threat level do you assign to this IP?',[
+    {label:'Low',correct:false,why:'This IP has a 87/100 threat score, confirmed Tor relay, and two critical CVEs — that\'s not low.'},
+    {label:'Medium',correct:false,why:'The combination of Tor, known critical vulnerabilities, and the school\'s rogue device connecting here puts this well above medium.'},
+    {label:'High',correct:true},
+    {label:'Critical',correct:false,why:'Close — but "Critical" is typically reserved for active exploitation with confirmed data loss in progress. High is the right call here.'}
+  ],(choice,btn,row)=>{
+    Array.from(row.querySelectorAll('button')).forEach(x=>x.disabled=true);
+    if(choice.correct){btn.classList.add('correct');}else{sfxWarn();btn.classList.add('wrong');}
+    print(choice.correct
+      ?'✓ HIGH — a Tor exit node with two critical CVEs and a confirmed connection from a rogue device warrants high severity.'
+      :'The standard call here is HIGH. Confirmed Tor exit node with critical CVEs and a direct link to the rogue Pi. Logging as High.',
+      't-out '+(choice.correct?'highlight':'warn'));
+    printBlank();
+    printChoices('What do you recommend to the school\'s IT team?',[
+      {label:'Block this IP at the school firewall immediately',correct:true},
+      {label:'Monitor traffic for 24 hours first, then decide',correct:false,why:'When you have a confirmed high-threat Tor exit node with critical CVEs, there\'s no reason to leave it unblocked. Monitor after you block.'},
+      {label:'Escalate to law enforcement only, no network action',correct:false,why:'Reporting matters, but the school\'s network stays exposed until you block. Both actions are needed — block first.'},
+      {label:'Whitelist the IP to collect more intelligence',correct:false,why:'Actively whitelisting a known-bad IP deliberately keeps a threat connected. Never the right move.'}
+    ],(choice2,btn2,row2)=>{
+      Array.from(row2.querySelectorAll('button')).forEach(x=>x.disabled=true);
+      if(choice2.correct){btn2.classList.add('correct');}else{sfxWarn();btn2.classList.add('wrong');}
+      print(choice2.correct
+        ?'✓ Block immediately — with critical CVEs and a confirmed Tor relay, there\'s no intelligence value in waiting.'
+        :'The right call is to block immediately. Leaving a high-severity Tor node connected is unnecessary risk.',
+        't-out '+(choice2.correct?'highlight':'warn'));
+      printBlank();
+      generateThreatReport();
+    });
+  });
+}
+
+function generateThreatReport(){
+  print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','t-out accent');
+  print('  THREAT INTELLIGENCE REPORT — TI-2024-001','t-out accent');
+  print('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','t-out accent');
+  print('Target:      185.220.101.47 | Level: HIGH','t-out error');
+  print('Owner:       Torchier Communications (Tor Exit Network)');
+  print('Location:    Frankfurt, Germany 🇩🇪');
+  print('CVEs:        CVE-2021-41773 (CRITICAL), CVE-2021-42013 (CRITICAL)','t-out error');
+  print('Connection:  Rogue Pi (192.168.1.99) → this server (outbound)','t-out warn');
+  print('');
+  print('Recommendation:','t-out highlight');
+  print('  ✓ Block 185.220.101.47 at school firewall immediately','t-out highlight');
+  print('  ✓ Notify law enforcement — Tor exit node with active CVEs','t-out highlight');
+  print('  ✓ Investigate rogue Pi to determine what data was exfiltrated','t-out highlight');
+  print('');
+  print('Analyst:     '+(state.studentName||'Solo Analyst'));
+  print('Filed:       '+new Date().toLocaleTimeString(),'t-out highlight');
+  printBlank();
+  completeObj(4);
+  ariaSuccess('🎉 <strong>Outstanding recon work!</strong> You used WhoIs, GeoIP, and Shodan to build a complete intelligence picture — identified a Tor exit node with critical vulnerabilities, made the right judgment calls on threat level and response, and filed a professional threat intelligence report. This is exactly how TI analysts work.');
+}
+
+function matchCmd(raw){
+  const cmd=raw.trim().toLowerCase().replace(/\s+/g,' ');
+  if(RESPONSES[cmd])return RESPONSES[cmd];
+  if(cmd.includes('whois')&&cmd.includes('185'))return RESPONSES['whois 185.220.101.47'];
+  if(cmd.includes('geoip')&&cmd.includes('185'))return RESPONSES['geoip 185.220.101.47'];
+  if(cmd.includes('shodan')&&cmd.includes('185'))return RESPONSES['shodan 185.220.101.47'];
+  if(cmd.includes('report')&&cmd.includes('185'))return()=>fileReport('HIGH');
+  if(cmd==='help')return()=>{print('Commands: whois, geoip, shodan, report <ip> <level>','t-out accent');};
+  if(cmd==='clear')return()=>{out.innerHTML='';};
+  return null;
+}
+function runCommand(){const input=document.getElementById('cmdInput');const raw=input.value.trim();if(!raw)return;sfxKey();state.history.unshift(raw);state.historyIdx=-1;printCmd(raw);printBlank();const fn=matchCmd(raw);if(fn){fn();}else{print(`bash: ${esc(raw)}: command not found`,'t-out error');aria(`Unknown command. Try <code>help</code>`);}printBlank();input.value='';out.scrollTop=out.scrollHeight;}
+document.getElementById('cmdInput').addEventListener('keydown',e=>{if(e.key==='Enter'){runCommand();return;}if(e.key==='ArrowUp'){e.preventDefault();if(state.historyIdx<state.history.length-1){state.historyIdx++;document.getElementById('cmdInput').value=state.history[state.historyIdx];}}if(e.key==='ArrowDown'){e.preventDefault();if(state.historyIdx>0){state.historyIdx--;document.getElementById('cmdInput').value=state.history[state.historyIdx];}else{state.historyIdx=-1;document.getElementById('cmdInput').value='';}}});
+function insertCmd(cmd){document.getElementById('cmdInput').value=cmd;document.getElementById('cmdInput').focus();}
+function toggleHint(){document.getElementById('hintBox').classList.toggle('visible');}
+function resetLab(){location.reload();}
+updateHint();
+document.getElementById('cmdInput').focus();
+
+document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();},{once:true});
+
+let voiceOn=true;let _cachedVoices=[];if(window.speechSynthesis){_cachedVoices=window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=()=>{_cachedVoices=window.speechSynthesis.getVoices();};}let overviewAudioTimer=null;let currentAudio=null;
+function _showSpeaking(on){const ind=document.getElementById('speakingIndicator');const av=document.getElementById('assistantAvatar');if(ind)ind.classList.toggle('active',on);if(av)av.classList.toggle('speaking',on);}
+function playAudio(src,fallbackText){if(!voiceOn)return;if(window.speechSynthesis)window.speechSynthesis.cancel();if(currentAudio){currentAudio.pause();currentAudio=null;}const a=new Audio(src);currentAudio=a;a.onplay=()=>_showSpeaking(true);a.onended=()=>{_showSpeaking(false);currentAudio=null;};a.onerror=()=>{_showSpeaking(false);currentAudio=null;const t=fallbackText||(document.querySelector('.char-msg')?.textContent||'').replace(/^["“]|["”]$/g,'').trim();if(t)speakText(t);};a.play().catch(()=>{_showSpeaking(false);currentAudio=null;const t=(document.querySelector('.char-msg')?.textContent||'').replace(/^["\u201c]|["\u201d]$/g,'').trim();if(t)speakText(t);});}
+function speakText(text){
+  if(!voiceOn||!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const clean=text.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE00}-\u{FEFF}]/gu,'').replace(/\s+/g,' ').trim();
+  if(!clean)return;
+  const utt=new SpeechSynthesisUtterance(clean);
+  utt.rate=1.0;utt.pitch=1.0;utt.volume=1;
+  const _vv=window.speechSynthesis.getVoices();const _voices=_vv.length?_vv:_cachedVoices;const pick=_voices.find(v=>v.name==='Google UK English Male')||_voices.find(v=>v.name==='Google US English')||_voices.find(v=>v.name.toLowerCase().includes('google')&&v.lang.startsWith('en'))||_voices.find(v=>v.name==='Samantha')||_voices.find(v=>v.lang==='en-US'&&!v.name.toLowerCase().includes('compact'));
+  if(pick)utt.voice=pick;
+  utt.onstart=()=>_showSpeaking(true);
+  utt.onend=()=>{_showSpeaking(false);};
+  utt.onerror=()=>_showSpeaking(false);
+  window.speechSynthesis.speak(utt);
+}
+function speakWelcome(){playAudio('diego_m2_welcome.mp3');}
+function speakBriefing(){playAudio('diego_m2_welcome.mp3');}
+
+function startHeartbeat(){if(!state.sessionId)return;
+  let lastActivity=Date.now();
+  const onActivity=()=>{lastActivity=Date.now();};
+  document.addEventListener('keydown',onActivity);
+  document.addEventListener('mousemove',onActivity);
+}
+</script>
+
+</body>
+</html>
