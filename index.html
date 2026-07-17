@@ -193,7 +193,28 @@
   </div>
   <div style="margin-bottom:8px;">Free youth cybersecurity education · <a href="module1_cyber_lab.html">Start Module 1</a></div>
   <div style="font-size:13px;color:var(--muted);letter-spacing:.05em;">Designed &amp; built by <span style="color:var(--accent);font-weight:600;">Adejoke Osuntogun</span></div>
+  <div style="margin-top:10px;font-size:12px;color:var(--muted);">
+    🔒 <button onclick="document.getElementById('privacyModal').style.display='flex'" style="background:none;border:none;color:var(--accent);font-size:12px;cursor:pointer;padding:0;font-family:var(--mono);text-decoration:underline;">No data collected</button>
+    · No cookies · No tracking · Runs entirely in your browser
+  </div>
 </footer>
+
+<!-- Privacy Modal -->
+<div id="privacyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#0d1b2e;border:1px solid rgba(0,212,255,.3);border-radius:14px;padding:32px 36px;max-width:460px;width:90%;font-family:'Segoe UI',sans-serif;position:relative;">
+    <button onclick="document.getElementById('privacyModal').style.display='none'" style="position:absolute;top:14px;right:18px;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;">✕</button>
+    <div style="font-size:18px;font-weight:700;color:var(--accent);margin-bottom:16px;">🔒 Privacy Notice</div>
+    <p style="color:#c8d6e5;font-size:14px;line-height:1.7;margin:0 0 12px;">CyberPath collects <strong style="color:#fff;">no personal data</strong> of any kind.</p>
+    <ul style="color:#c8d6e5;font-size:14px;line-height:1.9;margin:0 0 16px;padding-left:20px;">
+      <li>No accounts, names, or personal information</li>
+      <li>No cookies or browser storage</li>
+      <li>No tracking or analytics</li>
+      <li>No data sent to any server</li>
+      <li>All activity runs locally in your browser</li>
+    </ul>
+    <p style="color:var(--muted);font-size:12px;margin:0;">This tool is safe for use with students of all ages, including minors.</p>
+  </div>
+</div>
 
 <script>
 // ═══════════════════════════════════════════════════════════
