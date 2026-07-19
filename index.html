@@ -392,6 +392,12 @@ if(new URLSearchParams(location.search).get('skip')==='1'){
   document.addEventListener('DOMContentLoaded',()=>{
     const splash=document.getElementById('splash');
     if(splash){splash.style.display='none';}
+    // Restart ambient sound on first interaction (browser requires user gesture)
+    document.addEventListener('mouseenter', function onReturn(){
+      sfxBoot();
+      setTimeout(startAmbient, 700);
+      document.removeEventListener('mouseenter', onReturn);
+    }, {once:true, capture:true});
   });
 }
 
