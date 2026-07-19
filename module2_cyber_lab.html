@@ -124,7 +124,8 @@
   .join-skip{font-size:13px;color:var(--muted);margin-top:12px;cursor:pointer;text-decoration:underline;}
   .celebration{display:none;position:fixed;inset:0;background:rgba(10,14,26,.92);z-index:100;}
   .celebration.show{display:flex;align-items:center;justify-content:center;padding:20px;}
-  .celebration-inner{max-width:640px;width:100%;max-height:88vh;overflow-y:auto;padding:32px 24px;text-align:center;border-radius:14px;}
+  .celebration-inner{max-width:640px;width:100%;max-height:88vh;overflow-y:auto;padding:32px 24px;text-align:center;border-radius:14px;scrollbar-width:none;}
+  .celebration-inner::-webkit-scrollbar{display:none;}
   .cele-icon{font-size:56px;}
   .cele-title{font-size:28px;font-weight:700;color:var(--accent);font-family:var(--mono);}
   .cele-sub{font-size:15px;color:#aebccf;max-width:400px;line-height:1.6;margin:0 auto;}
@@ -290,12 +291,12 @@
   </div>
 </div>
 
-<div class="celebration" id="celebration"><div class="celebration-inner">
-  <div style="display:flex;gap:10px;margin-bottom:8px;align-self:center;justify-content:center;">
+<div class="celebration" id="celebration">
+  <div style="position:absolute;top:16px;left:16px;display:flex;gap:8px;z-index:10;">
     <button class="back-btn" onclick="history.back()" style="font-size:13px;padding:6px 14px;">← Back</button>
     <a class="back-btn" href="index.html?skip=1" style="text-decoration:none;font-size:13px;padding:6px 14px;">⌂ Home</a>
   </div>
-  
+  <div class="celebration-inner">
   <div class="cele-icon">🕵️</div>
   <div class="cele-title">Recon Complete!</div>
   <div class="cele-sub">You tracked an IP to a Tor exit node in Germany, found two critical CVEs on Shodan, and filed a high-severity threat intelligence report. That's real OSINT work.</div>
