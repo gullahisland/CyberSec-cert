@@ -422,8 +422,6 @@ function playAudio(src){
   audio.play().catch(()=>{ _showSpeaking(false); });
 }
 
-}
-
 function stripTags(html){ return html.replace(/<[^>]*>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&nbsp;/g,' ').trim(); }
 
 // Called by the overview briefing card 🔊 button
