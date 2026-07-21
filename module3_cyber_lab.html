@@ -730,11 +730,11 @@ function switchTab(t){
   else if(t==='assistant'){a.classList.add('mob-show');r.classList.add('mob-hide');}
   document.getElementById('mtab-'+t).classList.add('active');
 }
-/* On mobile: clone quick-command chips into terminal tab so students don't need to switch */
+/* On mobile: clone quick-command chips into Hint tab */
 if(window.innerWidth<=768){
   document.addEventListener('DOMContentLoaded',function(){
     const src=document.querySelector('.tools-ref');
-    const term=document.querySelector('.terminal-wrap');
+    const term=document.querySelector('.assistant-panel');
     if(src&&term){
       const box=document.createElement('div');
       box.className='mob-tools';
