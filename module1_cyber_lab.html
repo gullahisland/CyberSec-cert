@@ -164,16 +164,39 @@
   .mobile-tabs{display:none;}
   .mob-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:transparent;border:none;border-top:2px solid transparent;color:var(--muted);font-family:var(--mono);font-size:10px;cursor:pointer;padding:0;transition:color .2s,border-color .2s;}
   .mob-tab.active{border-top-color:var(--accent);color:var(--accent);}
-  .mob-tab-icon{font-size:18px;line-height:1;}
+  .mob-tab-icon{font-size:20px;line-height:1;}
+  .mob-tools{display:none;}
   @media(max-width:768px){
-    body{overflow:hidden;}
-    .layout{grid-template-columns:1fr;height:calc(100vh - 56px - 56px);}
-    .sidebar{display:none;width:100%;height:100%;overflow-y:auto;}
-    .assistant-panel{display:none;width:100%;height:100%;overflow-y:auto;}
+    /* Viewport — use dvh so iOS URL bar doesn't cut off content */
+    body{height:100dvh;overflow:hidden;}
+    nav{flex-shrink:0;}
+    /* Simplify nav bar — back/home live on overview modal */
+    nav .back-btn{display:none;}
+    .nav-meta>span:not(.badge){display:none;}
+    .progress-bar-wrap{display:none;}
+    /* Layout */
+    .layout{grid-template-columns:1fr;flex:1;min-height:0;height:auto;}
+    /* Panels */
+    .sidebar{display:none;width:100%;overflow-y:auto;padding-bottom:70px;}
+    .assistant-panel{display:none;width:100%;overflow-y:auto;padding-bottom:70px;}
     .sidebar.mob-show,.assistant-panel.mob-show{display:flex;flex-direction:column;}
     .terminal-wrap.mob-hide{display:none;}
+    /* Terminal output — leave room for input bar + tab bar */
+    .terminal-output{padding-bottom:4px;}
+    /* Tab bar */
     .mobile-tabs{display:flex;position:fixed;bottom:0;left:0;right:0;height:56px;background:var(--panel);border-top:1px solid var(--border);z-index:50;}
+    /* Quick commands in terminal tab */
+    .mob-tools{display:block;padding:10px 14px;border-top:1px solid var(--border);background:var(--panel);flex-shrink:0;}
+    /* Overview modal */
     .audio-hint{display:none;}
+    .overview-modal{padding:56px 16px 80px;}
+    .ov-cards{grid-template-columns:1fr;}
+    .ov-back-btn{position:fixed;top:10px;left:10px;font-size:11px;padding:5px 10px;z-index:400;}
+    /* Terminal input */
+    .terminal-input{font-size:16px;}
+    .tool-chip{padding:8px 12px;font-size:13px;min-height:36px;}
+    .run-btn{min-width:56px;font-size:13px;}
+    .incoming-msg,.char-briefing{text-align:left;}
   }
 </style>
 </head>
@@ -325,7 +348,7 @@
 <div class="mobile-tabs" id="mobileTabs">
   <button class="mob-tab" onclick="switchTab('sidebar')" id="mtab-sidebar"><span class="mob-tab-icon">📋</span><span>Objectives</span></button>
   <button class="mob-tab active" onclick="switchTab('terminal')" id="mtab-terminal"><span class="mob-tab-icon">💻</span><span>Terminal</span></button>
-  <button class="mob-tab" onclick="switchTab('assistant')" id="mtab-assistant"><span class="mob-tab-icon">💡</span><span>Hints</span></button>
+  <button class="mob-tab" onclick="switchTab('assistant')" id="mtab-assistant"><span class="mob-tab-icon">🕵️</span><span>Guide</span></button>
 </div>
 
 <div class="celebration" id="celebration">
@@ -885,11 +908,11 @@ function matchCmd(raw){
 
 function runCommand(){const input=document.getElementById('cmdInput');const raw=input.value.trim();if(!raw)return;sfxKey();state.history.unshift(raw);state.historyIdx=-1;printCmd(raw);printBlank();const fn=matchCmd(raw);if(fn){fn();}else{print(`bash: ${esc(raw)}: command not found`,'t-out error');aria(`I don't recognise <code>${esc(raw)}</code>. Try <code>help</code> to see available commands.`);}printBlank();input.value='';out.scrollTop=out.scrollHeight;}
 document.getElementById('cmdInput').addEventListener('keydown',e=>{if(e.key==='Enter'){runCommand();return;}if(e.key==='ArrowUp'){e.preventDefault();if(state.historyIdx<state.history.length-1){state.historyIdx++;document.getElementById('cmdInput').value=state.history[state.historyIdx];}}if(e.key==='ArrowDown'){e.preventDefault();if(state.historyIdx>0){state.historyIdx--;document.getElementById('cmdInput').value=state.history[state.historyIdx];}else{state.historyIdx=-1;document.getElementById('cmdInput').value='';}}});
-function insertCmd(cmd){document.getElementById('cmdInput').value=cmd;document.getElementById('cmdInput').focus();}
+function insertCmd(cmd){document.getElementById('cmdInput').value=cmd;if(window.innerWidth<=768)switchTab('terminal');document.getElementById('cmdInput').focus();}
 function toggleHint(){document.getElementById('hintBox').classList.toggle('visible');}
 function resetLab(){location.reload();}
 updateHint();
-document.getElementById('cmdInput').focus();
+if(window.innerWidth>768)document.getElementById('cmdInput').focus();
 
 document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();},{once:true});
 function startHeartbeat(){if(!state.sessionId)return;
@@ -908,6 +931,25 @@ function switchTab(t){
   if(t==='sidebar'){s.classList.add('mob-show');r.classList.add('mob-hide');}
   else if(t==='assistant'){a.classList.add('mob-show');r.classList.add('mob-hide');}
   document.getElementById('mtab-'+t).classList.add('active');
+}
+/* On mobile: clone quick-command chips into terminal tab so students don't need to switch */
+if(window.innerWidth<=768){
+  document.addEventListener('DOMContentLoaded',function(){
+    const src=document.querySelector('.tools-ref');
+    const term=document.querySelector('.terminal-wrap');
+    if(src&&term){
+      const box=document.createElement('div');
+      box.className='mob-tools';
+      box.innerHTML='<div style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);margin-bottom:6px;">QUICK COMMANDS</div>'+src.innerHTML;
+      box.querySelectorAll('.tool-chip').forEach(c=>{
+        c.onclick=c.getAttribute('onclick')?null:c.onclick;
+        // re-bind onclick attributes since innerHTML clones don't fire them natively
+        const oc=c.getAttribute('onclick');
+        if(oc){c.removeAttribute('onclick');c.addEventListener('click',function(){eval(oc);});}
+      });
+      term.appendChild(box);
+    }
+  });
 }
 </script>
 
