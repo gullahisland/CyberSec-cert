@@ -155,6 +155,22 @@
   @keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(var(--rot));opacity:0;}}
   .speak-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:11px;padding:2px 7px;border-radius:4px;cursor:pointer;margin-top:7px;display:inline-block;}
   .speak-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* ── MOBILE TAB LAYOUT ─────────────────────────── */
+  .mobile-tabs{display:none;}
+  .mob-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:transparent;border:none;border-top:2px solid transparent;color:var(--muted);font-family:var(--mono);font-size:10px;cursor:pointer;padding:0;transition:color .2s,border-color .2s;}
+  .mob-tab.active{border-top-color:var(--accent);color:var(--accent);}
+  .mob-tab-icon{font-size:18px;line-height:1;}
+  @media(max-width:768px){
+    body{overflow:hidden;}
+    .layout{grid-template-columns:1fr;height:calc(100vh - 56px - 56px);}
+    .sidebar{display:none;width:100%;height:100%;overflow-y:auto;}
+    .assistant-panel{display:none;width:100%;height:100%;overflow-y:auto;}
+    .sidebar.mob-show,.assistant-panel.mob-show{display:flex;flex-direction:column;}
+    .terminal-wrap.mob-hide{display:none;}
+    .mobile-tabs{display:flex;position:fixed;bottom:0;left:0;right:0;height:56px;background:var(--panel);border-top:1px solid var(--border);z-index:50;}
+    .audio-hint{display:none;}
+  }
 </style>
 </head>
 <body>
@@ -289,6 +305,13 @@
       <span class="tool-chip" onclick="insertCmd('help')">help</span>
     </div>
   </div>
+</div>
+
+
+<div class="mobile-tabs" id="mobileTabs">
+  <button class="mob-tab" onclick="switchTab('sidebar')" id="mtab-sidebar"><span class="mob-tab-icon">📋</span><span>Objectives</span></button>
+  <button class="mob-tab active" onclick="switchTab('terminal')" id="mtab-terminal"><span class="mob-tab-icon">💻</span><span>Terminal</span></button>
+  <button class="mob-tab" onclick="switchTab('assistant')" id="mtab-assistant"><span class="mob-tab-icon">💡</span><span>Hints</span></button>
 </div>
 
 <div class="celebration" id="celebration">
@@ -621,6 +644,17 @@ function startHeartbeat(){if(!state.sessionId)return;
   const onActivity=()=>{lastActivity=Date.now();};
   document.addEventListener('keydown',onActivity);
   document.addEventListener('mousemove',onActivity);
+}
+
+function switchTab(t){
+  const s=document.querySelector('.sidebar'),
+        r=document.querySelector('.terminal-wrap'),
+        a=document.querySelector('.assistant-panel');
+  s.classList.remove('mob-show');r.classList.remove('mob-hide');a.classList.remove('mob-show');
+  document.querySelectorAll('.mob-tab').forEach(b=>b.classList.remove('active'));
+  if(t==='sidebar'){s.classList.add('mob-show');r.classList.add('mob-hide');}
+  else if(t==='assistant'){a.classList.add('mob-show');r.classList.add('mob-hide');}
+  document.getElementById('mtab-'+t).classList.add('active');
 }
 </script>
 
