@@ -193,7 +193,7 @@
     /* Quick commands in Hint tab — already in .assistant-panel HTML */
     .assistant-panel .tools-ref{flex-wrap:wrap;gap:6px;}
     .assistant-panel .tools-ref .tool-chip{white-space:nowrap;}
-    body{overflow-x:hidden;}
+    html,body{overflow-x:hidden;}
     /* Overview modal */
     .audio-hint{display:none;}
     .overview-modal{padding:56px 16px 80px;}
@@ -202,7 +202,9 @@
     /* Terminal input */
     .terminal-input{font-size:16px;}
     .tool-chip{padding:8px 12px;font-size:13px;min-height:36px;}
-    .run-btn{min-width:56px;font-size:13px;}
+    .terminal-input-row{padding:10px 12px;gap:6px;}
+    .terminal-input{min-width:0;flex:1;}
+    .run-btn{min-width:52px;font-size:13px;flex-shrink:0;}
     .incoming-msg,.char-briefing{text-align:left;}
   }
 </style>
