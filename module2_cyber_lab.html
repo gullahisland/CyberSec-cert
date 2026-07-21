@@ -182,7 +182,11 @@
     /* Tab bar */
     .mobile-tabs{display:flex;position:fixed;bottom:0;left:0;right:0;height:56px;background:var(--panel);border-top:1px solid var(--border);z-index:50;}
     /* Quick commands in terminal tab */
-    .mob-tools{display:block;padding:10px 14px;border-top:1px solid var(--border);background:var(--panel);flex-shrink:0;}
+    .mob-tools{display:block;padding:8px 10px;border-top:1px solid var(--border);background:var(--panel);flex-shrink:0;max-width:100%;overflow:hidden;}
+    .mob-tools .tools-ref{display:flex;flex-wrap:wrap;gap:6px;}
+    .mob-tools .tools-label{font-size:10px;margin-bottom:6px;}
+    .mob-tools .tool-chip{white-space:nowrap;flex-shrink:0;}
+    body{overflow-x:hidden;}
     /* Overview modal */
     .audio-hint{display:none;}
     .overview-modal{padding:56px 16px 80px;}
@@ -687,7 +691,7 @@ if(window.innerWidth<=768){
     if(src&&term){
       const box=document.createElement('div');
       box.className='mob-tools';
-      box.innerHTML='<div style="font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);margin-bottom:6px;">QUICK COMMANDS</div>'+src.innerHTML;
+      box.innerHTML=src.innerHTML;
       box.querySelectorAll('.tool-chip').forEach(c=>{
         c.onclick=c.getAttribute('onclick')?null:c.onclick;
         // re-bind onclick attributes since innerHTML clones don't fire them natively
