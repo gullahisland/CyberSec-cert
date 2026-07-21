@@ -253,8 +253,8 @@
 
 <nav>
   <img src="kf-logo-dark-bg.png" alt="KnowledgeFlow Cybersafety Foundation" style="height:44px;">
-  <button class="back-btn" onclick="document.getElementById('overviewModal').style.display='flex'">← Back</button>
-  <a class="back-btn mob-home" href="index.html?skip=1" style="text-decoration:none;">⌂ Home</a>
+  <button class="back-btn" onclick="stopAllAudio();document.getElementById('overviewModal').style.display='flex'">← Back</button>
+  <a class="back-btn mob-home" href="index.html?skip=1" style="text-decoration:none;" onclick="stopAllAudio();if(window.innerWidth<=768){event.preventDefault();document.getElementById('overviewModal').style.display='flex';}">⌂ Home</a>
   <div class="nav-meta">
     <span class="badge">Module 5 of 6</span>
     <span>Risk Management</span>
@@ -459,6 +459,11 @@ function startAmbient(){
   }
   scheduleBlip();
   ambient={d1,d2,d3,lfo,ns,master,arpInterval};
+}
+function stopAllAudio(){
+  if(currentAudio){currentAudio.pause();currentAudio=null;_showSpeaking(false);}
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+  stopAmbient();
 }
 function stopAmbient(){
   if(blipTimer){clearTimeout(blipTimer);blipTimer=null;}
