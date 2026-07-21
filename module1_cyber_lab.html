@@ -161,6 +161,7 @@
   .speak-btn:hover{border-color:var(--accent);color:var(--accent);}
 
   /* ── MOBILE TAB LAYOUT ─────────────────────────── */
+  .mob-home-btn{display:none;}
   .mobile-tabs{display:none;}
   .mob-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:transparent;border:none;border-top:2px solid transparent;color:var(--muted);font-family:var(--mono);font-size:10px;cursor:pointer;padding:0;transition:color .2s,border-color .2s;}
   .mob-tab.active{border-top-color:var(--accent);color:var(--accent);}
@@ -172,7 +173,8 @@
     nav{flex-shrink:0;}
     /* Simplify nav bar — back/home live on overview modal */
     nav .back-btn{display:none;}
-    nav .mob-home{display:inline-flex;font-size:11px;padding:4px 10px;align-items:center;}
+    .mob-home-btn{display:inline-flex;align-items:center;background:transparent;border:1px solid var(--border);color:var(--muted);font-size:16px;padding:4px 9px;border-radius:6px;line-height:1;}
+
     .nav-meta>span:not(.badge){display:none;}
     .progress-bar-wrap{display:none;}
     /* Layout */
@@ -209,7 +211,7 @@
 <body>
 
 <div class="overview-modal" id="overviewModal">
-  <a class="ov-back-btn" href="index.html?skip=1" style="text-decoration:none;">⌂ Home</a>
+  <a class="ov-back-btn" href="index.html?skip=1" style="text-decoration:none;">⌂</a>
   <div class="overview-box">
     <div class="ov-badge">Module 1 of 6 · Network Security</div>
     <div class="ov-icon">🔍</div>
@@ -268,7 +270,8 @@
 <nav>
   <img src="kf-logo-dark-bg.png" alt="KnowledgeFlow Cybersafety Foundation" style="height:44px;">
   <button class="back-btn" onclick="stopAllAudio();document.getElementById('overviewModal').style.display='flex'">← Back</button>
-  <a class="back-btn mob-home" href="index.html?skip=1" style="text-decoration:none;" onclick="stopAllAudio();if(window.innerWidth<=768){event.preventDefault();document.getElementById('overviewModal').style.display='flex';}">⌂ Home</a>
+  <a class="back-btn" href="index.html?skip=1" style="text-decoration:none;" onclick="stopAllAudio();">⌂ Home</a>
+  <a class="mob-home-btn" onclick="stopAllAudio();document.getElementById('overviewModal').style.display='flex';" style="text-decoration:none;cursor:pointer;">⌂</a>
   <div class="nav-meta">
     <span class="badge">Module 1 of 6</span>
     <span>Who's on the Network?</span>
@@ -360,7 +363,7 @@
 <div class="celebration" id="celebration">
   <div style="position:absolute;top:16px;left:16px;display:flex;gap:8px;z-index:10;">
     <button class="back-btn" onclick="document.getElementById('celebration').classList.remove('show')" style="font-size:13px;padding:6px 14px;">← Back to terminal</button>
-    <a class="back-btn" href="index.html?skip=1" style="text-decoration:none;font-size:13px;padding:6px 14px;">⌂ Home</a>
+    <a class="back-btn" href="index.html?skip=1" style="text-decoration:none;font-size:13px;padding:6px 14px;">⌂</a>
   </div>
   <div class="celebration-inner">
   <div class="cele-icon">🏆</div>
@@ -584,9 +587,20 @@ function startAmbient(){
   ambient={d1,d2,d3,lfo,ns,master,arpInterval};
 }
 function stopAllAudio(){
-  if(currentAudio){currentAudio.pause();currentAudio=null;_showSpeaking(false);}
+  if(currentAudio){currentAudio.pause();currentAudio.currentTime=0;currentAudio=null;_showSpeaking(false);}
   if(window.speechSynthesis)window.speechSynthesis.cancel();
-  stopAmbient();
+  /* Kill ambient immediately — no 1s fade */
+  if(blipTimer){clearTimeout(blipTimer);blipTimer=null;}
+  if(ambient){
+    try{
+      const c=getCtx();
+      ambient.master.gain.cancelScheduledValues(c.currentTime);
+      ambient.master.gain.setValueAtTime(0,c.currentTime);
+      try{ambient.d1.stop();ambient.d2.stop();ambient.d3.stop();ambient.lfo.stop();ambient.ns.stop();}catch(e){}
+      clearInterval(ambient.arpInterval);
+    }catch(e){}
+    ambient=null;
+  }
 }
 function stopAmbient(){
   if(blipTimer){clearTimeout(blipTimer);blipTimer=null;}
