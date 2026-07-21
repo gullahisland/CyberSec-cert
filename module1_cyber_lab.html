@@ -172,6 +172,7 @@
     nav{flex-shrink:0;}
     /* Simplify nav bar — back/home live on overview modal */
     nav .back-btn{display:none;}
+    nav .mob-home{display:inline-flex;font-size:11px;padding:4px 10px;align-items:center;}
     .nav-meta>span:not(.badge){display:none;}
     .progress-bar-wrap{display:none;}
     /* Layout */
@@ -267,7 +268,7 @@
 <nav>
   <img src="kf-logo-dark-bg.png" alt="KnowledgeFlow Cybersafety Foundation" style="height:44px;">
   <button class="back-btn" onclick="document.getElementById('overviewModal').style.display='flex'">← Back</button>
-  <a class="back-btn" href="index.html?skip=1" style="text-decoration:none;">⌂ Home</a>
+  <a class="back-btn mob-home" href="index.html?skip=1" style="text-decoration:none;">⌂ Home</a>
   <div class="nav-meta">
     <span class="badge">Module 1 of 6</span>
     <span>Who's on the Network?</span>
@@ -929,6 +930,16 @@ if(window.innerWidth<=768){
 }
 
 document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();},{once:true});
+/* Resume audio after mobile idle / tab switch */
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'){
+    if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
+    if(soundOn&&!ambient)startAmbient();
+  }
+});
+document.addEventListener('touchstart',function(){
+  if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
+},{passive:true});
 function startHeartbeat(){if(!state.sessionId)return;
   let lastActivity=Date.now();
   const onActivity=()=>{lastActivity=Date.now();};
