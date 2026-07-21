@@ -171,7 +171,7 @@
     .nav-meta>span:not(.badge){display:none;}
     .progress-bar-wrap{display:none;}
     /* Layout */
-    .layout{display:flex;flex-direction:column;flex:1;min-height:0;}
+    .layout{display:flex;flex-direction:column;flex:1;min-height:0;height:auto;margin-bottom:56px;}
     .terminal-wrap{flex:1;min-height:0;overflow:hidden;}
     /* Panels */
     .sidebar{display:none;width:100%;overflow-y:auto;padding-bottom:70px;}
@@ -642,6 +642,15 @@ function toggleHint(){document.getElementById('hintBox').classList.toggle('visib
 function resetLab(){location.reload();}
 updateHint();
 if(window.innerWidth>768)document.getElementById('cmdInput').focus();
+/* On mobile: hide tab bar when keyboard opens so run button stays visible */
+if(window.innerWidth<=768){
+  var _input=document.getElementById('cmdInput');
+  var _tabs=document.getElementById('mobileTabs');
+  if(_input&&_tabs){
+    _input.addEventListener('focus',function(){_tabs.style.display='none';});
+    _input.addEventListener('blur',function(){setTimeout(function(){_tabs.style.display='flex';},150);});
+  }
+}
 
 document.getElementById('overviewModal').addEventListener('click',function(){startAmbient();},{once:true});
 
