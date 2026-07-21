@@ -179,7 +179,8 @@
     .nav-meta>span:not(.badge){display:none;}
     .progress-bar-wrap{display:none;}
     /* Layout */
-    .layout{grid-template-columns:1fr;flex:1;min-height:0;height:auto;}
+    .layout{display:flex;flex-direction:column;flex:1;min-height:0;}
+    .terminal-wrap{flex:1;min-height:0;overflow:hidden;}
     /* Panels */
     .sidebar{display:none;width:100%;overflow-y:auto;padding-bottom:70px;}
     .assistant-panel{display:none;width:100%;overflow-y:auto;padding-bottom:70px;}
@@ -189,11 +190,9 @@
     .terminal-output{padding-bottom:4px;}
     /* Tab bar */
     .mobile-tabs{display:flex;position:fixed;bottom:0;left:0;right:0;height:56px;background:var(--panel);border-top:1px solid var(--border);z-index:50;}
-    /* Quick commands in terminal tab */
-    .mob-tools{display:block;padding:8px 10px;border-top:1px solid var(--border);background:var(--panel);flex-shrink:0;max-width:100%;overflow:hidden;}
-    .mob-tools .tools-ref{display:flex;flex-wrap:wrap;gap:6px;}
-    .mob-tools .tools-label{font-size:10px;margin-bottom:6px;}
-    .mob-tools .tool-chip{white-space:nowrap;flex-shrink:0;}
+    /* Quick commands in Hint tab — already in .assistant-panel HTML */
+    .assistant-panel .tools-ref{flex-wrap:wrap;gap:6px;}
+    .assistant-panel .tools-ref .tool-chip{white-space:nowrap;}
     body{overflow-x:hidden;}
     /* Overview modal */
     .audio-hint{display:none;}
@@ -742,25 +741,7 @@ function switchTab(t){
   else if(t==='assistant'){a.classList.add('mob-show');r.classList.add('mob-hide');}
   document.getElementById('mtab-'+t).classList.add('active');
 }
-/* On mobile: clone quick-command chips into Hint tab */
-if(window.innerWidth<=768){
-  document.addEventListener('DOMContentLoaded',function(){
-    const src=document.querySelector('.tools-ref');
-    const term=document.querySelector('.assistant-panel');
-    if(src&&term){
-      const box=document.createElement('div');
-      box.className='mob-tools';
-      box.innerHTML=src.innerHTML;
-      box.querySelectorAll('.tool-chip').forEach(c=>{
-        c.onclick=c.getAttribute('onclick')?null:c.onclick;
-        // re-bind onclick attributes since innerHTML clones don't fire them natively
-        const oc=c.getAttribute('onclick');
-        if(oc){c.removeAttribute('onclick');c.addEventListener('click',function(){eval(oc);});}
-      });
-      term.appendChild(box);
-    }
-  });
-}
+/* Quick commands are already inside .assistant-panel in the HTML — no cloning needed */
 </script>
 
 
