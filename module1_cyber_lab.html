@@ -171,7 +171,7 @@
     body{height:100dvh;overflow:hidden;}
     nav{flex-shrink:0;}
     /* Simplify nav bar — back/home live on overview modal */
-    nav .back-btn{display:none;}
+    nav .back-btn{display:none;} nav .nav-home-btn{display:inline-block;}
 
     .nav-meta>span:not(.badge){display:none;}
     .progress-bar-wrap{display:none;}
@@ -268,7 +268,7 @@
 <nav>
   <img src="kf-logo-dark-bg.png" alt="KnowledgeFlow Cybersafety Foundation" style="height:44px;">
   <button class="back-btn" onclick="stopAllAudio();document.getElementById('overviewModal').style.display='flex'">← Back</button>
-  <a class="back-btn" href="index.html?skip=1" style="text-decoration:none;" onclick="stopAllAudio();">⌂ Home</a>
+  <a class="back-btn nav-home-btn" href="index.html?skip=1" style="text-decoration:none;" onclick="stopAllAudio();">⌂ Home</a>
   <div class="nav-meta">
     <span class="badge">Module 1 of 6</span>
     <span>Who's on the Network?</span>
@@ -360,7 +360,7 @@
 <div class="celebration" id="celebration">
   <div style="position:absolute;top:16px;left:16px;display:flex;gap:8px;z-index:10;">
     <button class="back-btn" onclick="document.getElementById('celebration').classList.remove('show')" style="font-size:13px;padding:6px 14px;">← Back to terminal</button>
-    <a class="back-btn" href="index.html?skip=1" style="text-decoration:none;font-size:13px;padding:6px 14px;">⌂</a>
+    <a class="back-btn" href="index.html?skip=1" style="text-decoration:none;font-size:13px;padding:6px 14px;">⌂ Home</a>
   </div>
   <div class="celebration-inner">
   <div class="cele-icon">🏆</div>
